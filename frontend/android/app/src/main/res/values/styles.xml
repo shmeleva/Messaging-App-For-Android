@@ -1,0 +1,69 @@
+<resources>
+
+    <style name="SplashTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowBackground">@drawable/bg_splash</item>
+    </style>
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorPrimaryDark">@color/primaryDarkColor</item>
+        <item name="colorAccent">@color/secondaryColor</item>
+        <item name="android:colorBackground">@color/backgroundColor</item>
+        <item name="textColorError">@color/errorTextColor</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <!-- CARDS -->
+
+    <style name="AppTheme.CardView" parent="CardView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="contentPadding">@dimen/spacing_none</item>
+        <item name="cardCornerRadius">0dp</item>
+    </style>
+
+    <style name="AppTheme.CardView.FullWidth">
+        <item name="android:layout_marginTop">@dimen/cardView_margin_normal</item>
+        <item name="android:layout_marginBottom">@dimen/cardView_margin_normal</item>
+        <item name="android:layout_marginRight">@dimen/cardView_margin_none</item>
+        <item name="android:layout_marginLeft">@dimen/cardView_margin_none</item>
+    </style>
+
+    <style name="AppTheme.CardView.FullWidth.First">
+        <item name="android:layout_marginTop">@dimen/cardView_margin_none</item>
+    </style>
+
+    <style name="AppTheme.CardView.FullWidth.Last">
+        <item name="android:layout_marginBottom">@dimen/cardView_margin_none</item>
+    </style>
+
+    <style name="AppTheme.CardView.FullWidth.Single">
+        <item name="android:layout_marginTop">@dimen/cardView_margin_none</item>
+        <item name="android:layout_marginBottom">@dimen/cardView_margin_none</item>
+    </style>
+
+    <style name="AppTheme.CardView.Floating">
+        <item name="android:layout_margin">@dimen/spacing_large</item>
+        <item name="cardCornerRadius">18dp</item>
+    </style>
+
+    <!-- BUTTONS -->
+
+    <style name="Fortress.Button.Basic" parent="Widget.AppCompat.Button.Borderless.Colored">
+        <item name="android:textColor">@android:color/white</item>
+        <!--<item name="android:background">@drawable/bg_button_basic</item>-->
+        <item name="android:foreground">?attr/selectableItemBackground</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textSize">@dimen/font_normal</item>
+    </style>
+
+    <style name="Fortress.Button.Rounded" parent="Fortress.Button.Basic">
+        <item name="android:background">@drawable/bg_button_rounded</item>
+    </style>
+
+</resources>

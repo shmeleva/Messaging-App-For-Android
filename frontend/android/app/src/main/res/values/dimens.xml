@@ -1,0 +1,30 @@
+<resources>
+
+    <dimen name="font_xxlarge">24sp</dimen> <!-- H5 -->
+    <dimen name="font_xlarge">20sp</dimen> <!-- H6 (=Title) -->
+    <dimen name="font_large">16sp</dimen> <!-- Body1, Subtitle1 -->
+    <dimen name="font_normal">14sp</dimen> <!-- Body2, Subtitle2 -->
+    <dimen name="font_button">14sp</dimen> <!-- BUTTON -->
+    <dimen name="font_caption">12sp</dimen> <!-- Caption -->
+    <dimen name="font_overline">10sp</dimen> <!-- OVERLINE -->
+
+    <dimen name="spacing_xxxlarge">48dp</dimen>
+    <dimen name="spacing_xxlarge">40dp</dimen>
+    <dimen name="spacing_xlarge">32dp</dimen>
+    <dimen name="spacing_large">24dp</dimen>
+    <dimen name="spacing_normal">16dp</dimen>
+    <dimen name="spacing_small">8dp</dimen>
+    <dimen name="spacing_tiny">4dp</dimen>
+    <dimen name="spacing_none">0dp</dimen>
+
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">@dimen/spacing_normal</dimen>
+    <dimen name="activity_vertical_margin">@dimen/spacing_normal</dimen>
+    <dimen name="fab_margin">@dimen/spacing_normal</dimen>
+
+    <dimen name="cardView_margin_normal">4dp</dimen>
+    <dimen name="cardView_margin_none">0dp</dimen>
+
+    <!-- https://material.io/guidelines/components/dividers -->
+    <dimen name="divider">1dp</dimen>
+</resources>
