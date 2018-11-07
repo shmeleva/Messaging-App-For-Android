@@ -15,8 +15,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".activities.RegistrationActivity"
-            android:label="@string/title_activity_register"
+            android:name=".activities.LoginActivity"
+            android:label="Hahaha!"
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,7 +24,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.ChatListActivity"/>
-        <activity android:name=".activities.LoginActivity" />
+        <activity android:name=".activities.RegistrationActivity" />
     </application>
 
 </manifest>

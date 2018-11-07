@@ -31,21 +31,21 @@ class RegistrationActivity : AppCompatActivity() {
     }
 
     fun signUp(view: View) {
-        var email = registration_email_text_view.getText().toString()
-        var password = registration_password_text_view.getText().toString()
+        var email = registration_email_text_view.text.toString()
+        var password = registration_password_text_view.text.toString()
 
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
                         // Sign in success, update UI with the signed-in user's information
-                        var text = "Authentication succeeded for email: " + email + " and password: " + password + "!";
+                        var text = "Registration succeeded for email: " + email + " and password: " + password + "!";
                         Log.d("info", "createUserWithEmail:success")
                         Toast.makeText(baseContext, text,
                                 Toast.LENGTH_SHORT).show()
                         val user = auth.currentUser
                     } else {
                         // If sign in fails, display a message to the user.
-                        var text = "Authentication failed for email: " + email + " and password: " + password;
+                        var text = "Registration failed for email: " + email + " and password: " + password;
                         Log.w("info", "createUserWithEmail:failure", task.exception)
                         Toast.makeText(baseContext, text,
                                 Toast.LENGTH_SHORT).show()

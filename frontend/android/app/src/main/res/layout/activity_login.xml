@@ -73,15 +73,16 @@
 
     <Button
         android:id="@+id/email_sign_in_button"
+        style="@style/AppTheme.Button.Rounded"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:elevation="8dp"
+        android:onClick="logIn"
+        android:paddingEnd="@dimen/spacing_normal"
+        android:paddingStart="@dimen/spacing_normal"
         android:text="@string/action_sign_in"
         android:textStyle="bold"
-        android:paddingStart="@dimen/spacing_normal"
-        android:paddingEnd="@dimen/spacing_normal"
         app:layout_anchor="@id/login_form"
-        app:layout_anchorGravity="bottom|center"
-        style="@style/AppTheme.Button.Rounded"
-        android:elevation="8dp"/>
+        app:layout_anchorGravity="bottom|center" />
 
 </android.support.design.widget.CoordinatorLayout>
