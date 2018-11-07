@@ -4,7 +4,8 @@
     tools:context="xyz.shmeleva.eight.activities.ChatListActivity">
     <item
         android:id="@+id/action_settings"
-        android:orderInCategory="100"
+        android:icon="@drawable/ic_baseline_settings_20px"
+        app:iconTint="#FFFFFF"
         android:title="@string/action_settings"
-        app:showAsAction="never" />
+        app:showAsAction="ifRoom" />
 </menu>

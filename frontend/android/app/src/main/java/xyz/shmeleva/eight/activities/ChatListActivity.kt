@@ -8,6 +8,9 @@ import xyz.shmeleva.eight.R
 import kotlinx.android.synthetic.main.activity_chat_list.*
 import android.view.animation.Animation
 import  android.view.animation.AnimationUtils
+import android.view.MenuInflater
+import android.view.Menu
+import android.view.MenuItem
 
 
 class ChatListActivity : AppCompatActivity() {
@@ -62,4 +65,19 @@ class ChatListActivity : AppCompatActivity() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.menu_chat_list, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.getItemId()) {
+            R.id.action_settings -> {
+                // ...
+                return true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
+    }
 }
