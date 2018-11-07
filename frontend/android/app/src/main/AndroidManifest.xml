@@ -15,15 +15,15 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".activities.ChatListActivity"
-            android:label="@string/title_activity_chat_list"
+            android:name=".activities.RegistrationActivity"
+            android:label="@string/title_activity_register"
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.RegistrationActivity"/>
+        <activity android:name=".activities.ChatListActivity"/>
         <activity android:name=".activities.LoginActivity" />
     </application>
 
