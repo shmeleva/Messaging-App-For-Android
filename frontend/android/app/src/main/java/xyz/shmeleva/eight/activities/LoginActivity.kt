@@ -25,7 +25,10 @@ import java.util.ArrayList
 import android.Manifest.permission.READ_CONTACTS
 import android.content.Intent
 import android.os.PersistableBundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
+import android.util.Patterns
 import android.widget.Toast
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
@@ -43,18 +46,65 @@ class LoginActivity : AppCompatActivity() {
         //
         FirebaseApp.initializeApp(this)
         auth = FirebaseAuth.getInstance()
+        //
+        emailEditText.addTextChangedListener((object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                emailTextInputLayout.error = null
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        }))
+        //
+        passwordEditText.addTextChangedListener((object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                passwordTextInputLayout.error = null
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        }))
     }
 
     fun logIn(view: View) {
-        var emailString = email.text.toString()
-        var passwordString = password.text.toString()
+        var email = emailEditText.text.toString()
+        var password = passwordEditText.text.toString()
         //
-        auth.signInWithEmailAndPassword(emailString, passwordString)
+        var isValidEmail = validateEmail(email)
+        var isValidPassword = validatePassword(password)
+        //
+        if (!isValidEmail || !isValidPassword) {
+            return
+        }
+        //
+        auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
                         val intent = Intent(this, ChatListActivity::class.java)
                         startActivity(intent)
                     }
                 }
+    }
+
+    private fun validateEmail(email: String) : Boolean {
+        if (email.isBlank()) {
+            emailTextInputLayout.error = getString(R.string.error_required_field_email)
+            return false
+        }
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            emailTextInputLayout.error = getString(R.string.error_invalid_email)
+            return false
+        }
+        return true
+    }
+
+    fun validatePassword(password: String) : Boolean {
+        if (password.isBlank()) {
+            passwordTextInputLayout.error = getString(R.string.error_required_field_password)
+            return false
+        }
+        if (password.length < 6) {
+            passwordTextInputLayout.error = getString(R.string.error_invalid_password)
+            return false
+        }
+        return true
     }
 }

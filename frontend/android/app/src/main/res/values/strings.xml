@@ -6,11 +6,18 @@
     <!-- Login & Registration -->
 
     <string name="prompt_username">Username</string>
-    <string name="prompt_email">E-mail</string>
+    <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
     <string name="action_sign_in">Sign In</string>
     <string name="action_sign_up">Sign Up</string>
     <string name="caption_sign_up">Don\'t have an account? Sign up!</string>
+    <string name="error_required_field_email">Email address is required</string>
+    <string name="error_required_field_password">Password is required</string>
+    <string name="error_required_field_display_name">Username is required</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">Password must be at least 6 characters long</string>
+    <string name="error_incorrect_password">Either email address or password is incorrect</string>
+
 
     <string name="settings_account">Account</string>
     <string name="settings_preferenes">Settings</string>
@@ -21,9 +28,6 @@
 
     <!-- These are used in Android Studio LoginActivity template. I'll get to these later. -->
 
-    <string name="error_invalid_email">This email address is invalid</string>
-    <string name="error_invalid_password">This password is too short</string>
-    <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
