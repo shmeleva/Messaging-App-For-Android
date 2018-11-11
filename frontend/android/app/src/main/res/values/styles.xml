@@ -16,6 +16,7 @@
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <!-- CARDS -->
@@ -54,7 +55,7 @@
 
     <!-- BUTTONS -->
 
-    <style name="Fortress.Button.Basic" parent="Widget.AppCompat.Button.Borderless.Colored">
+    <style name="AppTheme.Button.Basic" parent="Widget.AppCompat.Button.Borderless.Colored">
         <item name="android:textColor">@android:color/white</item>
         <!--<item name="android:background">@drawable/bg_button_basic</item>-->
         <item name="android:foreground">?attr/selectableItemBackground</item>
@@ -62,7 +63,7 @@
         <item name="android:textSize">@dimen/font_normal</item>
     </style>
 
-    <style name="Fortress.Button.Rounded" parent="Fortress.Button.Basic">
+    <style name="AppTheme.Button.Rounded" parent="AppTheme.Button.Basic">
         <item name="android:background">@drawable/bg_button_rounded</item>
     </style>
 

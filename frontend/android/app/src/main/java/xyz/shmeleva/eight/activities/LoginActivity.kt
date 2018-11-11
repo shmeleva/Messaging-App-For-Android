@@ -23,10 +23,65 @@ import android.widget.TextView
 
 import java.util.ArrayList
 import android.Manifest.permission.READ_CONTACTS
+import android.content.Intent
+import android.os.PersistableBundle
+import android.util.Log
+import android.widget.Toast
+import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
 
 import kotlinx.android.synthetic.main.activity_login.*
+import kotlinx.android.synthetic.main.activity_registration.*
 import xyz.shmeleva.eight.R
 
+class LoginActivity : AppCompatActivity() {
+    private lateinit var auth: FirebaseAuth
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_login)
+
+        Log.d("info", "Ahoj!")
+
+        // Initialize Firebase Auth
+        FirebaseApp.initializeApp(this)
+        auth = FirebaseAuth.getInstance()
+    }
+
+    public override fun onStart() {
+        super.onStart()
+        // Check if user is signed in (non-null) and update UI accordingly.
+        val currentUser = auth.currentUser
+
+        // TODO: do something
+    }
+
+    fun logIn(view: View) {
+        var emailString = email.text.toString()
+        var passwordString = password.text.toString()
+
+        auth.signInWithEmailAndPassword(emailString, passwordString)
+                .addOnCompleteListener(this) { task ->
+                    if (task.isSuccessful) {
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.d("info", "signInWithEmail:success")
+                        Toast.makeText(baseContext, "Authentication succeeded!",
+                                Toast.LENGTH_SHORT).show()
+                        val user = auth.currentUser
+                        val intent = Intent(this, ChatListActivity::class.java)
+                        startActivity(intent)
+
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.w("info", "signInWithEmail:failure", task.exception)
+                        Toast.makeText(baseContext, "Authentication failed.",
+                                Toast.LENGTH_SHORT).show()
+                    }
+                }
+    }
+}
+
+/*
 /**
  * A login screen that offers login via email/password.
  */
@@ -294,3 +349,4 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
         private val DUMMY_CREDENTIALS = arrayOf("foo@example.com:hello", "bar@example.com:world")
     }
 }
+*/

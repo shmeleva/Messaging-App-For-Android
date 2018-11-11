@@ -16,13 +16,22 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".activities.LoginActivity"
-            android:label="@string/app_name">
+            android:label="Hahaha!"
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+<<<<<<< HEAD
+        <activity android:name=".activities.RegistrationActivity" />
+        <activity android:name=".activities.LoginActivity" />
+        <activity android:name=".activities.SettingsActivity"></activity>
+=======
+        <activity android:name=".activities.ChatListActivity"/>
+        <activity android:name=".activities.RegistrationActivity" />
+>>>>>>> 89b20d5492f5eb6da1faeec9d184f99587f02f9f
     </application>
 
 </manifest>
