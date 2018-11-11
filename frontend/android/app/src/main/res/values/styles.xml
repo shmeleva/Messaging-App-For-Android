@@ -67,4 +67,14 @@
         <item name="android:background">@drawable/bg_button_rounded</item>
     </style>
 
+    <!-- TEXT APPEARANCE -->
+
+    <style name="AppTheme.TextAppearance.Caption" parent="Base.TextAppearance.AppCompat.Caption">
+        <item name="android:textSize">@dimen/font_caption</item>
+    </style>
+
+    <style name="AppTheme.TextAppearance.Caption.Inverse">
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+
 </resources>

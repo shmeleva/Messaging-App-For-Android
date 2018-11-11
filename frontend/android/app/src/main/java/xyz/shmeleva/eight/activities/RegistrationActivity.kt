@@ -52,4 +52,8 @@ class RegistrationActivity : AppCompatActivity() {
                     }
                 }
     }
+
+    fun navigateBack(view:View) {
+        onBackPressed()
+    }
 }

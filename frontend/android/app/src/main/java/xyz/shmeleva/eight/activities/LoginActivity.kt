@@ -84,6 +84,11 @@ class LoginActivity : AppCompatActivity() {
                 }
     }
 
+    fun startRegistrationActivity(view: View) {
+        val intent = Intent(this, RegistrationActivity::class.java)
+        startActivity(intent)
+    }
+
     private fun validateEmail(email: String) : Boolean {
         if (email.isBlank()) {
             emailTextInputLayout.error = getString(R.string.error_required_field_email)

@@ -87,4 +87,15 @@
         app:layout_anchor="@id/login_form"
         app:layout_anchorGravity="bottom|center" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_margin="@dimen/spacing_large"
+        android:text="@string/caption_sign_up"
+        android:gravity="center"
+        android:onClick="startRegistrationActivity"
+        style="@style/AppTheme.TextAppearance.Caption.Inverse"
+        />
+
 </android.support.design.widget.CoordinatorLayout>
