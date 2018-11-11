@@ -11,6 +11,8 @@ import  android.view.animation.AnimationUtils
 import android.view.MenuInflater
 import android.view.Menu
 import android.view.MenuItem
+import android.content.Intent
+
 
 
 class ChatListActivity : AppCompatActivity() {
@@ -74,7 +76,8 @@ class ChatListActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.getItemId()) {
             R.id.action_settings -> {
-                // ...
+                val intent = Intent(this, SettingsActivity::class.java)
+                startActivity(intent)
                 return true
             }
             else -> return super.onOptionsItemSelected(item)

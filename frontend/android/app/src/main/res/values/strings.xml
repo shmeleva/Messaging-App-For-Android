@@ -12,6 +12,12 @@
     <string name="action_sign_up">Sign Up</string>
     <string name="caption_sign_up">Don\'t have an account? Sign up!</string>
 
+    <string name="settings_account">Account</string>
+    <string name="settings_preferenes">Settings</string>
+    <string name="settings_upload_image_resolution">Upload Image Resolution</string>
+    <string name="settings_download_image_resolution">Download Image Resolution</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_log_out">Log Out</string>
 
     <!-- These are used in Android Studio LoginActivity template. I'll get to these later. -->
 
