@@ -1,0 +1,11 @@
+<resources>
+    <attr name="aspectRatio" format="float" />
+    <attr name="dominantMeasurement">
+        <enum name="width" value="0"/>
+        <enum name="height" value="1"/>
+    </attr>
+    <declare-styleable name="AspectRatioImageView">
+        <attr name="aspectRatio" />
+        <attr name="dominantMeasurement" />
+    </declare-styleable>
+</resources>

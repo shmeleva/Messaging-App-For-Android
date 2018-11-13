@@ -28,7 +28,7 @@
     <!-- https://material.io/guidelines/components/dividers -->
     <dimen name="divider">1dp</dimen>
 
-    <dimen name="tall_toolbar_height">72dp</dimen>
+    <dimen name="tall_toolbar_height">288dp</dimen>
     <dimen name="shrine_toolbar_image_offset_top">24dp</dimen>
 
 </resources>
