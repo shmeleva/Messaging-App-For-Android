@@ -110,7 +110,7 @@
         android:layout_height="wrap_content"
         app:layout_anchor="@id/registration_image_card_view"
         app:layout_anchorGravity="center|end"
-        android:src="@drawable/ic_baseline_add_24px"
+        android:src="@drawable/ic_baseline_photo_camera_24px"
         android:tint="@color/secondaryTextColor"
         />
 
