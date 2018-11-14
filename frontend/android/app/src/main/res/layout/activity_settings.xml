@@ -80,6 +80,7 @@
                         android:layout_marginEnd="@dimen/spacing_normal"
                         android:layout_marginBottom="@dimen/spacing_normal"
                         android:text="@string/settings_account"
+                        style="@style/AppTheme.TextAppearance.Body2"
                         />
 
                     <RelativeLayout
@@ -101,6 +102,7 @@
                             android:layout_marginBottom="@dimen/spacing_normal"
                             android:layout_alignParentTop="true"
                             android:src="@drawable/ic_baseline_person_24px"
+                            android:tint="@color/lightGray"
                             />
 
                         <TextView
@@ -121,6 +123,7 @@
                             android:layout_toEndOf="@id/usernameImageView"
                             android:layout_below="@id/usernameHeaderTextView"
                             android:text="Rina Shmeleva"
+                            style="@style/AppTheme.TextAppearance.Body2"
                             />
 
                     </RelativeLayout>
@@ -149,6 +152,7 @@
                         android:layout_marginEnd="@dimen/spacing_normal"
                         android:layout_marginBottom="@dimen/spacing_normal"
                         android:text="@string/settings_preferenes"
+                        style="@style/AppTheme.TextAppearance.Body2"
                         />
 
                     <RelativeLayout
@@ -170,6 +174,7 @@
                             android:layout_marginBottom="@dimen/spacing_normal"
                             android:layout_alignParentTop="true"
                             android:src="@drawable/ic_baseline_gradient_24px"
+                            android:tint="@color/lightGray"
                             />
 
                         <TextView
@@ -190,6 +195,7 @@
                             android:layout_toEndOf="@id/uploadResolutionImageView"
                             android:layout_below="@id/uploadResolutionHeaderTextView"
                             android:text="Low"
+                            style="@style/AppTheme.TextAppearance.Body2"
                             />
 
                     </RelativeLayout>
@@ -232,6 +238,7 @@
                             android:layout_toEndOf="@id/downloadResolutionImageView"
                             android:layout_below="@id/downloadResolutionHeaderTextView"
                             android:text="Low"
+                            style="@style/AppTheme.TextAppearance.Body2"
                             />
 
                     </RelativeLayout>
@@ -255,6 +262,7 @@
                             android:layout_marginBottom="@dimen/spacing_normal"
                             android:layout_alignParentTop="true"
                             android:src="@drawable/ic_baseline_format_paint_24px"
+                            android:tint="@color/lightGray"
                             />
 
                         <TextView
@@ -275,6 +283,7 @@
                             android:layout_toEndOf="@id/themeImageView"
                             android:layout_below="@id/themeHeaderTextView"
                             android:text="Seaweed"
+                            style="@style/AppTheme.TextAppearance.Body2"
                             />
 
                     </RelativeLayout>
