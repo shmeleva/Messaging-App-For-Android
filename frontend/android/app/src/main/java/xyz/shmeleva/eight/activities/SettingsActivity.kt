@@ -2,6 +2,7 @@ package xyz.shmeleva.eight.activities
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_settings.*
 import xyz.shmeleva.eight.R
@@ -19,5 +20,9 @@ class SettingsActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+    }
+
+    fun navigateBack(view: View) {
+        onBackPressed()
     }
 }

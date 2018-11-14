@@ -101,7 +101,7 @@ class LoginActivity : AppCompatActivity() {
         return true
     }
 
-    fun validatePassword(password: String) : Boolean {
+    private fun validatePassword(password: String) : Boolean {
         if (password.isBlank()) {
             loginPasswordTextInputLayout.error = getString(R.string.error_required_field_password)
             return false
