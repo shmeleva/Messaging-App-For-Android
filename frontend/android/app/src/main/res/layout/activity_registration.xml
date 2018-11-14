@@ -19,7 +19,7 @@
         />
 
     <android.support.v7.widget.CardView
-        android:id="@+id/registration_card_view"
+        android:id="@+id/registrationFormCardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -37,11 +37,12 @@
             android:orientation="vertical">
 
             <android.support.design.widget.TextInputLayout
+                android:id="@+id/registrationUsernameTextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <android.support.design.widget.TextInputEditText
-                    android:id="@+id/registration_username_text_view"
+                    android:id="@+id/registrationUsernameTextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_username"
@@ -51,11 +52,12 @@
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
+                android:id="@+id/registrationEmailTextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <android.support.design.widget.TextInputEditText
-                    android:id="@+id/registration_email_text_view"
+                    android:id="@+id/registrationEmailEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_email"
@@ -66,11 +68,12 @@
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
+                android:id="@+id/registrationPasswordTextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <android.support.design.widget.TextInputEditText
-                    android:id="@+id/registration_password_text_view"
+                    android:id="@+id/registrationPasswordEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_password"
@@ -88,16 +91,16 @@
     </android.support.v7.widget.CardView>
 
     <android.support.v7.widget.CardView
-        android:id="@+id/registration_image_card_view"
+        android:id="@+id/registrationProfilePictureCardView"
         android:layout_width="96dp"
         android:layout_height="96dp"
         android:elevation="8dp"
         app:cardCornerRadius="48dp"
-        app:layout_anchor="@id/registration_card_view"
+        app:layout_anchor="@id/registrationFormCardView"
         app:layout_anchorGravity="top|center">
 
         <ImageView
-            android:id="@+id/registration_image_view"
+            android:id="@+id/registrationProfilePictureImageView"
             android:layout_width="96dp"
             android:layout_height="96dp"
             android:scaleType="centerCrop"
@@ -108,14 +111,14 @@
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_anchor="@id/registration_image_card_view"
+        app:layout_anchor="@id/registrationProfilePictureCardView"
         app:layout_anchorGravity="center|end"
         android:src="@drawable/ic_baseline_photo_camera_24px"
         android:tint="@color/secondaryTextColor"
         />
 
     <Button
-        android:id="@+id/registration_sign_in_button"
+        android:id="@+id/signUpButton"
         style="@style/AppTheme.Button.Rounded"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -125,7 +128,7 @@
         android:paddingStart="@dimen/spacing_normal"
         android:text="@string/action_sign_up"
         android:textStyle="bold"
-        app:layout_anchor="@id/registration_card_view"
+        app:layout_anchor="@id/registrationFormCardView"
         app:layout_anchorGravity="bottom|center" />
 
 </android.support.design.widget.CoordinatorLayout>

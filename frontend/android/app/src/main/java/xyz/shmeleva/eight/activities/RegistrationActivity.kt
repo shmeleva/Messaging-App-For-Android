@@ -31,8 +31,8 @@ class RegistrationActivity : AppCompatActivity() {
     }
 
     fun signUp(view: View) {
-        var email = registration_email_text_view.text.toString()
-        var password = registration_password_text_view.text.toString()
+        var email = registrationEmailEditText.text.toString()
+        var password = registrationPasswordEditText.text.toString()
 
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->

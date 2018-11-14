@@ -47,17 +47,17 @@ class LoginActivity : AppCompatActivity() {
         FirebaseApp.initializeApp(this)
         auth = FirebaseAuth.getInstance()
         //
-        emailEditText.addTextChangedListener((object : TextWatcher {
+        loginEmailEditText.addTextChangedListener((object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                emailTextInputLayout.error = null
+                loginEmailTextInputLayout.error = null
             }
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }))
         //
-        passwordEditText.addTextChangedListener((object : TextWatcher {
+        loginPasswordEditText.addTextChangedListener((object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                passwordTextInputLayout.error = null
+                loginPasswordTextInputLayout.error = null
             }
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
@@ -65,8 +65,8 @@ class LoginActivity : AppCompatActivity() {
     }
 
     fun logIn(view: View) {
-        var email = emailEditText.text.toString()
-        var password = passwordEditText.text.toString()
+        var email = loginEmailEditText.text.toString()
+        var password = loginPasswordEditText.text.toString()
         //
         var isValidEmail = validateEmail(email)
         var isValidPassword = validatePassword(password)
@@ -91,11 +91,11 @@ class LoginActivity : AppCompatActivity() {
 
     private fun validateEmail(email: String) : Boolean {
         if (email.isBlank()) {
-            emailTextInputLayout.error = getString(R.string.error_required_field_email)
+            loginEmailTextInputLayout.error = getString(R.string.error_required_field_email)
             return false
         }
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            emailTextInputLayout.error = getString(R.string.error_invalid_email)
+            loginEmailTextInputLayout.error = getString(R.string.error_invalid_email)
             return false
         }
         return true
@@ -103,11 +103,11 @@ class LoginActivity : AppCompatActivity() {
 
     fun validatePassword(password: String) : Boolean {
         if (password.isBlank()) {
-            passwordTextInputLayout.error = getString(R.string.error_required_field_password)
+            loginPasswordTextInputLayout.error = getString(R.string.error_required_field_password)
             return false
         }
         if (password.length < 6) {
-            passwordTextInputLayout.error = getString(R.string.error_invalid_password)
+            loginPasswordTextInputLayout.error = getString(R.string.error_invalid_password)
             return false
         }
         return true

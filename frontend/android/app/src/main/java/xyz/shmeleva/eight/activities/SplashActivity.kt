@@ -17,8 +17,8 @@ class SplashActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         //
-        //val isAuthenticated = auth.currentUser != null;
-        val isAuthenticated = true;
+        val isAuthenticated = auth.currentUser != null;
+        //val isAuthenticated = true;
         //
         val mainActivityIntent = Intent(this, if (isAuthenticated) ChatListActivity::class.java else LoginActivity::class.java);
         mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
