@@ -24,7 +24,7 @@ class ChatListAdapter(val chatList: ArrayList<Chat>) : RecyclerView.Adapter<Chat
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        var chat = chatList[position];
+        val chat = chatList[position];
         holder.participantsTextView.text = chat.id.toString(); // For tests.
         //TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }

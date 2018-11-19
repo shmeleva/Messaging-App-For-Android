@@ -98,4 +98,21 @@
         <item name="android:textColor">@color/lightGray</item>
     </style>
 
+    <!-- CHAT MESSAGES: -->
+
+    <style name="AppTheme.ChatMessage">
+        <item name="android:foreground">?selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:padding">@dimen/spacing_normal</item>
+    </style>
+
+    <style name="AppTheme.ChatMessage.Outgoing">
+        <item name="android:background">@drawable/bg_outgoing_message</item>
+    </style>
+
+    <style name="AppTheme.ChatMessage.Incoming">
+        <item name="android:background">@drawable/bg_incoming_message</item>
+    </style>
+
 </resources>
