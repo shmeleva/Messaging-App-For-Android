@@ -12,7 +12,10 @@ import android.view.MenuInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.content.Intent
-
+import android.support.v7.widget.LinearLayoutManager
+import android.widget.LinearLayout
+import xyz.shmeleva.eight.adapters.ChatListAdapter
+import xyz.shmeleva.eight.models.Chat
 
 
 class ChatListActivity : AppCompatActivity() {
@@ -35,36 +38,41 @@ class ChatListActivity : AppCompatActivity() {
         rotateBackwardAnimation = AnimationUtils.loadAnimation(applicationContext,R.anim.rotate_backward)
 
 
-        fab.setOnClickListener { view ->
+        chatListStartChatFab.setOnClickListener { view ->
             if(isFabOpen){
-                fab.startAnimation(rotateBackwardAnimation);
-                fab1.startAnimation(fabCloseAnimation);
-                fab2.startAnimation(fabCloseAnimation);
+                chatListStartChatFab.startAnimation(rotateBackwardAnimation);
+                chatListStartGroupChatFab.startAnimation(fabCloseAnimation);
+                chatListStartPrivateChatFab.startAnimation(fabCloseAnimation);
                 //
-                fab1.isClickable = false;
-                fab2.isClickable = false;
+                chatListStartGroupChatFab.isClickable = false;
+                chatListStartPrivateChatFab.isClickable = false;
                 //
                 isFabOpen = false;
             } else {
-                fab.startAnimation(rotateForwardAnimation);
-                fab1.startAnimation(fabOpenAnimation);
-                fab2.startAnimation(fabOpenAnimation);
+                chatListStartChatFab.startAnimation(rotateForwardAnimation);
+                chatListStartGroupChatFab.startAnimation(fabOpenAnimation);
+                chatListStartPrivateChatFab.startAnimation(fabOpenAnimation);
                 //
-                fab1.isClickable = true;
-                fab2.isClickable = true;
+                chatListStartGroupChatFab.isClickable = true;
+                chatListStartPrivateChatFab.isClickable = true;
                 //
                 isFabOpen = true;
 
             }
         }
 
-        fab1.setOnClickListener { view ->
+        chatListStartGroupChatFab.setOnClickListener { view ->
 
         }
 
-        fab2.setOnClickListener { view ->
+        chatListStartPrivateChatFab.setOnClickListener { view ->
 
         }
+
+        chatListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayout.VERTICAL, false)
+        val chats = ArrayList<Chat>(listOf(Chat(0), Chat(1), Chat(2), Chat(3), Chat(4), Chat(5), Chat(6), Chat(7), Chat(8), Chat(9), Chat(10)))
+        var adapter = ChatListAdapter(chats)
+        chatListRecyclerView.adapter = adapter
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

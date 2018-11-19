@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -20,10 +21,16 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_chat_list" />
+    <!--<include layout="@layout/content_chat_list" />-->
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/chatListRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab2"
+        android:id="@+id/chatListStartPrivateChatFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="160dp"
@@ -37,7 +44,7 @@
         android:src="@drawable/ic_baseline_add_24px" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab1"
+        android:id="@+id/chatListStartGroupChatFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="90dp"
@@ -51,7 +58,7 @@
         android:src="@drawable/ic_baseline_add_24px" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
+        android:id="@+id/chatListStartChatFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
