@@ -27,7 +27,8 @@
         <activity android:name=".activities.RegistrationActivity" />
         <activity android:name=".activities.ChatListActivity" />
         <activity android:name=".activities.SettingsActivity" />
-        <activity android:name=".activities.ChatActivity"></activity>
+        <activity android:name=".activities.ChatActivity" />
+        <activity android:name=".activities.PrivateChatActivity"></activity>
     </application>
 
 </manifest>

@@ -1,5 +1,6 @@
 package xyz.shmeleva.eight.activities
 
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
@@ -37,7 +38,9 @@ class ChatActivity : AppCompatActivity() {
     }
 
     fun openChatSettings(view: View) {
-
+        // Private chat:
+        val chatActivityIntent = Intent(this, PrivateChatActivity::class.java)
+        startActivity(chatActivityIntent)
     }
 
     fun onActionButtonClicked(view: View) {
