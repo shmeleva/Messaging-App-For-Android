@@ -13,7 +13,8 @@ import  xyz.shmeleva.eight.models.*
 /**
  * Created by shagg on 19.11.2018.
  */
-class ChatListAdapter(val chatList: ArrayList<Chat>) : RecyclerView.Adapter<ChatListAdapter.ViewHolder>() {
+//
+class ChatListAdapter(val chatList: ArrayList<Chat>, val clickListener: (Chat) -> Unit) : RecyclerView.Adapter<ChatListAdapter.ViewHolder>() {
     override fun getItemCount(): Int {
         return  chatList.size
     }
@@ -26,7 +27,7 @@ class ChatListAdapter(val chatList: ArrayList<Chat>) : RecyclerView.Adapter<Chat
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val chat = chatList[position];
         holder.participantsTextView.text = chat.id.toString(); // For tests.
-        //TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        holder.itemView.setOnClickListener { clickListener(chat)}
     }
 
     class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){

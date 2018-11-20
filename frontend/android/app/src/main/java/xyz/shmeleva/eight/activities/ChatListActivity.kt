@@ -71,7 +71,7 @@ class ChatListActivity : AppCompatActivity() {
 
         chatListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayout.VERTICAL, false)
         val chats = ArrayList<Chat>(listOf(Chat(0), Chat(1), Chat(2), Chat(3), Chat(4), Chat(5), Chat(6), Chat(7), Chat(8), Chat(9), Chat(10)))
-        var adapter = ChatListAdapter(chats)
+        var adapter = ChatListAdapter(chats, { chat : Chat -> onChatClicked(chat) })
         chatListRecyclerView.adapter = adapter
     }
 
@@ -90,5 +90,10 @@ class ChatListActivity : AppCompatActivity() {
             }
             else -> return super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun onChatClicked(chat : Chat) {
+        val chatActivityIntent = Intent(this, ChatActivity::class.java)
+        startActivity(chatActivityIntent)
     }
 }

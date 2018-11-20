@@ -44,4 +44,7 @@
     <dimen name="message_incoming_bubble_margin_right">40dp</dimen>
     <dimen name="message_outcoming_bubble_margin_left">88dp</dimen>
 
+    <dimen name="profile_picture_size_normal">40dp</dimen>
+    <dimen name="profile_picture_size_small">24dp</dimen>
+
 </resources>
