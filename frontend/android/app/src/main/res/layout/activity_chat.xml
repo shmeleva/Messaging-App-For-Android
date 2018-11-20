@@ -35,7 +35,7 @@
                 android:id="@+id/chatMultiImageView"
                 android:layout_width="@dimen/profile_picture_size_small"
                 android:layout_height="@dimen/profile_picture_size_small"
-                android:background="@color/white" />
+                android:onClick="openChatSettings"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -45,6 +45,7 @@
                 android:singleLine="true"
                 android:ellipsize="end"
                 android:text="Chat name goes here..."
+                android:onClick="openChatSettings"
                 style="@style/TextAppearance.AppCompat.Title"/>
 
         </android.support.v7.widget.Toolbar>
@@ -64,7 +65,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@color/white"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:elevation="4dp"> <!-- Same as Toolbar elevation -->
 
         <EditText
             android:id="@+id/chatEditText"
@@ -89,7 +91,8 @@
             android:tint="@color/secondaryColor"
             android:background="?selectableItemBackgroundBorderless"
             android:clickable="true"
-            android:focusable="true" />
+            android:focusable="true"
+            android:onClick="onActionButtonClicked"/>
 
     </FrameLayout>
 
