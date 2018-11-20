@@ -17,6 +17,8 @@
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">Password must be at least 6 characters long</string>
     <string name="error_incorrect_password">Either email address or password is incorrect</string>
+    <string name="error_registration_failed">Registration failed</string>
+    <string name="error_login_failed">Login failed</string>
 
 
     <string name="settings_account">Account</string>
@@ -25,6 +27,11 @@
     <string name="settings_download_image_resolution">Download Image Resolution</string>
     <string name="settings_theme">Theme</string>
     <string name="settings_log_out">Log Out</string>
+
+
+    <string name="extra_message_key">xyz.shmeleva.eight.EXTRA_MESSAGE</string>
+    <string name="message_registration_successful">You\'ve signed up! Now please log in</string>
+    <string name="message_logout">You have logged out. To continue using the app, please log in again</string>
 
     <!-- These are used in Android Studio LoginActivity template. I'll get to these later. -->
 
