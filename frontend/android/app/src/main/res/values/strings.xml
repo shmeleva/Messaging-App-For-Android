@@ -18,6 +18,7 @@
     <string name="error_invalid_password">Password must be at least 6 characters long</string>
     <string name="error_incorrect_password">Either email address or password is incorrect</string>
     <string name="error_registration_failed">Registration failed</string>
+    <string name="error_login_failed">Login failed</string>
 
 
     <string name="settings_account">Account</string>

@@ -84,7 +84,12 @@ class LoginActivity : AppCompatActivity() {
                         startActivity(intent)
                     }
                     else {
-                        // TODO: what if login fails?
+                        val toast = Toast.makeText(
+                                applicationContext,
+                                getString(R.string.error_login_failed) + "\n" + task.exception?.message,
+                                Toast.LENGTH_LONG
+                        )
+                        toast.show()
                     }
                 }
     }
@@ -111,12 +116,7 @@ class LoginActivity : AppCompatActivity() {
             loginPasswordTextInputLayout.error = getString(R.string.error_required_field_password)
             return false
         }
-        /*
-        if (password.length < 6) {
-            loginPasswordTextInputLayout.error = getString(R.string.error_invalid_password)
-            return false
-        }
-        */
+
         return true
     }
 }

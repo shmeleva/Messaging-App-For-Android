@@ -111,11 +111,11 @@
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_anchor="@id/registrationProfilePictureCardView"
-        app:layout_anchorGravity="center|end"
+        android:onClick="pickPhoto"
         android:src="@drawable/ic_baseline_photo_camera_24px"
         android:tint="@color/secondaryTextColor"
-        />
+        app:layout_anchor="@id/registrationProfilePictureCardView"
+        app:layout_anchorGravity="center|end" />
 
     <Button
         android:id="@+id/signUpButton"

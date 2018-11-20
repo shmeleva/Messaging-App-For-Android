@@ -1,20 +1,30 @@
 package xyz.shmeleva.eight.activities
 
+import android.app.Activity
 import android.content.Intent
+import android.graphics.Bitmap
+import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.util.Patterns
 import android.view.View
+import android.widget.ImageView
 import android.widget.Toast
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_registration.*
+import kotlinx.android.synthetic.main.activity_settings.*
 import xyz.shmeleva.eight.R
+import java.io.IOException
+import java.util.stream.Stream
 
 class RegistrationActivity : AppCompatActivity() {
+    @JvmField val PICK_PHOTO = 1
     private lateinit var auth: FirebaseAuth
+    private lateinit var profilePhoto: Bitmap
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,27 +55,11 @@ class RegistrationActivity : AppCompatActivity() {
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
-                        val profileUpdate = UserProfileChangeRequest.Builder()
-                                .setDisplayName(username)
-                                .build()
-                        auth.currentUser?.updateProfile(profileUpdate)
-                                ?.addOnCompleteListener{ task ->
-                                    if (task.isSuccessful) {
-                                        // TODO: do something
-                                    } else {
-                                        // TODO: do something else
-                                    }
-                                }
+                        val chatListActivityIntent = Intent(this, ChatListActivity::class.java)
+                        chatListActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                        chatListActivityIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
 
-                        // TODO: redirect straight to the chat list
-                        auth.signOut()
-
-                        val loginActivityIntent = Intent(this, LoginActivity::class.java)
-                                .putExtra(getString(R.string.extra_message_key), getString(R.string.message_registration_successful))
-                        loginActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                        loginActivityIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-
-                        startActivity(loginActivityIntent)
+                        startActivity(chatListActivityIntent)
                         finish()
                     } else {
                         signUpButton.error = getString(R.string.error_registration_failed)
@@ -78,10 +72,32 @@ class RegistrationActivity : AppCompatActivity() {
                         toast.show()
                     }
                 }
+
+        // TODO: store profilePhoto and username
     }
 
     fun navigateBack(view:View) {
         onBackPressed()
+    }
+
+    fun pickPhoto(view: View) {
+        val intent = Intent()
+        intent.type = "image/*"
+        intent.action = Intent.ACTION_GET_CONTENT
+        startActivityForResult(Intent.createChooser(intent, "Select profile picture"), PICK_PHOTO)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == PICK_PHOTO && resultCode == Activity.RESULT_OK) {
+            AsyncTask.execute(Runnable {
+                profilePhoto = getProfilePhotoFromIntent(data)
+                runOnUiThread({
+                    registrationProfilePictureImageView.setImageBitmap(profilePhoto)
+                })
+            })
+        }
     }
 
     private fun validateUsername(username: String) : Boolean {
@@ -113,12 +129,31 @@ class RegistrationActivity : AppCompatActivity() {
             registrationPasswordTextInputLayout.error = getString(R.string.error_required_field_password)
             return false
         }
-        /*
+
         if (password.length < 6) {
-            loginPasswordTextInputLayout.error = getString(R.string.error_invalid_password)
+            registrationPasswordTextInputLayout.error = getString(R.string.error_invalid_password)
             return false
         }
-        */
+
         return true
+    }
+
+    private fun getProfilePhotoFromIntent(intentData: Intent?) : Bitmap {
+        var bitmap : Bitmap
+        try {
+            bitmap = Picasso.get()
+                    .load(intentData?.data)
+                    .resize(400, 0)
+                    .get()
+        } catch (ex: Exception) {
+            // TODO: catch the exception better!
+            // default profile picture
+            return Picasso.get()
+                    .load("https://pixel.nymag.com/imgs/daily/vulture/2016/11/23/23-san-junipero.w330.h330.jpg")
+                    .resize(400, 0)
+                    .get()
+        }
+
+        return bitmap
     }
 }
