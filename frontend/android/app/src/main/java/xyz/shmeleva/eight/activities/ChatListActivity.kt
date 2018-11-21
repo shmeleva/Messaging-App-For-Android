@@ -23,6 +23,16 @@ class ChatListActivity : AppCompatActivity(), ChatListFragment.OnFragmentInterac
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_list)
+        supportFragmentManager
+                ?.beginTransaction()
+                ?.replace(R.id.chatListFragmentContainer, ChatListFragment() as android.support.v4.app.Fragment)
+                ?.commit()
+    }
+
+    override fun onBackPressed() {
+        if (!supportFragmentManager.popBackStackImmediate()) {
+            finishAfterTransition() // Lollipop +
+        }
     }
 
     override fun onFragmentInteraction(uri: Uri) {

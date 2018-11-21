@@ -25,18 +25,13 @@ class ChatActivity : AppCompatActivity(), ChatFragment.OnFragmentInteractionList
                 ?.commit()
     }
 
-    // TODO: move shared code to the BaseActivity
     override fun onBackPressed() {
         if (!supportFragmentManager.popBackStackImmediate()) {
-            finishAfterTransition() // Lollipop+
+            finishAfterTransition() // Lollipop +
         }
     }
 
     override fun onFragmentInteraction(uri: Uri) {
-
-    }
-
-    fun navigateBack(view: View) {
 
     }
 }
