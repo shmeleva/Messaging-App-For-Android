@@ -88,12 +88,17 @@ class ChatListFragment : Fragment() {
             }
         }
 
-        chatListStartGroupChatFab.setOnClickListener { view ->
+        chatListStartGroupChatFab.setOnClickListener { _ ->
 
         }
 
-        chatListStartPrivateChatFab.setOnClickListener { view ->
+        chatListStartPrivateChatFab.setOnClickListener { _ ->
 
+        }
+
+        chatListSettingsButton.setOnClickListener { _ ->
+            val intent = Intent(activity, SettingsActivity::class.java)
+            startActivity(intent)
         }
 
         chatListRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
@@ -123,6 +128,7 @@ class ChatListFragment : Fragment() {
         mListener = null
     }
 
+    /*
     override fun onCreateOptionsMenu(menu: Menu, menuInflater: MenuInflater) {
         val inflater = menuInflater
         inflater.inflate(R.menu.menu_chat_list, menu)
@@ -138,6 +144,7 @@ class ChatListFragment : Fragment() {
             else -> return super.onOptionsItemSelected(item)
         }
     }
+    */
 
     private fun onChatClicked(chat : Chat) {
         val chatActivityIntent = Intent(activity, ChatActivity::class.java)
