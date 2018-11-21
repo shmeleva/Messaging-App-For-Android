@@ -28,8 +28,9 @@
     <string name="settings_theme">Theme</string>
     <string name="settings_log_out">Log Out</string>
 
-    <string name="title_gallery">Gallery</string>
-
+    <string name="chat_settings_gallery">Gallery</string>
+    <string name="chat_settings_add_member">Add Member</string>
+    <string name="chat_settings_leave_group_chat">Leave Group</string>
 
     <string name="extra_message_key">xyz.shmeleva.eight.EXTRA_MESSAGE</string>
     <string name="message_registration_successful">You\'ve signed up! Now please log in</string>

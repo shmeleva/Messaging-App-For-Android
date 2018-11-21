@@ -43,7 +43,6 @@
                     android:src="@drawable/ic_baseline_arrow_back_24px"
                     android:tint="@color/white"
                     android:hapticFeedbackEnabled="true"
-                    android:onClick="navigateBack"
                     />
 
             </android.support.v7.widget.Toolbar>
@@ -79,9 +78,6 @@
                         android:id="@+id/privateChatUsernameRelativeLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="?selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true"
                         >
 
                         <ImageView
@@ -161,7 +157,7 @@
                         android:layout_marginBottom="@dimen/spacing_normal"
                         android:layout_toEndOf="@id/privateChatGalleryImageView"
                         android:layout_centerVertical="true"
-                        android:text="@string/title_gallery"
+                        android:text="@string/chat_settings_gallery"
                         style="@style/AppTheme.TextAppearance.Body2"
                         />
 

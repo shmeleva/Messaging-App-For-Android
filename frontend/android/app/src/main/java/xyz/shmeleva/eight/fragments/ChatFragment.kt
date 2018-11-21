@@ -13,6 +13,7 @@ import xyz.shmeleva.eight.R
 import android.databinding.DataBindingUtil
 import android.databinding.ViewDataBinding
 import com.stfalcon.multiimageview.MultiImageView
+import java.security.acl.Group
 
 
 /**
@@ -85,7 +86,7 @@ class ChatFragment : Fragment() {
 
     fun openChatSettings(view: View) {
         // Private chat:
-        val chatSettingsFragment = PrivateChatSettingsFragment()
+        val chatSettingsFragment = GroupChatSettingsFragment()
         activity?.supportFragmentManager
                 ?.beginTransaction()
                 ?.add(R.id.chatFragmentContainer, chatSettingsFragment as android.support.v4.app.Fragment)

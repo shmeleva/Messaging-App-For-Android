@@ -12,9 +12,13 @@ import kotlinx.android.synthetic.main.activity_chat.*
 import kotlinx.android.synthetic.main.activity_login.*
 import  xyz.shmeleva.eight.R
 import xyz.shmeleva.eight.fragments.ChatFragment
+import xyz.shmeleva.eight.fragments.GroupChatSettingsFragment
 import xyz.shmeleva.eight.fragments.PrivateChatSettingsFragment
 
-class ChatActivity : AppCompatActivity(), ChatFragment.OnFragmentInteractionListener, PrivateChatSettingsFragment.OnFragmentInteractionListener {
+class ChatActivity : AppCompatActivity(),
+        ChatFragment.OnFragmentInteractionListener,
+        PrivateChatSettingsFragment.OnFragmentInteractionListener,
+        GroupChatSettingsFragment.OnFragmentInteractionListener{
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
