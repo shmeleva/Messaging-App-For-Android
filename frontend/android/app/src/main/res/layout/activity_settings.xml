@@ -4,12 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/fairGray"
     tools:context=".activities.SettingsActivity">
 
     <android.support.design.widget.AppBarLayout
-        android:id="@+id/appBarLayout"
+        android:id="@+id/settingsAppBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <android.support.design.widget.CollapsingToolbarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -326,7 +328,7 @@
         android:layout_margin="@dimen/spacing_normal"
         android:tint="#FFFFFF"
         android:src="@drawable/ic_baseline_photo_camera_24px"
-        app:layout_anchor="@id/appBarLayout"
+        app:layout_anchor="@id/settingsAppBarLayout"
         app:layout_anchorGravity="bottom|end"
         app:elevation="6dp"
         app:backgroundTint="@color/secondaryColor"
