@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--<data>
+        <variable name="fragment" type="xyz.shmeleva.eight.fragments.ChatFragment"/>
+    </data>-->
+
+    <RelativeLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/fairGray"
+        tools:context=".fragments.ChatFragment">
+
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/chatAppBarLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:theme="@style/AppTheme.AppBarOverlay">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/chatToolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:popupTheme="@style/AppTheme.PopupOverlay">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|start"
+                    android:layout_margin="@dimen/spacing_normal"
+                    android:src="@drawable/ic_baseline_arrow_back_24px"
+                    android:tint="#FFFFFF"
+                    android:hapticFeedbackEnabled="true"
+                    android:onClick="navigateBack"
+                    />
+
+                <com.stfalcon.multiimageview.MultiImageView
+                    android:id="@+id/chatMultiImageView"
+                    android:layout_width="@dimen/profile_picture_size_small"
+                    android:layout_height="@dimen/profile_picture_size_small" />
+                <!-- android:onClick="@{fragment.openChatSettings}" -->
+
+                <TextView
+                    android:id="@+id/chatTitleTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/spacing_normal"
+                    android:layout_marginEnd="@dimen/spacing_normal"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:text="Chat name goes here..."
+                    style="@style/TextAppearance.AppCompat.Title"/>
+                <!-- android:onClick="@{fragment.openChatSettings}" -->
+
+            </android.support.v7.widget.Toolbar>
+
+        </android.support.design.widget.AppBarLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/chatAppBarLayout"
+            android:layout_above="@+id/chatEditTextRelativeLayout">
+        </android.support.v7.widget.RecyclerView>
+
+        <FrameLayout
+            android:id="@id/chatEditTextRelativeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="@color/white"
+            android:orientation="horizontal"
+            android:elevation="4dp"> <!-- Same as Toolbar elevation -->
+
+            <EditText
+                android:id="@+id/chatEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="@dimen/spacing_small"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:layout_marginEnd="40dp"
+                android:layout_marginBottom="@dimen/spacing_small"
+                android:inputType="textAutoCorrect|textAutoComplete|textMultiLine|textCapSentences"
+                android:maxLines="5"
+                android:background="@color/white" />
+
+            <android.support.v7.widget.AppCompatImageButton
+                android:id="@+id/chatActionImageButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="@dimen/spacing_small"
+                android:src="@drawable/ic_baseline_photo_camera_24px"
+                android:tint="@color/secondaryColor"
+                android:background="?selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true" />
+                <!-- android:onClick="@{fragment.onActionButtonClicked}" -->
+
+        </FrameLayout>
+
+    </RelativeLayout>
+
+</layout>
