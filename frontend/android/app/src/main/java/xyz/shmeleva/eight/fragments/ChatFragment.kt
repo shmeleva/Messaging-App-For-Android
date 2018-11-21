@@ -7,69 +7,61 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+
 import kotlinx.android.synthetic.main.fragment_chat.*
 
-import xyz.shmeleva.eight.R
-import android.databinding.DataBindingUtil
-import android.databinding.ViewDataBinding
 import com.stfalcon.multiimageview.MultiImageView
-import java.security.acl.Group
 
+import xyz.shmeleva.eight.R
+import xyz.shmeleva.eight.activities.BaseFragmentActivity
+import xyz.shmeleva.eight.utilities.*
 
-/**
- * A simple [Fragment] subclass.
- * Activities that contain this fragment must implement the
- * [ChatFragment.OnFragmentInteractionListener] interface
- * to handle interaction events.
- * Use the [ChatFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class ChatFragment : Fragment() {
 
-    // TODO: Rename and change types of parameters
-    private var mParam1: String? = null
-    private var mParam2: String? = null
+    private var chatId: Int? = null
 
-    private var mListener: OnFragmentInteractionListener? = null
+    private var fragmentInteractionListener: OnFragmentInteractionListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         if (arguments != null) {
-            mParam1 = arguments!!.getString(ARG_PARAM1)
-            mParam2 = arguments!!.getString(ARG_PARAM2)
+            chatId = arguments!!.getInt(ARG_CHAT_ID)
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        //val binding : ChatFragmentBinding = ChatFragmentBinding.inflate(inflater, R.layout.fragment_chat, container,false)
-        //return binding.root
-        var viewRoot = inflater.inflate(R.layout.fragment_chat, container,false)
-        return  viewRoot
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.fragment_chat, container,false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        chatMultiImageView.shape = MultiImageView.Shape.CIRCLE
+        chatImageView.shape = MultiImageView.Shape.CIRCLE
 
-        chatBackImageView.setOnClickListener({view -> activity?.onBackPressed()})
-        chatMultiImageView.setOnClickListener({view -> openChatSettings(view)})
-        chatTitleTextView.setOnClickListener({view -> openChatSettings(view)})
-        chatActionImageButton.setOnClickListener({view -> onActionButtonClicked(view)})
-    }
+        // Example of loading a picture:
+        chatImageView.loadImages(arrayListOf("https://pixel.nymag.com/imgs/daily/vulture/2016/11/23/23-san-junipero.w330.h330.jpg"), 40 ,0)
 
-    // TODO: Rename method, update argument and hook method into UI event
-    fun onButtonPressed(uri: Uri) {
-        if (mListener != null) {
-            mListener!!.onFragmentInteraction(uri)
-        }
+        // Example of setting a name:
+        chatTitleTextView.text = "Pavel Durov"
+
+        chatBackButton.setOnClickListener({ _ -> activity?.onBackPressed()})
+        chatImageView.setOnClickListener({_ -> openChatSettings()})
+        chatTitleTextView.setOnClickListener({_ -> openChatSettings()})
+        chatActionImageButton.setOnClickListener({_ ->
+            val message = chatEditText.text.toString()
+            if (message.isBlank()) {
+                sendImage()
+            }
+            else {
+                sendMessage(message)
+            }})
     }
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
         if (context is OnFragmentInteractionListener) {
-            mListener = context
+            fragmentInteractionListener = context
         } else {
             throw RuntimeException(context!!.toString() + " must implement OnFragmentInteractionListener")
         }
@@ -77,70 +69,35 @@ class ChatFragment : Fragment() {
 
     override fun onDetach() {
         super.onDetach()
-        mListener = null
+        fragmentInteractionListener = null
     }
 
-    fun navigateBack(view: View) {
-        activity?.onBackPressed()
+    private fun openChatSettings() {
+        val chatSettingsFragment = PrivateChatSettingsFragment.newInstance(false)
+        (activity as BaseFragmentActivity?)?.addFragment(chatSettingsFragment as android.support.v4.app.Fragment)
     }
 
-    fun openChatSettings(view: View) {
-        // Private chat:
-        val chatSettingsFragment = GroupChatSettingsFragment()
-        activity?.supportFragmentManager
-                ?.beginTransaction()
-                ?.add(R.id.chatFragmentContainer, chatSettingsFragment as android.support.v4.app.Fragment)
-                ?.addToBackStack(null)
-                ?.commit()
+    private fun sendImage() {
+        // TODO
     }
 
-    fun onActionButtonClicked(view: View) {
-        val message = chatEditText.text
-        if (message.isNullOrBlank()) {
-            // Open image selection...
-        }
-        else {
-            // Send message...
-        }
+    private fun sendMessage(text: String) {
+        // TODO
     }
 
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other xyz.shmeleva.eight.fragments contained in that
-     * activity.
-     *
-     *
-     * See the Android Training lesson [Communicating with Other Fragments](http://developer.android.com/training/basics/xyz.shmeleva.eight.fragments/communicating.html) for more information.
-     */
     interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         fun onFragmentInteraction(uri: Uri)
     }
 
     companion object {
-        // TODO: Rename parameter arguments, choose names that match
-        // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-        private val ARG_PARAM1 = "param1"
-        private val ARG_PARAM2 = "param2"
+        private val ARG_CHAT_ID = "chatId"
 
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment ChatFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        fun newInstance(param1: String, param2: String): ChatFragment {
+        fun newInstance(chatId: Int): ChatFragment {
             val fragment = ChatFragment()
             val args = Bundle()
-            args.putString(ARG_PARAM1, param1)
-            args.putString(ARG_PARAM2, param2)
+            args.putInt(ARG_CHAT_ID, chatId)
             fragment.arguments = args
             return fragment
         }
     }
-}// Required empty public constructor
+}

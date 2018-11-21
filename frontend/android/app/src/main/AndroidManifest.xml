@@ -28,7 +28,8 @@
         <activity android:name=".activities.ChatListActivity" />
         <activity android:name=".activities.SettingsActivity" />
         <activity android:name=".activities.ChatActivity" />
-        <activity android:name=".activities.PrivateChatActivity"></activity>
+        <activity android:name=".activities.PrivateChatActivity" />
+        <activity android:name=".activities.BaseFragmentActivity"></activity>
     </application>
 
 </manifest>
