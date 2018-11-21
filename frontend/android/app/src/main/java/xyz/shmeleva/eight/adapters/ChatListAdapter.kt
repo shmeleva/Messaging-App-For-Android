@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import com.stfalcon.multiimageview.MultiImageView
 
 import  xyz.shmeleva.eight.R
 import  xyz.shmeleva.eight.models.*
@@ -26,12 +27,13 @@ class ChatListAdapter(val chatList: ArrayList<Chat>, val clickListener: (Chat) -
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val chat = chatList[position];
+        holder.imageView.shape = MultiImageView.Shape.CIRCLE
         holder.participantsTextView.text = chat.id.toString(); // For tests.
         holder.itemView.setOnClickListener { clickListener(chat)}
     }
 
     class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
-        val imageView = itemView.findViewById<ImageView>(R.id.chatPreviewPictureImageView)
+        val imageView = itemView.findViewById<MultiImageView>(R.id.chatPreviewPictureImageView)
         val participantsTextView = itemView.findViewById<TextView>(R.id.chatPreviewHeaderTextView)
         val lastMessageTextView = itemView.findViewById<TextView>(R.id.chatPreviewLastMessageTextView)
         val lastMessageTimeTextView = itemView.findViewById<TextView>(R.id.chatPreviewLastMessageTimeTextView)

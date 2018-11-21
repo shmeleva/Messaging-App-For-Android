@@ -12,6 +12,7 @@ import kotlinx.android.synthetic.main.fragment_chat.*
 import xyz.shmeleva.eight.R
 import android.databinding.DataBindingUtil
 import android.databinding.ViewDataBinding
+import com.stfalcon.multiimageview.MultiImageView
 
 
 /**
@@ -48,6 +49,8 @@ class ChatFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        chatMultiImageView.shape = MultiImageView.Shape.CIRCLE
 
         chatBackImageView.setOnClickListener({view -> activity?.onBackPressed()})
         chatMultiImageView.setOnClickListener({view -> openChatSettings(view)})
