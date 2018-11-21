@@ -34,16 +34,13 @@
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin">
 
-                <ImageView
-                    android:id="@+id/privateChatBackImageView"
+                <android.support.v7.widget.AppCompatImageButton
+                    android:id="@+id/privateChatBackButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top|start"
                     android:layout_margin="@dimen/spacing_normal"
-                    android:src="@drawable/ic_baseline_arrow_back_24px"
-                    android:tint="@color/white"
-                    android:hapticFeedbackEnabled="true"
-                    android:onClick="navigateBack"
+                    style="@style/AppTheme.Button.Back"
                     />
 
             </android.support.v7.widget.Toolbar>
@@ -79,9 +76,6 @@
                         android:id="@+id/privateChatUsernameRelativeLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="?selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true"
                         >
 
                         <ImageView
@@ -103,7 +97,6 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/spacing_normal"
                             android:layout_toEndOf="@id/privateChatUsernameImageView"
-
                             android:text="@string/prompt_username"
                             style="@style/AppTheme.TextAppearance.Overline"
                             />
@@ -161,7 +154,7 @@
                         android:layout_marginBottom="@dimen/spacing_normal"
                         android:layout_toEndOf="@id/privateChatGalleryImageView"
                         android:layout_centerVertical="true"
-                        android:text="@string/title_gallery"
+                        android:text="@string/chat_settings_gallery"
                         style="@style/AppTheme.TextAppearance.Body2"
                         />
 
@@ -174,7 +167,7 @@
     </android.support.v4.widget.NestedScrollView>
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
+        android:id="@+id/privateChatStartFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/spacing_normal"
