@@ -12,12 +12,24 @@ import kotlinx.android.synthetic.main.activity_chat.*
 import kotlinx.android.synthetic.main.activity_login.*
 import  xyz.shmeleva.eight.R
 import xyz.shmeleva.eight.fragments.ChatFragment
+import xyz.shmeleva.eight.fragments.PrivateChatSettingsFragment
 
-class ChatActivity : AppCompatActivity(), ChatFragment.OnFragmentInteractionListener {
+class ChatActivity : AppCompatActivity(), ChatFragment.OnFragmentInteractionListener, PrivateChatSettingsFragment.OnFragmentInteractionListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
+        supportFragmentManager
+                ?.beginTransaction()
+                ?.replace(R.id.chatFragmentContainer, ChatFragment() as android.support.v4.app.Fragment)
+                ?.commit()
+    }
+
+    // TODO: move shared code to the BaseActivity
+    override fun onBackPressed() {
+        if (!supportFragmentManager.popBackStackImmediate()) {
+            finishAfterTransition() // Lollipop+
+        }
     }
 
     override fun onFragmentInteraction(uri: Uri) {

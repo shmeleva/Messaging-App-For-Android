@@ -49,6 +49,7 @@ class ChatFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        chatBackImageView.setOnClickListener({view -> activity?.onBackPressed()})
         chatMultiImageView.setOnClickListener({view -> openChatSettings(view)})
         chatTitleTextView.setOnClickListener({view -> openChatSettings(view)})
         chatActionImageButton.setOnClickListener({view -> onActionButtonClicked(view)})
@@ -81,9 +82,12 @@ class ChatFragment : Fragment() {
 
     fun openChatSettings(view: View) {
         // Private chat:
-        //val chatActivityIntent = Intent(this, PrivateChatActivity::class.java)
-        //startActivity(chatActivityIntent)
-        // TODO: Add fragment!
+        val chatSettingsFragment = PrivateChatSettingsFragment()
+        activity?.supportFragmentManager
+                ?.beginTransaction()
+                ?.add(R.id.chatFragmentContainer, chatSettingsFragment as android.support.v4.app.Fragment)
+                ?.addToBackStack(null)
+                ?.commit()
     }
 
     fun onActionButtonClicked(view: View) {
