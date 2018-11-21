@@ -12,8 +12,7 @@
         android:id="@+id/chatPreviewPictureImageView"
         android:layout_width="@dimen/profile_picture_size_normal"
         android:layout_height="@dimen/profile_picture_size_normal"
-        android:layout_margin="@dimen/spacing_normal"
-        android:elevation="0dp" />
+        android:layout_margin="@dimen/spacing_normal" />
 
     <TextView
         android:id="@+id/chatPreviewLastMessageTimeTextView"

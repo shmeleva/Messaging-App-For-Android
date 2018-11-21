@@ -74,6 +74,7 @@
     </style>
 
     <style name="AppTheme.TextAppearance.Body2" parent="Base.TextAppearance.AppCompat.Body1">
+        <item name="android:textSize">@dimen/font_normal</item>
     </style>
 
     <style name="AppTheme.TextAppearance.Body2.Translucent">
