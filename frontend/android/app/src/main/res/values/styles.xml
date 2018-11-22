@@ -74,6 +74,7 @@
     </style>
 
     <style name="AppTheme.TextAppearance.Body2" parent="Base.TextAppearance.AppCompat.Body1">
+        <item name="android:textSize">@dimen/font_normal</item>
     </style>
 
     <style name="AppTheme.TextAppearance.Body2.Translucent">
@@ -113,6 +114,17 @@
 
     <style name="AppTheme.ChatMessage.Incoming">
         <item name="android:background">@drawable/bg_incoming_message</item>
+    </style>
+
+    <!-- Buttons -->
+
+    <style name="AppTheme.Button.Back" parent="Theme.AppCompat">
+        <item name="android:src">@drawable/ic_baseline_arrow_back_24px</item>
+        <item name="android:tint">@color/white</item>
+        <item name="android:hapticFeedbackEnabled">true</item>
+        <item name="android:background">?selectableItemBackgroundBorderless</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
     </style>
 
 </resources>
