@@ -3,6 +3,7 @@ package xyz.shmeleva.eight.activities
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -18,13 +19,18 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_registration.*
 import kotlinx.android.synthetic.main.activity_settings.*
 import xyz.shmeleva.eight.R
-import java.io.IOException
-import java.util.stream.Stream
+import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.FirebaseStorage
+import java.util.*
+
 
 class RegistrationActivity : AppCompatActivity() {
     @JvmField val PICK_PHOTO = 1
     private lateinit var auth: FirebaseAuth
     private lateinit var profilePhoto: Bitmap
+
+    private var fileUri: Uri? = null
+    private lateinit var storageRef: StorageReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +39,7 @@ class RegistrationActivity : AppCompatActivity() {
         // Initialize Firebase Auth
         FirebaseApp.initializeApp(this)
         auth = FirebaseAuth.getInstance()
+        storageRef = FirebaseStorage.getInstance().reference
     }
 
     override fun onStart() {
@@ -55,6 +62,7 @@ class RegistrationActivity : AppCompatActivity() {
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
+                        uploadImage()
                         val chatListActivityIntent = Intent(this, ChatListActivity::class.java)
                         chatListActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                         chatListActivityIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
@@ -91,12 +99,27 @@ class RegistrationActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == PICK_PHOTO && resultCode == Activity.RESULT_OK) {
-            AsyncTask.execute(Runnable {
+            AsyncTask.execute {
                 profilePhoto = getProfilePhotoFromIntent(data)
-                runOnUiThread({
+                runOnUiThread {
                     registrationProfilePictureImageView.setImageBitmap(profilePhoto)
-                })
-            })
+                    fileUri = data?.data
+                }
+            }
+        }
+    }
+
+    private fun uploadImage() {
+        if (fileUri != null) {
+            val imageUri = "images/" + UUID.randomUUID().toString()
+            val ref = storageRef.child(imageUri)
+            ref.putFile(fileUri!!)
+                    .addOnSuccessListener {
+                        Toast.makeText(applicationContext, "Uploaded", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(applicationContext, "Failed " + e.message, Toast.LENGTH_SHORT).show()
+                    }
         }
     }
 
