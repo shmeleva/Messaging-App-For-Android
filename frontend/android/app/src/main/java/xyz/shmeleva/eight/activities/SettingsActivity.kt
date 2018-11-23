@@ -1,15 +1,22 @@
 package xyz.shmeleva.eight.activities
 
+
 import android.content.Context
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
+
 import android.view.WindowManager
 import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.TextView
+
+import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
+
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_settings.*
 import kotlinx.android.synthetic.main.settings_username_dialog.*
@@ -23,10 +30,17 @@ import android.util.Log
 
 class SettingsActivity : AppCompatActivity() {
 
-
+    private lateinit var auth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
+
+        FirebaseApp.initializeApp(this)
+        auth = FirebaseAuth.getInstance()
+
+        Picasso.get()
+                .load("https://pixel.nymag.com/imgs/daily/vulture/2016/11/23/23-san-junipero.w330.h330.jpg")
+                .into(profilePictureImageView)
 
         val sharedPreferences = getSharedPreferences("userSettings", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
@@ -148,12 +162,23 @@ class SettingsActivity : AppCompatActivity() {
         themeTextView.setText(theme)
     }
 
-
     override fun onStart() {
         super.onStart()
     }
 
     fun navigateBack(view: View) {
         onBackPressed()
+    }
+
+    fun logOut(view: View) {
+        auth.signOut()
+
+        val loginActivityIntent = Intent(this, LoginActivity::class.java)
+                .putExtra(getString(R.string.extra_message_key), getString(R.string.message_logout))
+        loginActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        loginActivityIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+
+        startActivity(loginActivityIntent)
+        finish()
     }
 }

@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
 import com.stfalcon.multiimageview.MultiImageView
@@ -15,9 +16,9 @@ import  xyz.shmeleva.eight.models.*
  * Created by shagg on 19.11.2018.
  */
 //
-class ChatListAdapter(val chatList: ArrayList<Chat>, val clickListener: (Chat) -> Unit) : RecyclerView.Adapter<ChatListAdapter.ViewHolder>() {
+class UserListAdapter(val userList: ArrayList<User>, val clickListener: (User) -> Unit, val selectionEnabled: Boolean) : RecyclerView.Adapter<UserListAdapter.ViewHolder>() {
     override fun getItemCount(): Int {
-        return  chatList.size
+        return  userList.size
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -26,17 +27,17 @@ class ChatListAdapter(val chatList: ArrayList<Chat>, val clickListener: (Chat) -
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val chat = chatList[position];
+        val user = userList[position];
         holder.imageView.shape = MultiImageView.Shape.CIRCLE
-        holder.participantsTextView.text = chat.id.toString(); // For tests.
-        holder.itemView.setOnClickListener { clickListener(chat)}
+        holder.textView.text = user.username;
+        holder.checkBox.visibility = if (selectionEnabled) View.VISIBLE else View.GONE
+        holder.itemView.setOnClickListener { clickListener(user)}
     }
 
     class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
-        val imageView = itemView.findViewById<MultiImageView>(R.id.chatPreviewPictureImageView)
-        val participantsTextView = itemView.findViewById<TextView>(R.id.chatPreviewHeaderTextView)
-        val lastMessageTextView = itemView.findViewById<TextView>(R.id.chatPreviewLastMessageTextView)
-        val lastMessageTimeTextView = itemView.findViewById<TextView>(R.id.chatPreviewLastMessageTimeTextView)
+        val imageView = itemView.findViewById<MultiImageView>(R.id.userImageView)
+        val textView = itemView.findViewById<TextView>(R.id.userTextView)
+        val checkBox = itemView.findViewById<CheckBox>(R.id.userCheckBox)
     }
 
 }

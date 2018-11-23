@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/fairGray"
+    tools:context=".fragments.GroupChatSettingsFragment">
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/groupChatAppBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/groupChatToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize">
+
+            <ImageView
+                android:id="@+id/groupChatBackImageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|start"
+                android:layout_margin="@dimen/spacing_normal"
+                android:src="@drawable/ic_baseline_arrow_back_24px"
+                android:tint="@color/white"
+                android:hapticFeedbackEnabled="true"
+                />
+
+        </android.support.v7.widget.Toolbar>
+
+    </android.support.design.widget.AppBarLayout>
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/groupChatAppBarLayout">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            >
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/AppTheme.CardView.FullWidth.First"
+                >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RelativeLayout
+                        android:id="@+id/groupChatGalleryRelativeLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        >
+
+                        <ImageView
+                            android:id="@+id/groupChatGalleryImageView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/spacing_normal"
+                            android:layout_marginTop="@dimen/spacing_normal"
+                            android:layout_marginEnd="@dimen/spacing_normal"
+                            android:layout_marginBottom="@dimen/spacing_normal"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/ic_baseline_collections_24px"
+                            android:tint="@color/lightGray"
+                            />
+
+                        <TextView
+                            android:id="@+id/groupChatGalleryTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_normal"
+                            android:layout_marginBottom="@dimen/spacing_normal"
+                            android:layout_toEndOf="@id/groupChatGalleryImageView"
+                            android:layout_centerVertical="true"
+                            android:text="@string/chat_settings_gallery"
+                            style="@style/AppTheme.TextAppearance.Body2"
+                            />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/groupChatInviteRelativeLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        >
+
+                        <ImageView
+                            android:id="@+id/groupChatInviteImageView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/spacing_normal"
+                            android:layout_marginTop="@dimen/spacing_normal"
+                            android:layout_marginEnd="@dimen/spacing_normal"
+                            android:layout_marginBottom="@dimen/spacing_normal"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/ic_baseline_add_24px"
+                            android:tint="@color/lightGray"
+                            />
+
+                        <TextView
+                            android:id="@+id/groupChatInviteTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_normal"
+                            android:layout_marginBottom="@dimen/spacing_normal"
+                            android:layout_toEndOf="@id/groupChatInviteImageView"
+                            android:layout_centerVertical="true"
+                            android:text="@string/chat_settings_add_member"
+                            style="@style/AppTheme.TextAppearance.Body2"
+                            />
+
+                    </RelativeLayout>
+
+                </LinearLayout>
+
+            </android.support.v7.widget.CardView>
+
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/AppTheme.CardView.FullWidth.First"
+                >
+
+                <android.support.v7.widget.RecyclerView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                </android.support.v7.widget.RecyclerView>
+
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/AppTheme.CardView.FullWidth"
+                >
+
+                <TextView
+                    android:id="@+id/groupChatLeaveTextView"
+                    style="@style/AppTheme.TextAppearance.Body2.Danger"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingStart="@dimen/spacing_normal"
+                    android:paddingTop="@dimen/spacing_normal"
+                    android:paddingEnd="@dimen/spacing_normal"
+                    android:paddingBottom="@dimen/spacing_normal"
+                    android:text="@string/chat_settings_leave_group_chat" />
+
+            </android.support.v7.widget.CardView>
+
+        </LinearLayout>
+
+    </android.support.v4.widget.NestedScrollView>
+
+</RelativeLayout>
