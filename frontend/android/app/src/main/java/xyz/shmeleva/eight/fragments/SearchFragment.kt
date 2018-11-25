@@ -4,11 +4,17 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.SearchView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import kotlinx.android.synthetic.main.fragment_search.*
 
 import xyz.shmeleva.eight.R
+import xyz.shmeleva.eight.adapters.UserListAdapter
+import xyz.shmeleva.eight.models.User
 
 /**
  * A simple [Fragment] subclass.
@@ -36,8 +42,50 @@ class SearchFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_search, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        searchBackButton.setOnClickListener({ _ -> activity?.onBackPressed()})
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+
+            override fun onQueryTextChange(newText: String): Boolean {
+                // TODO
+                return false
+            }
+
+            override fun onQueryTextSubmit(query: String): Boolean {
+                // TODO
+                return false
+            }
+
+        })
+
+        searchRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
+        val users = ArrayList<User>(listOf(
+                User("Екатерина Шмелева"),
+                User("Больше Шмеля"),
+                User("Шмели захватят мир"),
+                User("Мы будем есть ваши души"),
+                User("И закусывать цветочками"),
+                User("Ням-ням"),
+                User("Ekaterina Shmeleva"),
+                User("What am I doing with my life?"),
+                User("I need more users..."),
+                User("Feel the Russian style"),
+                User("Very big soul, you know"),
+                User("Catch the Russian style"),
+                User("From really simple Russian guy")))
+        var adapter = UserListAdapter(users, { user : User -> onUserClicked(user) }, false)
+        searchRecyclerView.adapter = adapter
+    }
+
+    private fun onUserClicked(chat : User) {
+        //val chatActivityIntent = Intent(activity, ChatActivity::class.java)
+        //startActivity(chatActivityIntent)
     }
 
     // TODO: Rename method, update argument and hook method into UI event

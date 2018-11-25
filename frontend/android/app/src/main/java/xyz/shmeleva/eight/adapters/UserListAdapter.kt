@@ -22,7 +22,7 @@ class UserListAdapter(val userList: ArrayList<User>, val clickListener: (User) -
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val v = LayoutInflater.from(parent.context).inflate(R.layout.item_chat_preview, parent, false)
+        val v = LayoutInflater.from(parent.context).inflate(R.layout.item_user, parent, false)
         return ViewHolder(v);
     }
 

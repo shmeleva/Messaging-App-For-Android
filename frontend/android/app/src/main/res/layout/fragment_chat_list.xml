@@ -29,6 +29,16 @@
                 style="@style/AppTheme.Button.Back"
                 />
 
+            <android.support.v7.widget.AppCompatImageButton
+                android:id="@+id/chatListSearchButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|end"
+                android:layout_margin="@dimen/spacing_normal"
+                android:src="@drawable/ic_baseline_search_24px"
+                style="@style/AppTheme.Button.Back"
+                />
+
         </android.support.v7.widget.Toolbar>
 
     </android.support.design.widget.AppBarLayout>

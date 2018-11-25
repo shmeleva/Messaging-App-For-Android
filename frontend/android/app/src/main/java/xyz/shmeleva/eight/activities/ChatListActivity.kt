@@ -7,7 +7,8 @@ import xyz.shmeleva.eight.R
 import xyz.shmeleva.eight.fragments.*
 
 class ChatListActivity : BaseFragmentActivity(R.id.chatListFragmentContainer),
-        ChatListFragment.OnFragmentInteractionListener {
+        ChatListFragment.OnFragmentInteractionListener,
+        SearchFragment.OnFragmentInteractionListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_list)

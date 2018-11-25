@@ -15,6 +15,7 @@ import xyz.shmeleva.eight.R
 import xyz.shmeleva.eight.adapters.ChatListAdapter
 import xyz.shmeleva.eight.models.Chat
 import kotlinx.android.synthetic.main.fragment_chat_list.*
+import xyz.shmeleva.eight.activities.BaseFragmentActivity
 import xyz.shmeleva.eight.activities.ChatActivity
 import xyz.shmeleva.eight.activities.SettingsActivity
 
@@ -100,6 +101,10 @@ class ChatListFragment : Fragment() {
             val intent = Intent(activity, SettingsActivity::class.java)
             startActivity(intent)
         }
+
+        chatListSearchButton.setOnClickListener({ _ ->
+            (activity as BaseFragmentActivity).addFragment(SearchFragment.newInstance("", ""))
+        })
 
         chatListRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
         val chats = ArrayList<Chat>(listOf(Chat(0), Chat(1), Chat(2), Chat(3), Chat(4), Chat(5), Chat(6), Chat(7), Chat(8), Chat(9), Chat(10)))
