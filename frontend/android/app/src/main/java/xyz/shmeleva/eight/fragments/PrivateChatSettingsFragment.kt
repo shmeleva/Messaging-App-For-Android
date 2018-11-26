@@ -1,6 +1,7 @@
 package xyz.shmeleva.eight.fragments
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -10,6 +11,7 @@ import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_private_chat_settings.*
 
 import xyz.shmeleva.eight.R
+import xyz.shmeleva.eight.activities.ChatActivity
 
 class PrivateChatSettingsFragment : Fragment() {
 
@@ -33,7 +35,8 @@ class PrivateChatSettingsFragment : Fragment() {
         privateChatBackButton.setOnClickListener({_ -> activity?.onBackPressed()})
         privateChatStartFab.setOnClickListener({_ ->
             if (shouldLaunchChat == true) {
-                // TODO: Create new private chat activity...
+                val chatActivityIntent = Intent(activity, ChatActivity::class.java)
+                startActivity(chatActivityIntent)
                 activity?.finishAfterTransition()
             }
             else {
