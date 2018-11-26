@@ -39,5 +39,4 @@ class UserListAdapter(val userList: ArrayList<User>, val clickListener: (User) -
         val textView = itemView.findViewById<TextView>(R.id.userTextView)
         val checkBox = itemView.findViewById<CheckBox>(R.id.userCheckBox)
     }
-
 }

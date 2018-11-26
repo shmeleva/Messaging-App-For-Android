@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_private_chat_settings.*
 
 import xyz.shmeleva.eight.R
+import xyz.shmeleva.eight.activities.BaseFragmentActivity
 import xyz.shmeleva.eight.activities.ChatActivity
 
 class PrivateChatSettingsFragment : Fragment() {
@@ -42,6 +43,9 @@ class PrivateChatSettingsFragment : Fragment() {
             else {
                 activity?.onBackPressed()
             }
+        })
+        privateChatGalleryRelativeLayout.setOnClickListener({ _ ->
+            (activity as BaseFragmentActivity).addFragment(GalleryFragment.newInstance("", ""))
         })
     }
 
