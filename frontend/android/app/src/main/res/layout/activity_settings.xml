@@ -326,13 +326,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/spacing_normal"
-        android:tint="#FFFFFF"
+        android:onClick="pickPhoto"
         android:src="@drawable/ic_baseline_photo_camera_24px"
+        android:tint="#FFFFFF"
+        app:backgroundTint="@color/secondaryColor"
+        app:elevation="6dp"
+        app:fabSize="normal"
         app:layout_anchor="@id/settingsAppBarLayout"
         app:layout_anchorGravity="bottom|end"
-        app:elevation="6dp"
-        app:backgroundTint="@color/secondaryColor"
-        app:pressedTranslationZ="12dp"
-        app:fabSize="normal"/>
+        app:pressedTranslationZ="12dp" />
 
 </android.support.design.widget.CoordinatorLayout>
