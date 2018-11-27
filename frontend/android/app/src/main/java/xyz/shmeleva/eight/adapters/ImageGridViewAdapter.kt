@@ -24,7 +24,7 @@ class ImageGridViewAdapter(private val context: Context, private val images: Arr
         if (convertView == null) {
             // if it's not recycled, initialize some attributes
             imageView = ImageView(context)
-            imageView.layoutParams = ViewGroup.LayoutParams(85, 85)
+            imageView.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
             imageView.scaleType = ImageView.ScaleType.CENTER_CROP
             imageView.setPadding(8, 8, 8, 8)
         } else {

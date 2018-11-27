@@ -15,7 +15,7 @@
     <GridView
         android:id="@+id/galleryGroupGridView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:numColumns="3"
         android:verticalSpacing="@dimen/spacing_normal"
         android:horizontalSpacing="@dimen/spacing_normal"
