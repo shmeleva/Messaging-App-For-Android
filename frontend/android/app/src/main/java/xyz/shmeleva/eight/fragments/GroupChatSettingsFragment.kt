@@ -7,8 +7,10 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import kotlinx.android.synthetic.main.fragment_group_chat_settings.*
 
 import xyz.shmeleva.eight.R
+import xyz.shmeleva.eight.activities.BaseFragmentActivity
 
 /**
  * A simple [Fragment] subclass.
@@ -38,6 +40,13 @@ class GroupChatSettingsFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_group_chat_settings, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        groupChatGalleryRelativeLayout.setOnClickListener { _ ->
+            (activity as BaseFragmentActivity).addFragment(GalleryFragment.newInstance(false))
+        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event

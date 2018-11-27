@@ -19,6 +19,8 @@
     <string name="error_incorrect_password">Either email address or password is incorrect</string>
     <string name="error_registration_failed">Registration failed</string>
     <string name="error_login_failed">Login failed</string>
+    <string name="dialog_button_positive">OK</string>
+    <string name="dialog_button_negative">Cancel</string>
 
 
     <string name="settings_account">Account</string>
@@ -31,6 +33,21 @@
     <string name="chat_settings_gallery">Gallery</string>
     <string name="chat_settings_add_member">Add Member</string>
     <string name="chat_settings_leave_group_chat">Leave Group</string>
+
+    <string name="gallery_group_by_dialog_title">Group By</string>
+    <string name="gallery_group_by_date">Date</string>
+    <string name="gallery_group_by_features">Features</string>
+    <string name="gallery_group_by_sender">Sender</string>
+    <string-array name="gallery_group_by_options_private">
+        <item>@string/gallery_group_by_date</item>
+        <item>@string/gallery_group_by_features</item>
+    </string-array>
+    <string-array name="gallery_group_by_options_group">
+        <item>@string/gallery_group_by_date</item>
+        <item>@string/gallery_group_by_features</item>
+        <item>@string/gallery_group_by_sender</item>
+    </string-array>
+
 
     <string name="extra_message_key">xyz.shmeleva.eight.EXTRA_MESSAGE</string>
     <string name="message_registration_successful">You\'ve signed up! Now please log in</string>
