@@ -12,7 +12,7 @@
         android:text="November 26"
         style="@style/AppTheme.TextAppearance.Body2"/>
 
-    <GridView
+    <xyz.shmeleva.eight.views.WrapContentGridView
         android:id="@+id/galleryGroupGridView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
