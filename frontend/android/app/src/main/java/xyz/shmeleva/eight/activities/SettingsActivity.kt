@@ -175,8 +175,8 @@ class SettingsActivity : AppCompatActivity() {
 
         val loginActivityIntent = Intent(this, LoginActivity::class.java)
                 .putExtra(getString(R.string.extra_message_key), getString(R.string.message_logout))
-        loginActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        loginActivityIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        loginActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        loginActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
         startActivity(loginActivityIntent)
         finish()
