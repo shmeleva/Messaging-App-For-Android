@@ -15,7 +15,9 @@ import xyz.shmeleva.eight.R
 import xyz.shmeleva.eight.adapters.ChatListAdapter
 import xyz.shmeleva.eight.models.Chat
 import kotlinx.android.synthetic.main.fragment_chat_list.*
+import xyz.shmeleva.eight.activities.BaseFragmentActivity
 import xyz.shmeleva.eight.activities.ChatActivity
+import xyz.shmeleva.eight.activities.SearchActivity
 import xyz.shmeleva.eight.activities.SettingsActivity
 
 /**
@@ -64,42 +66,34 @@ class ChatListFragment : Fragment() {
         rotateForwardAnimation = AnimationUtils.loadAnimation(activity,R.anim.rotate_forward)
         rotateBackwardAnimation = AnimationUtils.loadAnimation(activity,R.anim.rotate_backward)
 
-
-        chatListStartChatFab.setOnClickListener { view ->
-            if(isFabOpen){
-                chatListStartChatFab.startAnimation(rotateBackwardAnimation);
-                chatListStartGroupChatFab.startAnimation(fabCloseAnimation);
-                chatListStartPrivateChatFab.startAnimation(fabCloseAnimation);
-                //
-                chatListStartGroupChatFab.isClickable = false;
-                chatListStartPrivateChatFab.isClickable = false;
-                //
-                isFabOpen = false;
-            } else {
-                chatListStartChatFab.startAnimation(rotateForwardAnimation);
-                chatListStartGroupChatFab.startAnimation(fabOpenAnimation);
-                chatListStartPrivateChatFab.startAnimation(fabOpenAnimation);
-                //
-                chatListStartGroupChatFab.isClickable = true;
-                chatListStartPrivateChatFab.isClickable = true;
-                //
-                isFabOpen = true;
-
-            }
+        chatListStartChatFab.setOnClickListener { _ ->
+            if (isFabOpen) closeFab() else openFab()
         }
 
         chatListStartGroupChatFab.setOnClickListener { _ ->
-
+            closeFab()
+            val intent = Intent(activity, SearchActivity::class.java)
+            intent.putExtra(SearchFragment.ARG_SOURCE, SearchFragment.SOURCE_NEW_GROUP_CHAT)
+            startActivity(intent)
         }
 
         chatListStartPrivateChatFab.setOnClickListener { _ ->
-
+            closeFab()
+            val intent = Intent(activity, SearchActivity::class.java)
+            intent.putExtra(SearchFragment.ARG_SOURCE, SearchFragment.SOURCE_NEW_PRIVATE_CHAT)
+            startActivity(intent)
         }
 
         chatListSettingsButton.setOnClickListener { _ ->
             val intent = Intent(activity, SettingsActivity::class.java)
             startActivity(intent)
         }
+
+        chatListSearchButton.setOnClickListener({ _ ->
+            val intent = Intent(activity, SearchActivity::class.java)
+            intent.putExtra(SearchFragment.ARG_SOURCE, SearchFragment.SOURCE_SEARCH)
+            startActivity(intent)
+        })
 
         chatListRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
         val chats = ArrayList<Chat>(listOf(Chat(0), Chat(1), Chat(2), Chat(3), Chat(4), Chat(5), Chat(6), Chat(7), Chat(8), Chat(9), Chat(10)))
@@ -126,6 +120,28 @@ class ChatListFragment : Fragment() {
     override fun onDetach() {
         super.onDetach()
         mListener = null
+    }
+
+    private fun openFab() {
+        chatListStartChatFab.startAnimation(rotateForwardAnimation);
+        chatListStartGroupChatFab.startAnimation(fabOpenAnimation);
+        chatListStartPrivateChatFab.startAnimation(fabOpenAnimation);
+        //
+        chatListStartGroupChatFab.isClickable = true;
+        chatListStartPrivateChatFab.isClickable = true;
+        //
+        isFabOpen = true;
+    }
+
+    private fun closeFab() {
+        chatListStartChatFab.startAnimation(rotateBackwardAnimation);
+        chatListStartGroupChatFab.startAnimation(fabCloseAnimation);
+        chatListStartPrivateChatFab.startAnimation(fabCloseAnimation);
+        //
+        chatListStartGroupChatFab.isClickable = false;
+        chatListStartPrivateChatFab.isClickable = false;
+        //
+        isFabOpen = false;
     }
 
     /*
