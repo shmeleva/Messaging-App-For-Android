@@ -36,6 +36,7 @@ dependencies {
     implementation 'com.android.support:support-v4:27.1.1'
     implementation 'com.google.firebase:firebase-auth:16.0.5'
     implementation 'com.google.firebase:firebase-storage:16.0.4'
+    implementation 'com.google.firebase:firebase-core:16.0.4'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'com.google.android:flexbox:1.0.0'
     implementation 'com.github.stfalcon:multiimageview:0.1'

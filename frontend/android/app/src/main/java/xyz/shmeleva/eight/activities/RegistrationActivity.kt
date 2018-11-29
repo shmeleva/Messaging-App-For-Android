@@ -12,25 +12,31 @@ import android.util.Patterns
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
+import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_registration.*
 import kotlinx.android.synthetic.main.activity_settings.*
 import xyz.shmeleva.eight.R
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.FirebaseStorage
+import xyz.shmeleva.eight.models.User
 import java.util.*
 
-
 class RegistrationActivity : AppCompatActivity() {
-    @JvmField val PICK_PHOTO = 1
+    @JvmField
+    val PICK_PHOTO = 1
     private lateinit var auth: FirebaseAuth
     private lateinit var profilePhoto: Bitmap
 
     private var fileUri: Uri? = null
     private lateinit var storageRef: StorageReference
+    private lateinit var database: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +46,7 @@ class RegistrationActivity : AppCompatActivity() {
         FirebaseApp.initializeApp(this)
         auth = FirebaseAuth.getInstance()
         storageRef = FirebaseStorage.getInstance().reference
+        database = FirebaseDatabase.getInstance().reference
     }
 
     override fun onStart() {
@@ -62,29 +69,55 @@ class RegistrationActivity : AppCompatActivity() {
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
-                        uploadImage()
-                        val chatListActivityIntent = Intent(this, ChatListActivity::class.java)
-                        chatListActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                        chatListActivityIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
 
-                        startActivity(chatListActivityIntent)
-                        finish()
+                        val imageUri = if (fileUri != null) "images/" + UUID.randomUUID().toString() else "";
+                        val user = User(username, imageUri)
+                        database.child("users").child(username).setValue(user)
+                                .addOnSuccessListener {
+                                    if (fileUri != null) {
+                                        storageRef.child(imageUri).putFile(fileUri!!)
+                                                .addOnSuccessListener {
+                                                    navigatToChatListActivity()
+                                                }
+                                                .addOnFailureListener { e ->
+                                                    showErrorResult(e.message)
+                                                }
+                                    } else {
+                                        navigatToChatListActivity()
+                                    }
+
+                                }.addOnFailureListener { e ->
+                                    showErrorResult(e.message)
+                                }
+
+
                     } else {
-                        signUpButton.error = getString(R.string.error_registration_failed)
-
-                        val toast = Toast.makeText(
-                                applicationContext,
-                                getString(R.string.error_registration_failed) + "\n" + task.exception?.message,
-                                Toast.LENGTH_LONG
-                        )
-                        toast.show()
+                        showErrorResult(task.exception?.message)
                     }
                 }
-
-        // TODO: store profilePhoto and username
     }
 
-    fun navigateBack(view:View) {
+    private fun navigatToChatListActivity() {
+        val chatListActivityIntent = Intent(this, ChatListActivity::class.java)
+        chatListActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        chatListActivityIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+
+        startActivity(chatListActivityIntent)
+        finish()
+    }
+
+    private fun showErrorResult(message: String?) {
+        signUpButton.error = getString(R.string.error_registration_failed)
+
+        val toast = Toast.makeText(
+                applicationContext,
+                getString(R.string.error_registration_failed) + "\n" + message,
+                Toast.LENGTH_LONG
+        )
+        toast.show()
+    }
+
+    fun navigateBack(view: View) {
         onBackPressed()
     }
 
@@ -109,21 +142,7 @@ class RegistrationActivity : AppCompatActivity() {
         }
     }
 
-    private fun uploadImage() {
-        if (fileUri != null) {
-            val imageUri = "images/" + UUID.randomUUID().toString()
-            val ref = storageRef.child(imageUri)
-            ref.putFile(fileUri!!)
-                    .addOnSuccessListener {
-                        Toast.makeText(applicationContext, "Uploaded", Toast.LENGTH_SHORT).show()
-                    }
-                    .addOnFailureListener { e ->
-                        Toast.makeText(applicationContext, "Failed " + e.message, Toast.LENGTH_SHORT).show()
-                    }
-        }
-    }
-
-    private fun validateUsername(username: String) : Boolean {
+    private fun validateUsername(username: String): Boolean {
         if (username.isBlank()) {
             registrationUsernameTextInputLayout.error = getString(R.string.error_required_field_display_name)
             return false
@@ -134,7 +153,7 @@ class RegistrationActivity : AppCompatActivity() {
         return true
     }
 
-    private fun validateEmail(email: String) : Boolean {
+    private fun validateEmail(email: String): Boolean {
         if (email.isBlank()) {
             registrationEmailTextInputLayout.error = getString(R.string.error_required_field_email)
             return false
@@ -147,7 +166,7 @@ class RegistrationActivity : AppCompatActivity() {
         return true
     }
 
-    private fun validatePassword(password: String) : Boolean {
+    private fun validatePassword(password: String): Boolean {
         if (password.isBlank()) {
             registrationPasswordTextInputLayout.error = getString(R.string.error_required_field_password)
             return false
@@ -161,8 +180,8 @@ class RegistrationActivity : AppCompatActivity() {
         return true
     }
 
-    private fun getProfilePhotoFromIntent(intentData: Intent?) : Bitmap {
-        var bitmap : Bitmap
+    private fun getProfilePhotoFromIntent(intentData: Intent?): Bitmap {
+        var bitmap: Bitmap
         try {
             bitmap = Picasso.get()
                     .load(intentData?.data)
