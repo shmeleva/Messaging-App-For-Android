@@ -32,7 +32,6 @@
             android:id="@+id/incomingMessageSenderTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Pavel Durov"
             android:singleLine="true"
             android:ellipsize="end"
             app:layout_alignSelf="flex_start"
@@ -47,7 +46,6 @@
                 android:id="@+id/incomingMessageContentTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Make sure to also add listeners dynamically, and remove them when they're no longer necessary."
                 />
 
             <ImageView

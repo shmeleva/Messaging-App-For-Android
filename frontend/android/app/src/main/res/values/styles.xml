@@ -102,7 +102,7 @@
     <!-- CHAT MESSAGES: -->
 
     <style name="AppTheme.ChatMessage">
-        <item name="android:foreground">?selectableItemBackground</item>
+        <!--<item name="android:foreground">?selectableItemBackground</item>-->
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
         <item name="android:padding">@dimen/spacing_normal</item>

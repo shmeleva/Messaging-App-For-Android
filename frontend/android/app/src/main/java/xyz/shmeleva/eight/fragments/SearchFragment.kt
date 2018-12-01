@@ -41,7 +41,7 @@ class SearchFragment : Fragment() {
 
     private lateinit var database: DatabaseReference
 
-    val users = ArrayList<User>()
+    val users = ArrayList<User>(arrayListOf(User(username = "...")))
     val addedUsers = arrayListOf<User>()
     lateinit var usersAdapter: UserListAdapter
     lateinit var addedUsersAdapter: AddedUsersAdapter
