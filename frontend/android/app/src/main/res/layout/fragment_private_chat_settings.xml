@@ -5,6 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/fairGray"
+    android:clickable="true"
+    android:focusable="true"
     tools:context=".fragments.PrivateChatSettingsFragment">
 
     <android.support.design.widget.AppBarLayout

@@ -69,7 +69,7 @@ class SearchFragment : Fragment() {
         searchRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
         usersAdapter = UserListAdapter(users,
                 { user : User -> onUserClicked(user) },
-                { user: User, isSelected: Boolean -> onUserSelected(user, isSelected) },
+                { user : User, isSelected: Boolean -> onUserSelected(user, isSelected) },
                 source == SOURCE_NEW_GROUP_CHAT)
         searchRecyclerView.adapter = usersAdapter
 
