@@ -258,7 +258,11 @@ class SettingsActivity : AppCompatActivity() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 // Get User object and use the values to update the UI
                 val user = dataSnapshot.getValue(User::class.java)
-                setUsernameLabel(user!!.username)
+                if (user != null) {
+                    setUsernameLabel(user!!.username)
+                } else {
+                    setUsernameLabel("")
+                }
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
