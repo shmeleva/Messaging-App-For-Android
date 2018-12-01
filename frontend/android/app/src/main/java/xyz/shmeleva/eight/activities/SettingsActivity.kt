@@ -30,14 +30,22 @@ import android.graphics.BitmapFactory
 import android.os.AsyncTask
 import android.preference.PreferenceManager
 import android.util.Log
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.*
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import kotlinx.android.synthetic.main.activity_registration.*
+import xyz.shmeleva.eight.models.User
 
 
 class SettingsActivity : AppCompatActivity() {
 
+    private val TAG: String = "SettingsActivity"
     @JvmField val PICK_PHOTO = 1
     private lateinit var auth: FirebaseAuth
     private lateinit var profilePhoto: Bitmap
+    private lateinit var storageRef: StorageReference
+    private lateinit var database: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,13 +53,13 @@ class SettingsActivity : AppCompatActivity() {
 
         FirebaseApp.initializeApp(this)
         auth = FirebaseAuth.getInstance()
+        storageRef = FirebaseStorage.getInstance().reference
+        database = FirebaseDatabase.getInstance().reference
 
         val sharedPreferences = getSharedPreferences("userSettings", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
 
-        // user settings variables
-        // FIXME: username should be downloaded from the server!
-        var username = sharedPreferences.getString("username", "username")
+        // local user settings variables
         var uploadImageResolution = sharedPreferences.getString("uploadResolution", "Low")
         var downloadImageResolution = sharedPreferences.getString("downloadResolution", "Low")
         var theme = sharedPreferences.getString("theme", "Seaweed")
@@ -75,7 +83,7 @@ class SettingsActivity : AppCompatActivity() {
         )
         val themeArray = arrayOf("Seaweed", "Dark")
 
-        setUsernameLabel(username)
+        populateUsernameFromDB(auth.currentUser!!.uid)
         setUploadResolutionLabel(uploadImageResolution)
         setDownloadResolutionLabel(downloadImageResolution)
         setThemeLabel(theme)
@@ -87,7 +95,7 @@ class SettingsActivity : AppCompatActivity() {
                     .inflate(R.layout.settings_username_dialog, null)
 
             val dialogEditText = usernameDialog.findViewById<EditText>(R.id.dialogUsername)
-            dialogEditText.setText(username)
+            dialogEditText.setText(usernameTextView.text)
 
             AlertDialog.Builder(this)
                     .setView(usernameDialog)
@@ -243,5 +251,24 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         return bitmap
+    }
+
+    private fun populateUsernameFromDB(uid: String) {
+        var userOneTimeListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                // Get User object and use the values to update the UI
+                val user = dataSnapshot.getValue(User::class.java)
+                setUsernameLabel(user!!.username)
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Getting User failed, log a message
+                setUsernameLabel("")
+                Log.i(TAG, databaseError.message)
+            }
+        }
+
+        database.child("users").child(uid)
+                .addListenerForSingleValueEvent(userOneTimeListener)
     }
 }
