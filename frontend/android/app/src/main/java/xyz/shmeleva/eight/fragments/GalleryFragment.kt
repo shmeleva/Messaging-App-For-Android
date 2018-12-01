@@ -1,6 +1,8 @@
 package xyz.shmeleva.eight.fragments
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -14,33 +16,24 @@ import kotlinx.android.synthetic.main.fragment_gallery.*
 import xyz.shmeleva.eight.R
 import xyz.shmeleva.eight.adapters.ImageGroupListAdapter
 
-/**
- * A simple [Fragment] subclass.
- * Activities that contain this fragment must implement the
- * [GalleryFragment.OnFragmentInteractionListener] interface
- * to handle interaction events.
- * Use the [GalleryFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class GalleryFragment : Fragment() {
 
-    // TODO: Rename and change types of parameters
-    private var mParam1: String? = null
-    private var mParam2: String? = null
+    private var groupByOptionIndex: Int = 0
+    private var groupByOptions: Int = 0
+    private var isPrivate: Boolean = true
 
     private var mListener: OnFragmentInteractionListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
-            mParam1 = arguments!!.getString(ARG_PARAM1)
-            mParam2 = arguments!!.getString(ARG_PARAM2)
+            isPrivate = arguments!!.getBoolean(ARG_IS_PRIVATE)
+            groupByOptions = if (isPrivate) R.array.gallery_group_by_options_private else R.array.gallery_group_by_options_group
         }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_gallery, container, false)
     }
 
@@ -49,12 +42,12 @@ class GalleryFragment : Fragment() {
 
         galleryRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
         val imageGroups = arrayListOf(
-                Pair("December 25", arrayListOf<String>(
+                Pair("December 25", arrayListOf(
                         "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Nativity_tree2011.jpg/1200px-Nativity_tree2011.jpg",
                         "https://www.irelandsown.ie/wp-content/uploads/2017/12/hith-father-christmas-lights-iStock_000029514386Large.jpg",
                         "https://www.washingtonpost.com/resizer/8TYuGiVJ_MsDy9uv7JcJRjPi1m0=/1484x0/arc-anglerfish-washpost-prod-washpost.s3.amazonaws.com/public/HD2SOWULW4YNPO7RVYJY7CGSHQ.jpg",
                         "https://www.gannett-cdn.com/-mm-/7f3fb6f68b1522b2988c80acd9b2aa54d16d7949/c=0-137-2700-1662/local/-/media/2017/11/10/USATODAY/USATODAY/636459276688363300-Mickey-s-Very-Merry-Christmas-Party.jpg?width=3200&height=1680&fit=crop")),
-                Pair("December 31", arrayListOf<String>(
+                Pair("December 31", arrayListOf(
                         "http://static.diary.ru/userdir/3/1/9/5/3195228/80173352.jpg",
                         "http://ekaterinburgpanavto.ru/wp-content/uploads/2017/11/moskva-zima.jpg",
                         "http://park72.ru/wp-content/uploads/2017/12/moscow_01.jpg",
@@ -71,6 +64,18 @@ class GalleryFragment : Fragment() {
                         "https://cs8.pikabu.ru/post_img/big/2017/12/31/7/1514721434182491989.jpg")))
         val adapter = ImageGroupListAdapter(activity as Context, imageGroups, { user : String ->  })
         galleryRecyclerView.adapter = adapter
+
+        gallerySortButton.setOnClickListener {
+            AlertDialog.Builder(context)
+                    .setSingleChoiceItems(R.array.gallery_group_by_options_private, groupByOptionIndex) {dialog, i ->
+                        if (groupByOptionIndex != i) {
+                            groupByOptionIndex = i
+                            // TODO
+                        }
+                        dialog.dismiss()
+                    }
+                    .show()
+        }
     }
 
     override fun onAttach(context: Context?) {
@@ -102,25 +107,12 @@ class GalleryFragment : Fragment() {
     }
 
     companion object {
-        // TODO: Rename parameter arguments, choose names that match
-        // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-        private val ARG_PARAM1 = "param1"
-        private val ARG_PARAM2 = "param2"
+        private val ARG_IS_PRIVATE = "isPrivate"
 
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment GalleryFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        fun newInstance(param1: String, param2: String): GalleryFragment {
+        fun newInstance(isPrivate: Boolean): GalleryFragment {
             val fragment = GalleryFragment()
             val args = Bundle()
-            args.putString(ARG_PARAM1, param1)
-            args.putString(ARG_PARAM2, param2)
+            args.putBoolean(ARG_IS_PRIVATE, isPrivate)
             fragment.arguments = args
             return fragment
         }

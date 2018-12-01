@@ -7,15 +7,18 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.SearchView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.fragment_search.*
 
 import xyz.shmeleva.eight.R
 import xyz.shmeleva.eight.activities.BaseFragmentActivity
 import xyz.shmeleva.eight.activities.ChatActivity
+import xyz.shmeleva.eight.adapters.AddedUsersAdapter
 import xyz.shmeleva.eight.adapters.UserListAdapter
 import xyz.shmeleva.eight.models.User
 
@@ -29,15 +32,28 @@ import xyz.shmeleva.eight.models.User
  */
 class SearchFragment : Fragment() {
 
+    private val TAG = "SearchFragment"
+    private val MINIMUM_SEARCH_LENGTH = 5
+
     private var source: Int? = null
 
     private var mListener: OnFragmentInteractionListener? = null
+
+    private lateinit var database: DatabaseReference
+
+    val users = ArrayList<User>()
+    val addedUsers = arrayListOf<User>()
+    lateinit var usersAdapter: UserListAdapter
+    lateinit var addedUsersAdapter: AddedUsersAdapter
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
             source = arguments!!.getInt(ARG_SOURCE)
         }
+
+        database = FirebaseDatabase.getInstance().reference
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -50,10 +66,58 @@ class SearchFragment : Fragment() {
 
         searchBackButton.setOnClickListener({ _ -> activity?.onBackPressed()})
 
+        searchRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
+        usersAdapter = UserListAdapter(users,
+                { user : User -> onUserClicked(user) },
+                { user: User, isSelected: Boolean -> onUserSelected(user, isSelected) },
+                source == SOURCE_NEW_GROUP_CHAT)
+        searchRecyclerView.adapter = usersAdapter
+
+        if (source == SOURCE_NEW_GROUP_CHAT) {
+            searchAddedUsersRecyclerView.visibility = View.VISIBLE
+            searchStartGroupChatFab.visibility = View.VISIBLE
+            searchAddedUsersRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.HORIZONTAL, false)
+            addedUsersAdapter = AddedUsersAdapter(addedUsers)
+            searchAddedUsersRecyclerView.adapter = addedUsersAdapter
+        }
+        else {
+            searchAddedUsersRecyclerView.visibility = View.GONE
+            searchStartGroupChatFab.visibility = View.GONE
+        }
+
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
-            override fun onQueryTextChange(newText: String): Boolean {
-                // TODO
+            override fun onQueryTextChange(searchString: String): Boolean {
+                users.clear()
+                usersAdapter.notifyDataSetChanged()
+
+                if (searchString.length < MINIMUM_SEARCH_LENGTH) {
+                    database.child("users").orderByChild("username").equalTo(searchString).addListenerForSingleValueEvent(object: ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            Log.i(TAG, "users username equal to $searchString onDataChange!")
+                            if (snapshot.exists()) {
+                                updateUserList(snapshot)
+                            }
+                        }
+
+                        override fun onCancelled(e: DatabaseError) {
+                            Log.e(TAG, "Failed to retrieve a user whose username matches \"$searchString\": ${e.message}")
+                        }
+                    })
+                } else {
+                    database.child("users").orderByChild("username").startAt(searchString).endAt("$searchString\uf8ff").addListenerForSingleValueEvent(object: ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            Log.i(TAG, "users username starts with $searchString onDataChange!")
+                            if (snapshot.exists()) {
+                                updateUserList(snapshot)
+                            }
+                        }
+
+                        override fun onCancelled(e: DatabaseError) {
+                            Log.e(TAG, "Failed to retrieve users whose username starts with \"$searchString\": ${e.message}")
+                        }
+                    })
+                }
                 return false
             }
 
@@ -63,27 +127,20 @@ class SearchFragment : Fragment() {
             }
 
         })
-
-        searchRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
-        val users = ArrayList<User>(listOf(
-                User("Екатерина Шмелева"),
-                User("Больше Шмеля"),
-                User("Шмели захватят мир"),
-                User("Мы будем есть ваши души"),
-                User("И закусывать цветочками"),
-                User("Ням-ням"),
-                User("Ekaterina Shmeleva"),
-                User("What am I doing with my life?"),
-                User("I need more users..."),
-                User("Feel the Russian style"),
-                User("Very big soul, you know"),
-                User("Catch the Russian style"),
-                User("From really simple Russian guy")))
-        var adapter = UserListAdapter(users, { user : User -> onUserClicked(user) }, source == SOURCE_NEW_GROUP_CHAT)
-        searchRecyclerView.adapter = adapter
     }
 
-    private fun onUserClicked(chat : User) {
+    private fun updateUserList(snapshot: DataSnapshot) {
+        users.clear()
+        for (userSnapshot in snapshot.children) {
+            val user = userSnapshot.getValue(User::class.java)
+            if (user != null) {
+                users.add(user)
+            }
+        }
+        usersAdapter.notifyDataSetChanged()
+    }
+
+    private fun onUserClicked(user : User) {
         if (source == SOURCE_SEARCH) {
             (activity as BaseFragmentActivity).addFragment(PrivateChatSettingsFragment.newInstance(true))
             return
@@ -94,6 +151,19 @@ class SearchFragment : Fragment() {
             startActivity(chatActivityIntent)
             activity?.finishAfterTransition()
             return
+        }
+    }
+
+    private fun onUserSelected(user: User, isSelected: Boolean) {
+        if (isSelected) {
+            addedUsers.add(user)
+            searchAddedUsersRecyclerView.adapter.notifyItemInserted(addedUsers.size - 1)
+            searchAddedUsersRecyclerView.scrollToPosition(addedUsers.size - 1);
+        }
+        else {
+            var userIndex = addedUsers.indexOf(user)
+            addedUsers.removeAt(userIndex)
+            searchAddedUsersRecyclerView.adapter.notifyItemRemoved(userIndex)
         }
     }
 

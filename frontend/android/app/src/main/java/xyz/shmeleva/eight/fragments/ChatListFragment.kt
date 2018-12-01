@@ -134,6 +134,7 @@ class ChatListFragment : Fragment() {
                         }
                         chatListeners.clear()
                         chats.clear()
+                        adapter.notifyDataSetChanged()
                         val user = userSnapshot.getValue(User::class.java)
                         if (user != null) {
                             for ((chatId, value) in user.chats) {
@@ -185,7 +186,6 @@ class ChatListFragment : Fragment() {
             database.child("chats").child(chatId).removeEventListener(listener)
         }
         chatListeners.clear()
-        chats.clear()
     }
 
     // TODO: Rename method, update argument and hook method into UI event

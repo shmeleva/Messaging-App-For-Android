@@ -33,8 +33,8 @@ class PrivateChatSettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        privateChatBackButton.setOnClickListener({_ -> activity?.onBackPressed()})
-        privateChatStartFab.setOnClickListener({_ ->
+        privateChatBackButton.setOnClickListener {_ -> activity?.onBackPressed()}
+        privateChatStartFab.setOnClickListener {_ ->
             if (shouldLaunchChat == true) {
                 val chatActivityIntent = Intent(activity, ChatActivity::class.java)
                 startActivity(chatActivityIntent)
@@ -43,10 +43,10 @@ class PrivateChatSettingsFragment : Fragment() {
             else {
                 activity?.onBackPressed()
             }
-        })
-        privateChatGalleryRelativeLayout.setOnClickListener({ _ ->
-            (activity as BaseFragmentActivity).addFragment(GalleryFragment.newInstance("", ""))
-        })
+        }
+        privateChatGalleryRelativeLayout.setOnClickListener { _ ->
+            (activity as BaseFragmentActivity).addFragment(GalleryFragment.newInstance(true))
+        }
     }
 
     fun onButtonPressed(uri: Uri) {
