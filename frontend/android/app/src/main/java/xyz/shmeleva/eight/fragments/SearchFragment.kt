@@ -7,10 +7,12 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.SearchView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.fragment_search.*
 
 import xyz.shmeleva.eight.R
@@ -30,32 +32,28 @@ import xyz.shmeleva.eight.models.User
  */
 class SearchFragment : Fragment() {
 
+    private val TAG = "SearchFragment"
+    private val MINIMUM_SEARCH_LENGTH = 5
+
     private var source: Int? = null
 
     private var mListener: OnFragmentInteractionListener? = null
 
-    val users = ArrayList<User>(listOf(
-            User(username = "Екатерина Шмелева"),
-            User(username ="Больше Шмеля"),
-            User(username ="Шмели захватят мир"),
-            User(username ="Мы будем есть ваши души"),
-            User(username ="И закусывать цветочками"),
-            User(username ="Ням-ням"),
-            User(username ="Ekaterina Shmeleva"),
-            User(username ="What am I doing with my life?"),
-            User(username ="I need more users..."),
-            User(username ="Feel the Russian style"),
-            User(username ="Very big soul, you know"),
-            User(username ="Catch the Russian style"),
-            User(username ="From really simple Russian guy")))
+    private lateinit var database: DatabaseReference
 
+    val users = ArrayList<User>()
     val addedUsers = arrayListOf<User>()
+    lateinit var usersAdapter: UserListAdapter
+    lateinit var addedUsersAdapter: AddedUsersAdapter
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
             source = arguments!!.getInt(ARG_SOURCE)
         }
+
+        database = FirebaseDatabase.getInstance().reference
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -68,22 +66,8 @@ class SearchFragment : Fragment() {
 
         searchBackButton.setOnClickListener({ _ -> activity?.onBackPressed()})
 
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-
-            override fun onQueryTextChange(newText: String): Boolean {
-                // TODO
-                return false
-            }
-
-            override fun onQueryTextSubmit(query: String): Boolean {
-                // TODO
-                return false
-            }
-
-        })
-
         searchRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
-        val usersAdapter = UserListAdapter(users,
+        usersAdapter = UserListAdapter(users,
                 { user : User -> onUserClicked(user) },
                 { user : User, isSelected: Boolean -> onUserSelected(user, isSelected) },
                 source == SOURCE_NEW_GROUP_CHAT)
@@ -93,13 +77,67 @@ class SearchFragment : Fragment() {
             searchAddedUsersRecyclerView.visibility = View.VISIBLE
             searchStartGroupChatFab.visibility = View.VISIBLE
             searchAddedUsersRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.HORIZONTAL, false)
-            val addedUsersAdapter = AddedUsersAdapter(addedUsers)
+            addedUsersAdapter = AddedUsersAdapter(addedUsers)
             searchAddedUsersRecyclerView.adapter = addedUsersAdapter
         }
         else {
             searchAddedUsersRecyclerView.visibility = View.GONE
             searchStartGroupChatFab.visibility = View.GONE
         }
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+
+            override fun onQueryTextChange(searchString: String): Boolean {
+                users.clear()
+                usersAdapter.notifyDataSetChanged()
+
+                if (searchString.length < MINIMUM_SEARCH_LENGTH) {
+                    database.child("users").orderByChild("username").equalTo(searchString).addListenerForSingleValueEvent(object: ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            Log.i(TAG, "users username equal to $searchString onDataChange!")
+                            if (snapshot.exists()) {
+                                updateUserList(snapshot)
+                            }
+                        }
+
+                        override fun onCancelled(e: DatabaseError) {
+                            Log.e(TAG, "Failed to retrieve a user whose username matches \"$searchString\": ${e.message}")
+                        }
+                    })
+                } else {
+                    database.child("users").orderByChild("username").startAt(searchString).endAt("$searchString\uf8ff").addListenerForSingleValueEvent(object: ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            Log.i(TAG, "users username starts with $searchString onDataChange!")
+                            if (snapshot.exists()) {
+                                updateUserList(snapshot)
+                            }
+                        }
+
+                        override fun onCancelled(e: DatabaseError) {
+                            Log.e(TAG, "Failed to retrieve users whose username starts with \"$searchString\": ${e.message}")
+                        }
+                    })
+                }
+                return false
+            }
+
+            override fun onQueryTextSubmit(query: String): Boolean {
+                // TODO
+                return false
+            }
+
+        })
+    }
+
+    private fun updateUserList(snapshot: DataSnapshot) {
+        users.clear()
+        for (userSnapshot in snapshot.children) {
+            val user = userSnapshot.getValue(User::class.java)
+            if (user != null) {
+                users.add(user)
+            }
+        }
+        usersAdapter.notifyDataSetChanged()
     }
 
     private fun onUserClicked(user : User) {

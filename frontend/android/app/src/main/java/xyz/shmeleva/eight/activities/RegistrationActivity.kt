@@ -26,6 +26,7 @@ import xyz.shmeleva.eight.R
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.FirebaseStorage
 import xyz.shmeleva.eight.models.User
+import java.time.temporal.TemporalAdjusters.next
 import java.util.*
 
 class RegistrationActivity : AppCompatActivity() {
@@ -71,9 +72,15 @@ class RegistrationActivity : AppCompatActivity() {
                     if (task.isSuccessful) {
 
                         val imageUri = if (fileUri != null) "images/" + UUID.randomUUID().toString() else "";
-                        val user = User(username, imageUri)
-                        database.child("users").child(username).setValue(user)
+                        val user = User(auth.currentUser!!.uid, username, imageUri)
+                        database.child("users").child(user.id).setValue(user)
                                 .addOnSuccessListener {
+
+                                    database.child("usernames").child(user.username).setValue(user.id)
+                                            .addOnFailureListener{e->
+                                        showErrorResult(e.message)
+                                    }
+
                                     if (fileUri != null) {
                                         storageRef.child(imageUri).putFile(fileUri!!)
                                                 .addOnSuccessListener {
@@ -87,10 +94,11 @@ class RegistrationActivity : AppCompatActivity() {
                                     }
 
                                 }.addOnFailureListener { e ->
-                                    showErrorResult(e.message)
+                                    auth.currentUser?.delete()
+                                            ?.addOnCompleteListener{ task ->
+                                                showErrorResult("Duplicate username!")
+                                            }
                                 }
-
-
                     } else {
                         showErrorResult(task.exception?.message)
                     }
@@ -147,8 +155,6 @@ class RegistrationActivity : AppCompatActivity() {
             registrationUsernameTextInputLayout.error = getString(R.string.error_required_field_display_name)
             return false
         }
-
-        // TODO: username must also be unique!
 
         return true
     }
