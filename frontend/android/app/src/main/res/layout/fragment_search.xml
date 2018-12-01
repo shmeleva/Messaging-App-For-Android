@@ -9,6 +9,7 @@
     tools:context=".fragments.SearchFragment">
 
     <android.support.design.widget.AppBarLayout
+        android:id="@+id/searchAppBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay">
@@ -35,7 +36,6 @@
                 android:layout_width="match_parent"
                 app:iconifiedByDefault="false"
                 app:searchIcon="@null">
-
             </android.support.v7.widget.SearchView>
 
         </android.support.v7.widget.Toolbar>
@@ -50,12 +50,30 @@
 
     </android.support.design.widget.AppBarLayout>
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/searchStartGroupChatFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/spacing_normal"
+        android:layout_gravity="bottom|end"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?selectableItemBackground"
+        android:tint="@color/white"
+        android:src="@drawable/ic_baseline_done_24px"
+        app:elevation="6dp"
+        app:backgroundTint="@color/secondaryColor"
+        app:pressedTranslationZ="12dp"
+        app:fabSize="normal"/>
+
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/searchRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="88dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
     </android.support.v7.widget.RecyclerView>
 
 </android.support.design.widget.CoordinatorLayout>

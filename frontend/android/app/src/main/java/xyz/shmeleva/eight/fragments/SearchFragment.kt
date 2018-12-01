@@ -91,12 +91,14 @@ class SearchFragment : Fragment() {
 
         if (source == SOURCE_NEW_GROUP_CHAT) {
             searchAddedUsersRecyclerView.visibility = View.VISIBLE
+            searchStartGroupChatFab.visibility = View.VISIBLE
             searchAddedUsersRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.HORIZONTAL, false)
             val addedUsersAdapter = AddedUsersAdapter(addedUsers)
             searchAddedUsersRecyclerView.adapter = addedUsersAdapter
         }
         else {
             searchAddedUsersRecyclerView.visibility = View.GONE
+            searchStartGroupChatFab.visibility = View.GONE
         }
     }
 
