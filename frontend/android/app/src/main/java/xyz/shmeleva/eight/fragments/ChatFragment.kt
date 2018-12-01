@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import com.google.firebase.auth.FirebaseAuth
 
 import kotlinx.android.synthetic.main.fragment_chat.*
 
@@ -19,6 +20,7 @@ import xyz.shmeleva.eight.activities.BaseFragmentActivity
 import xyz.shmeleva.eight.adapters.MessageListAdapter
 import xyz.shmeleva.eight.models.Message
 import xyz.shmeleva.eight.utilities.*
+import java.util.*
 
 class ChatFragment : Fragment() {
 
@@ -61,9 +63,27 @@ class ChatFragment : Fragment() {
                 sendMessage(message)
             }})
 
+        val uid = FirebaseAuth.getInstance().currentUser!!.uid
+
         chatMessagesRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
-        val messages = ArrayList<Message>(listOf(Message(), Message(), Message(), Message(), Message(), Message(), Message(), Message(), Message(), Message(), Message(), Message(), Message(), Message(), Message(), Message()))
-        var adapter = MessageListAdapter(messages, { chat : Message -> onMessageClicked(chat) })
+        val messages = ArrayList<Message>(listOf(
+                Message("X", "1st message", "", uid, Date().time),
+                Message("X", "2nd message", "", "01", Date().time),
+                Message("X", "3rd message", "", "02", Date().time),
+                Message("X", "4th message", "", uid, Date().time),
+                Message("X", "5th message", "", "02", Date().time),
+                Message("X", "6th message", "", "01", Date().time),
+                Message("X", "7th message", "", "01", Date().time),
+                Message("X", "8th message", "", "02", Date().time),
+                Message("X", "9th message", "", uid, Date().time),
+                Message("X", "10th message", "", "01", Date().time),
+                Message("X", "11th message", "", "01", Date().time),
+                Message("X", "12th message", "", uid, Date().time),
+                Message("X", "13th message", "", "02", Date().time),
+                Message("X", "14th message", "", "02", Date().time),
+                Message("X", "13th message", "", uid, Date().time),
+                Message("X", "14th message", "", "02", Date().time)))
+        var adapter = MessageListAdapter(uid, messages, { chat : Message -> onMessageClicked(chat) })
         chatMessagesRecyclerView.adapter = adapter
     }
 

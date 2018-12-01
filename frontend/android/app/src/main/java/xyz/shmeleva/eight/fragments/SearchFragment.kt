@@ -35,19 +35,19 @@ class SearchFragment : Fragment() {
     private var mListener: OnFragmentInteractionListener? = null
 
     val users = ArrayList<User>(listOf(
-            User("Екатерина Шмелева"),
-            User("Больше Шмеля"),
-            User("Шмели захватят мир"),
-            User("Мы будем есть ваши души"),
-            User("И закусывать цветочками"),
-            User("Ням-ням"),
-            User("Ekaterina Shmeleva"),
-            User("What am I doing with my life?"),
-            User("I need more users..."),
-            User("Feel the Russian style"),
-            User("Very big soul, you know"),
-            User("Catch the Russian style"),
-            User("From really simple Russian guy")))
+            User(username = "Екатерина Шмелева"),
+            User(username ="Больше Шмеля"),
+            User(username ="Шмели захватят мир"),
+            User(username ="Мы будем есть ваши души"),
+            User(username ="И закусывать цветочками"),
+            User(username ="Ням-ням"),
+            User(username ="Ekaterina Shmeleva"),
+            User(username ="What am I doing with my life?"),
+            User(username ="I need more users..."),
+            User(username ="Feel the Russian style"),
+            User(username ="Very big soul, you know"),
+            User(username ="Catch the Russian style"),
+            User(username ="From really simple Russian guy")))
 
     val addedUsers = arrayListOf<User>()
 
@@ -85,7 +85,7 @@ class SearchFragment : Fragment() {
         searchRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
         val usersAdapter = UserListAdapter(users,
                 { user : User -> onUserClicked(user) },
-                { user: User, isSelected: Boolean -> onUserSelected(user, isSelected) },
+                { user : User, isSelected: Boolean -> onUserSelected(user, isSelected) },
                 source == SOURCE_NEW_GROUP_CHAT)
         searchRecyclerView.adapter = usersAdapter
 
