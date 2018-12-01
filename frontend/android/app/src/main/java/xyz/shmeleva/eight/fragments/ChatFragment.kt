@@ -4,9 +4,11 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 
 import kotlinx.android.synthetic.main.fragment_chat.*
 
@@ -14,6 +16,8 @@ import com.stfalcon.multiimageview.MultiImageView
 
 import xyz.shmeleva.eight.R
 import xyz.shmeleva.eight.activities.BaseFragmentActivity
+import xyz.shmeleva.eight.adapters.MessageListAdapter
+import xyz.shmeleva.eight.models.Message
 import xyz.shmeleva.eight.utilities.*
 
 class ChatFragment : Fragment() {
@@ -56,6 +60,11 @@ class ChatFragment : Fragment() {
             else {
                 sendMessage(message)
             }})
+
+        chatMessagesRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
+        val messages = ArrayList<Message>(listOf(Message(), Message(), Message(), Message(), Message(), Message(), Message(), Message(), Message(), Message(), Message(), Message(), Message(), Message(), Message(), Message()))
+        var adapter = MessageListAdapter(messages, { chat : Message -> onMessageClicked(chat) })
+        chatMessagesRecyclerView.adapter = adapter
     }
 
     override fun onAttach(context: Context?) {
@@ -83,6 +92,10 @@ class ChatFragment : Fragment() {
 
     private fun sendMessage(text: String) {
         // TODO
+    }
+
+    private fun onMessageClicked(message: Message) {
+
     }
 
     interface OnFragmentInteractionListener {

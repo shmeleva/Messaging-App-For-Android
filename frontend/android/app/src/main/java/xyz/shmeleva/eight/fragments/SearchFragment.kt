@@ -16,6 +16,7 @@ import kotlinx.android.synthetic.main.fragment_search.*
 import xyz.shmeleva.eight.R
 import xyz.shmeleva.eight.activities.BaseFragmentActivity
 import xyz.shmeleva.eight.activities.ChatActivity
+import xyz.shmeleva.eight.adapters.AddedUsersAdapter
 import xyz.shmeleva.eight.adapters.UserListAdapter
 import xyz.shmeleva.eight.models.User
 
@@ -32,6 +33,23 @@ class SearchFragment : Fragment() {
     private var source: Int? = null
 
     private var mListener: OnFragmentInteractionListener? = null
+
+    val users = ArrayList<User>(listOf(
+            User("Екатерина Шмелева"),
+            User("Больше Шмеля"),
+            User("Шмели захватят мир"),
+            User("Мы будем есть ваши души"),
+            User("И закусывать цветочками"),
+            User("Ням-ням"),
+            User("Ekaterina Shmeleva"),
+            User("What am I doing with my life?"),
+            User("I need more users..."),
+            User("Feel the Russian style"),
+            User("Very big soul, you know"),
+            User("Catch the Russian style"),
+            User("From really simple Russian guy")))
+
+    val addedUsers = arrayListOf<User>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,25 +83,26 @@ class SearchFragment : Fragment() {
         })
 
         searchRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
-        val users = ArrayList<User>(listOf(
-                User("Екатерина Шмелева"),
-                User("Больше Шмеля"),
-                User("Шмели захватят мир"),
-                User("Мы будем есть ваши души"),
-                User("И закусывать цветочками"),
-                User("Ням-ням"),
-                User("Ekaterina Shmeleva"),
-                User("What am I doing with my life?"),
-                User("I need more users..."),
-                User("Feel the Russian style"),
-                User("Very big soul, you know"),
-                User("Catch the Russian style"),
-                User("From really simple Russian guy")))
-        var adapter = UserListAdapter(users, { user : User -> onUserClicked(user) }, source == SOURCE_NEW_GROUP_CHAT)
-        searchRecyclerView.adapter = adapter
+        val usersAdapter = UserListAdapter(users,
+                { user : User -> onUserClicked(user) },
+                { user: User, isSelected: Boolean -> onUserSelected(user, isSelected) },
+                source == SOURCE_NEW_GROUP_CHAT)
+        searchRecyclerView.adapter = usersAdapter
+
+        if (source == SOURCE_NEW_GROUP_CHAT) {
+            searchAddedUsersRecyclerView.visibility = View.VISIBLE
+            searchStartGroupChatFab.visibility = View.VISIBLE
+            searchAddedUsersRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.HORIZONTAL, false)
+            val addedUsersAdapter = AddedUsersAdapter(addedUsers)
+            searchAddedUsersRecyclerView.adapter = addedUsersAdapter
+        }
+        else {
+            searchAddedUsersRecyclerView.visibility = View.GONE
+            searchStartGroupChatFab.visibility = View.GONE
+        }
     }
 
-    private fun onUserClicked(chat : User) {
+    private fun onUserClicked(user : User) {
         if (source == SOURCE_SEARCH) {
             (activity as BaseFragmentActivity).addFragment(PrivateChatSettingsFragment.newInstance(true))
             return
@@ -94,6 +113,19 @@ class SearchFragment : Fragment() {
             startActivity(chatActivityIntent)
             activity?.finishAfterTransition()
             return
+        }
+    }
+
+    private fun onUserSelected(user: User, isSelected: Boolean) {
+        if (isSelected) {
+            addedUsers.add(user)
+            searchAddedUsersRecyclerView.adapter.notifyItemInserted(addedUsers.size - 1)
+            searchAddedUsersRecyclerView.scrollToPosition(addedUsers.size - 1);
+        }
+        else {
+            var userIndex = addedUsers.indexOf(user)
+            addedUsers.removeAt(userIndex)
+            searchAddedUsersRecyclerView.adapter.notifyItemRemoved(userIndex)
         }
     }
 
