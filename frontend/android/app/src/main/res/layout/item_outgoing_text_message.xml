@@ -31,7 +31,6 @@
                 android:id="@+id/outgoingMessageContentTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Make sure to also add listeners dynamically, and remove them when they're no longer necessary."
                 />
 
             <ImageView
@@ -50,7 +49,7 @@
             android:layout_below="@id/outgoingMessageContentFrameLayout"
             android:layout_marginStart="8dp"
             app:layout_alignSelf="center"
-            android:text="01/12/2018, 00:00"/>
+            style="@style/AppTheme.TextAppearance.Overline"/>
 
     </com.google.android.flexbox.FlexboxLayout>
 

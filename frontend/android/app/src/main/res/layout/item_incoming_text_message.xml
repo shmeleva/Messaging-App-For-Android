@@ -13,7 +13,7 @@
         android:id="@+id/incomingMessageSenderImageView"
         android:layout_width="@dimen/profile_picture_size_small"
         android:layout_height="@dimen/profile_picture_size_small"
-        android:layout_marginEnd="@dimen/spacing_small" />
+        android:layout_marginEnd="@dimen/spacing_normal" />
 
     <com.google.android.flexbox.FlexboxLayout
         android:id="@+id/incomingMessageBubbleFlexboxLayout"
@@ -64,7 +64,7 @@
             android:layout_below="@id/incomingMessageContentFrameLayout"
             android:layout_marginStart="8dp"
             app:layout_alignSelf="center"
-            android:text="01/12/2018, 00:00"/>
+            style="@style/AppTheme.TextAppearance.Overline"/>
 
     </com.google.android.flexbox.FlexboxLayout>
 

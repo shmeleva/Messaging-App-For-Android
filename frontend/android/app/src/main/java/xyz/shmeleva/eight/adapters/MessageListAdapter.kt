@@ -12,6 +12,7 @@ import com.stfalcon.multiimageview.MultiImageView
 import  xyz.shmeleva.eight.R
 import  xyz.shmeleva.eight.models.*
 import xyz.shmeleva.eight.utilities.TimestampFormatter
+import xyz.shmeleva.eight.utilities.loadImages
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -83,7 +84,7 @@ class MessageListAdapter(val userId: String, val isGroupChat: Boolean, val messa
         open fun bind(message: Message, isGroupChat: Boolean) {
             if (isGroupChat) {
                 senderTextView.text = message.senderId
-                // TODO: Load a sender image
+                senderImageView.loadImages(arrayListOf("https://pixel.nymag.com/imgs/daily/vulture/2016/11/23/23-san-junipero.w330.h330.jpg"), 24, 0)
             }
             else {
                 senderTextView.visibility = View.GONE
