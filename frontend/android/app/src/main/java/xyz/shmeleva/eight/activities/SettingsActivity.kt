@@ -27,6 +27,7 @@ import android.content.DialogInterface
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
 import android.os.AsyncTask
 import android.preference.PreferenceManager
 import android.util.Log
@@ -34,8 +35,10 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import com.squareup.picasso.Target
 import kotlinx.android.synthetic.main.activity_registration.*
 import xyz.shmeleva.eight.models.User
+import java.io.File
 
 
 class SettingsActivity : AppCompatActivity() {
@@ -64,17 +67,6 @@ class SettingsActivity : AppCompatActivity() {
         var downloadImageResolution = sharedPreferences.getString("downloadResolution", "Low")
         var theme = sharedPreferences.getString("theme", "Seaweed")
 
-        // get profile photo from internal app storage if it's there
-        // TODO: handle exceptions
-        if ("profile_photo" in fileList()) {
-            openFileInput("profile_photo").use {
-                profilePhoto = BitmapFactory.decodeStream(it)
-            }
-            profilePictureImageView.setImageBitmap(profilePhoto)
-        } else {
-            // TODO: try to download the picture from the server
-        }
-
 
         val imageResolutionArray = arrayOf(
                 getResources().getString(R.string.settings_image_resolution_low),
@@ -83,6 +75,7 @@ class SettingsActivity : AppCompatActivity() {
         )
         val themeArray = arrayOf("Seaweed", "Dark")
 
+        populateProfilePhotoFromDB(auth.currentUser!!.uid)
         populateUsernameFromDB(auth.currentUser!!.uid)
         setUploadResolutionLabel(uploadImageResolution)
         setDownloadResolutionLabel(downloadImageResolution)
@@ -268,6 +261,34 @@ class SettingsActivity : AppCompatActivity() {
             override fun onCancelled(databaseError: DatabaseError) {
                 // Getting User failed, log a message
                 setUsernameLabel("")
+                Log.i(TAG, databaseError.message)
+            }
+        }
+
+        database.child("users").child(uid)
+                .addListenerForSingleValueEvent(userOneTimeListener)
+    }
+
+    private fun populateProfilePhotoFromDB(uid: String) {
+        var userOneTimeListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                // Get User object and use the values to update the UI
+                val user = dataSnapshot.getValue(User::class.java)
+                if (user != null) {
+                    AsyncTask.execute(Runnable {
+                        val profilePhotoRef = storageRef.child(user.profilePicUrl)
+                        profilePhotoRef.getBytes(50*1000*1000).addOnSuccessListener {
+                            val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
+                            runOnUiThread(Runnable {
+                                profilePictureImageView.setImageBitmap(bitmap)
+                            })
+                        }
+                    })
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Getting User failed, log a message
                 Log.i(TAG, databaseError.message)
             }
         }
