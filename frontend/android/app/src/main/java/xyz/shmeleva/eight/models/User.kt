@@ -7,6 +7,16 @@ import com.google.firebase.database.IgnoreExtraProperties
  */
 @IgnoreExtraProperties
 data class User(
-        var username: String?,
-        var profilePicUrl: String? = ""
-)
+        var id: String = "",
+        var username: String = "",
+        var profilePicUrl: String = "",
+        var chats: MutableMap<String, MutableMap<String, Long>> = mutableMapOf()
+) {
+    override fun equals(other: Any?): Boolean {
+        if (other !is User) {
+            return false
+        }
+
+        return other.id == id
+    }
+}

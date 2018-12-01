@@ -6,10 +6,14 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
+import android.util.Log
 import android.view.*
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.LinearLayout
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.*
 
 import xyz.shmeleva.eight.R
 import xyz.shmeleva.eight.adapters.ChatListAdapter
@@ -19,6 +23,7 @@ import xyz.shmeleva.eight.activities.BaseFragmentActivity
 import xyz.shmeleva.eight.activities.ChatActivity
 import xyz.shmeleva.eight.activities.SearchActivity
 import xyz.shmeleva.eight.activities.SettingsActivity
+import xyz.shmeleva.eight.models.User
 
 /**
  * A simple [Fragment] subclass.
@@ -29,6 +34,8 @@ import xyz.shmeleva.eight.activities.SettingsActivity
  * create an instance of this fragment.
  */
 class ChatListFragment : Fragment() {
+
+    private val TAG: String = "ChatListFragment"
 
     // TODO: Rename and change types of parameters
     private var mParam1: String? = null
@@ -43,6 +50,15 @@ class ChatListFragment : Fragment() {
     private var rotateForwardAnimation: Animation? = null
     private var rotateBackwardAnimation: Animation? = null
 
+    private val chats = ArrayList<Chat>()
+    private lateinit var adapter: ChatListAdapter
+
+    private lateinit var auth: FirebaseAuth
+    private lateinit var database: DatabaseReference
+
+    private lateinit var userListener: ValueEventListener
+    private val chatListeners: MutableMap<String, ValueEventListener> = mutableMapOf()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
@@ -50,6 +66,9 @@ class ChatListFragment : Fragment() {
             mParam2 = arguments!!.getString(ARG_PARAM2)
         }
         setHasOptionsMenu(true)
+
+        auth = FirebaseAuth.getInstance()
+        database = FirebaseDatabase.getInstance().reference
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -96,9 +115,77 @@ class ChatListFragment : Fragment() {
         })
 
         chatListRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
-        val chats = ArrayList<Chat>(listOf(Chat(0), Chat(1), Chat(2), Chat(3), Chat(4), Chat(5), Chat(6), Chat(7), Chat(8), Chat(9), Chat(10)))
-        var adapter = ChatListAdapter(chats, { chat : Chat -> onChatClicked(chat) })
+        adapter = ChatListAdapter(chats, { chat : Chat -> onChatClicked(chat) })
         chatListRecyclerView.adapter = adapter
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.i(TAG, "Attach userListener")
+        val currentUser: FirebaseUser? = auth.currentUser
+        if (currentUser != null) {
+            userListener = object: ValueEventListener {
+                override fun onDataChange(userSnapshot: DataSnapshot) {
+                    Log.i(TAG, "users/${currentUser.uid} onDataChange!")
+
+                    if (userSnapshot.exists()) {
+                        for ((chatId, listener) in chatListeners) {
+                            database.child("chats").child(chatId).removeEventListener(listener)
+                        }
+                        chatListeners.clear()
+                        chats.clear()
+                        val user = userSnapshot.getValue(User::class.java)
+                        if (user != null) {
+                            for ((chatId, value) in user.chats) {
+                                val joinedAt: Long = value["joinedAt"]!!
+                                val listener = object: ValueEventListener {
+                                    override fun onDataChange(chatSnapshot: DataSnapshot) {
+                                        Log.i(TAG, "chats/$chatId onDataChange!")
+
+                                        if (chatSnapshot.exists()) {
+                                            val chat: Chat? = chatSnapshot.getValue(Chat::class.java)
+                                            if (chat != null) {
+                                                chat.joinedAt = joinedAt
+                                                if (chats.contains(chat)) {
+                                                    chats.remove(chat)
+                                                }
+                                                chats.add(chat)
+                                                adapter.notifyDataSetChanged()
+                                            }
+                                        }
+                                    }
+
+                                    override fun onCancelled(e: DatabaseError) {
+                                        Log.e(TAG, "Failed to retrieve chat $chatId: $e.message")
+                                    }
+                                }
+                                chatListeners[chatId] = listener
+                                database.child("chats").child(chatId).addValueEventListener(listener)
+                            }
+                        }
+                    }
+                }
+
+                override fun onCancelled(e: DatabaseError) {
+                    Log.e(TAG, "Failed to retrieve user ${currentUser.uid}'s chats: $e.message")
+                }
+            }
+            database.child("users").child(currentUser.uid).addValueEventListener(userListener)
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.i(TAG, "Detach all listeners")
+        val currentUser: FirebaseUser? = auth.currentUser
+        if (currentUser != null) {
+            database.child("users").child(currentUser.uid).removeEventListener(userListener)
+        }
+        for ((chatId, listener) in chatListeners) {
+            database.child("chats").child(chatId).removeEventListener(listener)
+        }
+        chatListeners.clear()
+        chats.clear()
     }
 
     // TODO: Rename method, update argument and hook method into UI event
