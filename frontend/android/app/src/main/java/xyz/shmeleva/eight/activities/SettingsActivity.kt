@@ -50,6 +50,8 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var storageRef: StorageReference
     private lateinit var database: DatabaseReference
 
+    private var currentUser = User()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
@@ -75,8 +77,7 @@ class SettingsActivity : AppCompatActivity() {
         )
         val themeArray = arrayOf("Seaweed", "Dark")
 
-        populateProfilePhotoFromDB(auth.currentUser!!.uid)
-        populateUsernameFromDB(auth.currentUser!!.uid)
+        getUserFromDBAndPopulate(auth.currentUser!!.uid)
         setUploadResolutionLabel(uploadImageResolution)
         setDownloadResolutionLabel(downloadImageResolution)
         setThemeLabel(theme)
@@ -246,21 +247,18 @@ class SettingsActivity : AppCompatActivity() {
         return bitmap
     }
 
-    private fun populateUsernameFromDB(uid: String) {
+    private fun getUserFromDBAndPopulate(uid: String) {
         var userOneTimeListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 // Get User object and use the values to update the UI
-                val user = dataSnapshot.getValue(User::class.java)
-                if (user != null) {
-                    setUsernameLabel(user!!.username)
-                } else {
-                    setUsernameLabel("")
-                }
+                currentUser = dataSnapshot.getValue(User::class.java)!!
+
+                setUsernameLabel(currentUser.username)
+                populateProfilePhotoFromDB(currentUser.profilePicUrl)
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
                 // Getting User failed, log a message
-                setUsernameLabel("")
                 Log.i(TAG, databaseError.message)
             }
         }
@@ -269,31 +267,15 @@ class SettingsActivity : AppCompatActivity() {
                 .addListenerForSingleValueEvent(userOneTimeListener)
     }
 
-    private fun populateProfilePhotoFromDB(uid: String) {
-        var userOneTimeListener = object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                // Get User object and use the values to update the UI
-                val user = dataSnapshot.getValue(User::class.java)
-                if (user != null) {
-                    AsyncTask.execute(Runnable {
-                        val profilePhotoRef = storageRef.child(user.profilePicUrl)
-                        profilePhotoRef.getBytes(50*1000*1000).addOnSuccessListener {
-                            val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
-                            runOnUiThread(Runnable {
-                                profilePictureImageView.setImageBitmap(bitmap)
-                            })
-                        }
-                    })
-                }
+    private fun populateProfilePhotoFromDB(url: String) {
+        AsyncTask.execute(Runnable {
+            val profilePhotoRef = storageRef.child(url)
+            profilePhotoRef.getBytes(50*1000*1000).addOnSuccessListener {
+                val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
+                runOnUiThread(Runnable {
+                    profilePictureImageView.setImageBitmap(bitmap)
+                })
             }
-
-            override fun onCancelled(databaseError: DatabaseError) {
-                // Getting User failed, log a message
-                Log.i(TAG, databaseError.message)
-            }
-        }
-
-        database.child("users").child(uid)
-                .addListenerForSingleValueEvent(userOneTimeListener)
+        })
     }
 }
