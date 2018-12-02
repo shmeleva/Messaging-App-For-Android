@@ -38,8 +38,10 @@ import com.google.firebase.storage.StorageReference
 import com.squareup.picasso.Target
 import kotlinx.android.synthetic.main.activity_registration.*
 import xyz.shmeleva.eight.models.User
+import java.io.ByteArrayOutputStream
 import java.io.File
 
+// TODO: handle DB failures?
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -83,8 +85,6 @@ class SettingsActivity : AppCompatActivity() {
         setThemeLabel(theme)
 
         usernameRelativeLayout.setOnClickListener() {
-
-            // TODO: make sure the username gets uploaded to the server properly!
             val usernameDialog = LayoutInflater.from(this)
                     .inflate(R.layout.settings_username_dialog, null)
 
@@ -98,6 +98,7 @@ class SettingsActivity : AppCompatActivity() {
                         usernameTextView.setText(changedUsername)
                         editor.putString("username", changedUsername)
                         editor.apply()
+                        uploadUsernameToDB(changedUsername)
                         dialog.dismiss()
                     })
                     .setNegativeButton(R.string.settings_prompt_cancel_btn, DialogInterface.OnClickListener{ dialog, whichButton ->
@@ -220,10 +221,7 @@ class SettingsActivity : AppCompatActivity() {
                     profilePictureImageView.setImageBitmap(profilePhoto)
                 })
 
-                // save the photo to internal storage
-                openFileOutput("profile_photo", Context.MODE_PRIVATE).use {
-                    profilePhoto.compress(Bitmap.CompressFormat.PNG, 100, it)
-                }
+                uploadProfilePhotoToDB(profilePhoto)
             })
         }
     }
@@ -250,6 +248,12 @@ class SettingsActivity : AppCompatActivity() {
     private fun getUserFromDBAndPopulate(uid: String) {
         var userOneTimeListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.value == null) {
+                    Log.i(TAG, "User not found.")
+                    logOut(logOutTextView)
+                    return
+                }
+
                 // Get User object and use the values to update the UI
                 currentUser = dataSnapshot.getValue(User::class.java)!!
 
@@ -277,5 +281,28 @@ class SettingsActivity : AppCompatActivity() {
                 })
             }
         })
+    }
+
+    private fun uploadUsernameToDB(newUsername: String) {
+        val uid = currentUser.id
+        val oldUsername = currentUser.username
+
+        currentUser.username = newUsername
+        val currentUserValues = currentUser.toMap()
+
+        val userUpdate = HashMap<String, Any>()
+        userUpdate["users/$uid"] = currentUserValues
+
+        database.updateChildren(userUpdate)
+        database.child("usernames").child(oldUsername).removeValue()
+        database.child("usernames").child(newUsername).setValue(uid)
+    }
+
+    private fun uploadProfilePhotoToDB(bitmap: Bitmap) {
+        val baos = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos)
+        val data = baos.toByteArray()
+
+        storageRef.child(currentUser.profilePicUrl).putBytes(data)
     }
 }
