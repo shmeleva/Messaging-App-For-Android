@@ -57,7 +57,8 @@ class ChatListFragment : Fragment() {
     private lateinit var database: DatabaseReference
 
     private lateinit var userListener: ValueEventListener
-    private val chatListeners: MutableMap<String, ValueEventListener> = mutableMapOf()
+    private var chatsListener: ValueEventListener? = null
+    private var usersListener: ValueEventListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -115,13 +116,113 @@ class ChatListFragment : Fragment() {
         })
 
         chatListRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
-        adapter = ChatListAdapter(chats, { chat : Chat -> onChatClicked(chat) })
+        adapter = ChatListAdapter(chats, { chat : Chat -> onChatClicked(chat) }, auth.currentUser?.uid)
         chatListRecyclerView.adapter = adapter
+    }
+
+    private fun detachUsersListener() {
+        if (usersListener != null) {
+            database.child("users").removeEventListener(usersListener!!)
+            Log.i(TAG, "Detached usersListener")
+        }
+    }
+
+    private fun attachUsersListener() {
+        detachUsersListener()
+
+        if (usersListener == null) {
+            usersListener = object: ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    Log.i(TAG, "users onDataChange!")
+
+                    if (snapshot.exists()) {
+                        for (userSnapshot in snapshot.children) {
+                            val user = userSnapshot.getValue(User::class.java)
+
+                            if (user != null) {
+                                for (chat in chats) {
+                                    if (chat.isMember(user.id)) {
+                                        chat.updateMember(user)
+                                    }
+                                }
+                            }
+                        }
+                        adapter.notifyDataSetChanged()
+                    }
+                }
+
+                override fun onCancelled(e: DatabaseError) {
+                    Log.e(TAG, "Failed to retrieve users: ${e.message}")
+                }
+            }
+        }
+
+        database.child("users").addValueEventListener(usersListener!!)
+        Log.i(TAG, "Attached usersListener")
+    }
+
+    private fun detachChatsListener() {
+        if (chatsListener != null) {
+            database.child("chats").removeEventListener(chatsListener!!)
+            Log.i(TAG, "Detached chatsListener")
+        }
+    }
+
+    private fun attachChatsListener() {
+        detachChatsListener()
+
+        if (chatsListener == null) {
+            chatsListener = object: ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    Log.i(TAG, "chats onDataChange!")
+                    if (snapshot.exists()) {
+                        for (chatSnapshot in snapshot.children) {
+                            val chat = chatSnapshot.getValue(Chat::class.java)
+
+                            if (chat != null && chats.contains(chat)) {
+                                val oldChat = chats[chats.indexOf(chat)]
+                                chat.joinedAt = oldChat.joinedAt
+                                chat.users = oldChat.users
+
+                                // Remove users who aren't members anymore
+                                val usersToRemove = arrayListOf<User>()
+                                for (user in chat.users) {
+                                    if (!chat.members.containsKey(user.id)) {
+                                        usersToRemove.add(user)
+                                    }
+                                }
+                                chat.users.removeAll(usersToRemove)
+
+                                chats.remove(oldChat)
+                                chats.add(chat)
+                            }
+                        }
+
+                        sortChats()
+                        adapter.notifyDataSetChanged()
+
+                        attachUsersListener()
+                    }
+                }
+
+                override fun onCancelled(e: DatabaseError) {
+                    Log.e(TAG, "Failed to retrieve chats: ${e.message}")
+                }
+            }
+        }
+
+        database.child("chats").addValueEventListener(chatsListener!!)
+        Log.i(TAG, "Attached chatsListener")
+    }
+
+    private fun sortChats() {
+        chats.sortWith(compareByDescending<Chat> { it.updatedAt }
+                .thenByDescending { it.id })
+        Log.i(TAG, "Finished sorting")
     }
 
     override fun onStart() {
         super.onStart()
-        Log.i(TAG, "Attach userListener")
         val currentUser: FirebaseUser? = auth.currentUser
         if (currentUser != null) {
             userListener = object: ValueEventListener {
@@ -129,40 +230,32 @@ class ChatListFragment : Fragment() {
                     Log.i(TAG, "users/${currentUser.uid} onDataChange!")
 
                     if (userSnapshot.exists()) {
-                        for ((chatId, listener) in chatListeners) {
-                            database.child("chats").child(chatId).removeEventListener(listener)
-                        }
-                        chatListeners.clear()
-                        chats.clear()
-                        adapter.notifyDataSetChanged()
                         val user = userSnapshot.getValue(User::class.java)
                         if (user != null) {
+                            // Remove no longer valid chats
+                            val chatsToRemove = arrayListOf<Chat>()
+                            for (chat in chats) {
+                                if (!user.chats.containsKey(chat.id)) {
+                                    chatsToRemove.add(chat)
+                                }
+                            }
+                            chats.removeAll(chatsToRemove)
+
+                            // Add user's new chats
                             for ((chatId, value) in user.chats) {
                                 val joinedAt: Long = value["joinedAt"]!!
-                                val listener = object: ValueEventListener {
-                                    override fun onDataChange(chatSnapshot: DataSnapshot) {
-                                        Log.i(TAG, "chats/$chatId onDataChange!")
+                                val chat = Chat(id=chatId)
+                                chat.joinedAt = joinedAt
 
-                                        if (chatSnapshot.exists()) {
-                                            val chat: Chat? = chatSnapshot.getValue(Chat::class.java)
-                                            if (chat != null) {
-                                                chat.joinedAt = joinedAt
-                                                if (chats.contains(chat)) {
-                                                    chats.remove(chat)
-                                                }
-                                                chats.add(chat)
-                                                adapter.notifyDataSetChanged()
-                                            }
-                                        }
-                                    }
-
-                                    override fun onCancelled(e: DatabaseError) {
-                                        Log.e(TAG, "Failed to retrieve chat $chatId: $e.message")
-                                    }
+                                if (!chats.contains(chat)) {
+                                    chats.add(chat)
                                 }
-                                chatListeners[chatId] = listener
-                                database.child("chats").child(chatId).addValueEventListener(listener)
                             }
+
+                            sortChats()
+                            adapter.notifyDataSetChanged()
+
+                            attachChatsListener()
                         }
                     }
                 }
@@ -172,6 +265,7 @@ class ChatListFragment : Fragment() {
                 }
             }
             database.child("users").child(currentUser.uid).addValueEventListener(userListener)
+            Log.i(TAG, "Attached userListener")
         }
     }
 
@@ -181,11 +275,10 @@ class ChatListFragment : Fragment() {
         val currentUser: FirebaseUser? = auth.currentUser
         if (currentUser != null) {
             database.child("users").child(currentUser.uid).removeEventListener(userListener)
+
+            detachChatsListener()
+            detachUsersListener()
         }
-        for ((chatId, listener) in chatListeners) {
-            database.child("chats").child(chatId).removeEventListener(listener)
-        }
-        chatListeners.clear()
     }
 
     // TODO: Rename method, update argument and hook method into UI event
