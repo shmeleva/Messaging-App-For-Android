@@ -1,5 +1,6 @@
 package xyz.shmeleva.eight.models
 
+import com.google.firebase.database.Exclude
 import com.google.firebase.database.IgnoreExtraProperties
 
 /**
@@ -18,5 +19,15 @@ data class User(
         }
 
         return other.id == id
+    }
+
+    @Exclude
+    fun toMap(): Map<String, Any> {
+        return mapOf(
+                "id" to id,
+                "username" to username,
+                "profilePicUrl" to profilePicUrl,
+                "chats" to chats
+        )
     }
 }

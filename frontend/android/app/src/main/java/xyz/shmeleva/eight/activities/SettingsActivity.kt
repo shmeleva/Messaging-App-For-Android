@@ -10,34 +10,41 @@ import android.support.v7.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
 
-import android.view.WindowManager
 import android.widget.EditText
-import android.widget.RadioButton
-import android.widget.TextView
 
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_settings.*
-import kotlinx.android.synthetic.main.settings_username_dialog.*
 import kotlinx.android.synthetic.main.settings_username_dialog.view.*
 import xyz.shmeleva.eight.R
 import android.content.DialogInterface
-import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.AsyncTask
-import android.preference.PreferenceManager
 import android.util.Log
-import kotlinx.android.synthetic.main.activity_registration.*
+import android.widget.Toast
+import com.google.android.gms.tasks.Task
+import com.google.firebase.database.*
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import xyz.shmeleva.eight.models.User
+import java.io.ByteArrayOutputStream
+import java.util.*
 
+// TODO: handle DB failures?
 
 class SettingsActivity : AppCompatActivity() {
 
+    private val TAG: String = "SettingsActivity"
     @JvmField val PICK_PHOTO = 1
     private lateinit var auth: FirebaseAuth
     private lateinit var profilePhoto: Bitmap
+    private lateinit var storageRef: StorageReference
+    private lateinit var database: DatabaseReference
+
+    private var currentUser = User()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,27 +52,16 @@ class SettingsActivity : AppCompatActivity() {
 
         FirebaseApp.initializeApp(this)
         auth = FirebaseAuth.getInstance()
+        storageRef = FirebaseStorage.getInstance().reference
+        database = FirebaseDatabase.getInstance().reference
 
         val sharedPreferences = getSharedPreferences("userSettings", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
 
-        // user settings variables
-        // FIXME: username should be downloaded from the server!
-        var username = sharedPreferences.getString("username", "username")
+        // local user settings variables
         var uploadImageResolution = sharedPreferences.getString("uploadResolution", "Low")
         var downloadImageResolution = sharedPreferences.getString("downloadResolution", "Low")
         var theme = sharedPreferences.getString("theme", "Seaweed")
-
-        // get profile photo from internal app storage if it's there
-        // TODO: handle exceptions
-        if ("profile_photo" in fileList()) {
-            openFileInput("profile_photo").use {
-                profilePhoto = BitmapFactory.decodeStream(it)
-            }
-            profilePictureImageView.setImageBitmap(profilePhoto)
-        } else {
-            // TODO: try to download the picture from the server
-        }
 
 
         val imageResolutionArray = arrayOf(
@@ -75,27 +71,28 @@ class SettingsActivity : AppCompatActivity() {
         )
         val themeArray = arrayOf("Seaweed", "Dark")
 
-        setUsernameLabel(username)
+        getUserFromDBAndPopulate(auth.currentUser!!.uid)
         setUploadResolutionLabel(uploadImageResolution)
         setDownloadResolutionLabel(downloadImageResolution)
         setThemeLabel(theme)
 
         usernameRelativeLayout.setOnClickListener() {
-
-            // TODO: make sure the username gets uploaded to the server properly!
             val usernameDialog = LayoutInflater.from(this)
                     .inflate(R.layout.settings_username_dialog, null)
 
             val dialogEditText = usernameDialog.findViewById<EditText>(R.id.dialogUsername)
-            dialogEditText.setText(username)
+            dialogEditText.setText(usernameTextView.text)
 
             AlertDialog.Builder(this)
                     .setView(usernameDialog)
                     .setPositiveButton(R.string.settings_prompt_save_btn, DialogInterface.OnClickListener { dialog, whichButton ->
                         val changedUsername = usernameDialog.dialogUsername.text.toString()
-                        usernameTextView.setText(changedUsername)
-                        editor.putString("username", changedUsername)
-                        editor.apply()
+                        uploadUsernameToDB(changedUsername)
+                                .addOnSuccessListener {
+                                    usernameTextView.setText(changedUsername)
+                                    editor.putString("username", changedUsername)
+                                    editor.apply()
+                                }
                         dialog.dismiss()
                     })
                     .setNegativeButton(R.string.settings_prompt_cancel_btn, DialogInterface.OnClickListener{ dialog, whichButton ->
@@ -209,8 +206,6 @@ class SettingsActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        // TODO: make sure the photo gets uploaded to the server properly!
-
         if (requestCode == PICK_PHOTO && resultCode == Activity.RESULT_OK) {
             AsyncTask.execute(Runnable {
                 profilePhoto = getProfilePhotoFromIntent(data)
@@ -218,10 +213,7 @@ class SettingsActivity : AppCompatActivity() {
                     profilePictureImageView.setImageBitmap(profilePhoto)
                 })
 
-                // save the photo to internal storage
-                openFileOutput("profile_photo", Context.MODE_PRIVATE).use {
-                    profilePhoto.compress(Bitmap.CompressFormat.PNG, 100, it)
-                }
+                uploadProfilePhotoToDB(profilePhoto)
             })
         }
     }
@@ -243,5 +235,94 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         return bitmap
+    }
+
+    private fun getUserFromDBAndPopulate(uid: String) {
+        var userOneTimeListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.value == null) {
+                    Log.i(TAG, "User not found.")
+                    logOut(logOutTextView)
+                    return
+                }
+
+                // Get User object and use the values to update the UI
+                currentUser = dataSnapshot.getValue(User::class.java)!!
+
+                setUsernameLabel(currentUser.username)
+                populateProfilePhotoFromDB(currentUser.profilePicUrl)
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Getting User failed, log a message
+                Log.i(TAG, databaseError.message)
+            }
+        }
+
+        database.child("users").child(uid)
+                .addListenerForSingleValueEvent(userOneTimeListener)
+    }
+
+    private fun populateProfilePhotoFromDB(url: String) {
+        if (url != null && url != "") {
+            AsyncTask.execute(Runnable {
+                val profilePhotoRef = storageRef.child(url)
+                profilePhotoRef.getBytes(50*1000*1000).addOnSuccessListener {
+                    val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
+                    runOnUiThread(Runnable {
+                        profilePictureImageView.setImageBitmap(bitmap)
+                    })
+                }
+            })
+        }
+    }
+
+    private fun uploadUsernameToDB(newUsername: String) : Task<Void> {
+        val uid = currentUser.id
+        val oldUsername = currentUser.username
+        currentUser.username = newUsername
+
+        return updateUserInDB()
+                .addOnSuccessListener {
+                    database.child("usernames").child(oldUsername).removeValue()
+                    database.child("usernames").child(newUsername).setValue(uid)
+                }
+                .addOnFailureListener {
+                    currentUser.username = oldUsername
+                    showErrorResult("Duplicate username!")
+                }
+    }
+
+    private fun uploadProfilePhotoToDB(bitmap: Bitmap) {
+        val baos = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos)
+        val data = baos.toByteArray()
+
+        if (currentUser.profilePicUrl != "") {
+            storageRef.child(currentUser.profilePicUrl).putBytes(data)
+        } else {
+            val url = "images/" + UUID.randomUUID().toString()
+            storageRef.child(url).putBytes(data)
+
+            currentUser.profilePicUrl = url
+            updateUserInDB()
+        }
+    }
+
+    private fun updateUserInDB() : Task<Void> {
+        val uid = currentUser.id
+        val currentUserValues = currentUser.toMap()
+        val userUpdate = HashMap<String, Any>()
+        userUpdate["users/$uid"] = currentUserValues
+        return database.updateChildren(userUpdate)
+    }
+
+    private fun showErrorResult(message: String?) {
+        val toast = Toast.makeText(
+                applicationContext,
+                message,
+                Toast.LENGTH_LONG
+        )
+        toast.show()
     }
 }

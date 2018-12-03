@@ -12,8 +12,7 @@ class Chat(
         var isGroupChat: Boolean = false,
         var members: MutableMap<String, Boolean> = mutableMapOf(),
         var lastMessage: String = "",
-        var createdAt: Long = Date().time,
-        var updatedAt: Long = Date().time
+        var updatedAt: Long = Date().time // Should be updated with chat is created and a new message is sent
 ) {
     var users: MutableList<User> = mutableListOf()
     var messages: List<Message> = listOf()
@@ -32,13 +31,16 @@ class Chat(
     }
 
     fun updateMember(user: User) {
-        // TODO
+        if (users.contains(user)) {
+            users.remove(user)
+        }
+        users.add(user)
     }
 
-    fun getMemberNames(currentUserUid: String): String {
+    fun getMemberNames(currentUserId: String?): String {
         val memberNames: MutableList<String> = mutableListOf()
         for (user in users) {
-            if (user.id != currentUserUid) {
+            if (currentUserId == null || user.id != currentUserId) {
                 memberNames.add(user.username)
             }
         }

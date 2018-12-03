@@ -41,7 +41,7 @@ class SearchFragment : Fragment() {
 
     private lateinit var database: DatabaseReference
 
-    val users = ArrayList<User>()
+    val users = ArrayList<User>(arrayListOf(User(username = "...")))
     val addedUsers = arrayListOf<User>()
     lateinit var usersAdapter: UserListAdapter
     lateinit var addedUsersAdapter: AddedUsersAdapter
@@ -69,7 +69,7 @@ class SearchFragment : Fragment() {
         searchRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
         usersAdapter = UserListAdapter(users,
                 { user : User -> onUserClicked(user) },
-                { user: User, isSelected: Boolean -> onUserSelected(user, isSelected) },
+                { user : User, isSelected: Boolean -> onUserSelected(user, isSelected) },
                 source == SOURCE_NEW_GROUP_CHAT)
         searchRecyclerView.adapter = usersAdapter
 

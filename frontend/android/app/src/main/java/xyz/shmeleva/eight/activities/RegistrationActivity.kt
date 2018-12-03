@@ -26,6 +26,7 @@ import xyz.shmeleva.eight.R
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.FirebaseStorage
 import xyz.shmeleva.eight.models.User
+import java.io.ByteArrayOutputStream
 import java.time.temporal.TemporalAdjusters.next
 import java.util.*
 
@@ -82,7 +83,11 @@ class RegistrationActivity : AppCompatActivity() {
                                     }
 
                                     if (fileUri != null) {
-                                        storageRef.child(imageUri).putFile(fileUri!!)
+                                        val baos = ByteArrayOutputStream()
+                                        profilePhoto.compress(Bitmap.CompressFormat.PNG, 100, baos)
+                                        val data = baos.toByteArray()
+
+                                        storageRef.child(imageUri).putBytes(data)
                                                 .addOnSuccessListener {
                                                     navigatToChatListActivity()
                                                 }
