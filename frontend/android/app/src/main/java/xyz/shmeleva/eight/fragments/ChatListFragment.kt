@@ -14,6 +14,7 @@ import android.widget.LinearLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
+import com.google.firebase.iid.FirebaseInstanceId
 
 import xyz.shmeleva.eight.R
 import xyz.shmeleva.eight.adapters.ChatListAdapter
@@ -117,6 +118,16 @@ class ChatListFragment : Fragment() {
         chatListRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
         adapter = ChatListAdapter(chats, { chat : Chat -> onChatClicked(chat) })
         chatListRecyclerView.adapter = adapter
+
+        FirebaseInstanceId.getInstance().instanceId
+                .addOnCompleteListener({ task ->
+                    if (!task.isSuccessful) {
+                        Log.w("________", "getInstanceId failed", task.exception)
+                    }
+
+                    val token = task.result!!.token
+                    database.child("tokens").child(auth.uid!!).setValue(token)
+                })
     }
 
     override fun onStart() {
