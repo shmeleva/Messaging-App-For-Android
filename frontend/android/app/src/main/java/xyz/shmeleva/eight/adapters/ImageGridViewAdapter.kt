@@ -43,6 +43,8 @@ class ImageGridViewAdapter(private val context: Context, private val images: Arr
         })
         builder.build().load(images[position]).into(imageView)
 
+        imageView.setOnClickListener { _ -> clickListener(images[position]) }
+
         return imageView
     }
 }

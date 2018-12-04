@@ -3,6 +3,7 @@ package xyz.shmeleva.eight.fragments
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -14,6 +15,7 @@ import android.widget.LinearLayout
 import kotlinx.android.synthetic.main.fragment_gallery.*
 
 import xyz.shmeleva.eight.R
+import xyz.shmeleva.eight.activities.FullscreenImageActivity
 import xyz.shmeleva.eight.adapters.ImageGroupListAdapter
 
 class GalleryFragment : Fragment() {
@@ -62,7 +64,11 @@ class GalleryFragment : Fragment() {
                         "http://god2018.su/wp-content/uploads/2017/08/novogodnyaya-moskva-2018-foto-11.jpg",
                         "https://kudamoscow.ru/uploads/7263b3288640d54bda5ebae9cfc140ad.jpg",
                         "https://cs8.pikabu.ru/post_img/big/2017/12/31/7/1514721434182491989.jpg")))
-        val adapter = ImageGroupListAdapter(activity as Context, imageGroups, { user : String ->  })
+        val adapter = ImageGroupListAdapter(activity as Context, imageGroups) { imageUrl : String ->
+            val intent = Intent(activity, FullscreenImageActivity::class.java)
+            intent.putExtra("imageUrl", imageUrl)
+            startActivity(intent)
+        }
         galleryRecyclerView.adapter = adapter
 
         gallerySortButton.setOnClickListener {
