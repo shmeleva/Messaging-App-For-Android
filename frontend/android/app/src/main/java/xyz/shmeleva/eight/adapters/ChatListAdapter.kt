@@ -17,7 +17,7 @@ import java.util.*
  * Created by shagg on 19.11.2018.
  */
 //
-class ChatListAdapter(val chatList: ArrayList<Chat>, val clickListener: (Chat) -> Unit) : RecyclerView.Adapter<ChatListAdapter.ViewHolder>() {
+class ChatListAdapter(val chatList: ArrayList<Chat>, val clickListener: (Chat) -> Unit, val currentUserId: String?) : RecyclerView.Adapter<ChatListAdapter.ViewHolder>() {
     override fun getItemCount(): Int {
         return  chatList.size
     }
@@ -30,7 +30,7 @@ class ChatListAdapter(val chatList: ArrayList<Chat>, val clickListener: (Chat) -
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val chat = chatList[position];
         holder.imageView.shape = MultiImageView.Shape.CIRCLE
-        holder.participantsTextView.text = chat.id // FIXME: Change to list of members (except for oneself)
+        holder.participantsTextView.text = chat.getMemberNames(currentUserId)
 
         if (Date(chat.joinedAt).after(Date(chat.updatedAt))) {
             holder.lastMessageTextView.text = ""
