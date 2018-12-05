@@ -35,10 +35,9 @@ import java.util.*
 
 // TODO: handle DB failures?
 
-class SettingsActivity : AppCompatActivity() {
+class SettingsActivity : BaseFragmentActivity() {
 
     private val TAG: String = "SettingsActivity"
-    @JvmField val PICK_PHOTO = 1
     private lateinit var auth: FirebaseAuth
     private lateinit var profilePhoto: Bitmap
     private lateinit var storageRef: StorageReference
@@ -173,10 +172,6 @@ class SettingsActivity : AppCompatActivity() {
         themeTextView.setText(theme)
     }
 
-    override fun onStart() {
-        super.onStart()
-    }
-
     fun navigateBack(view: View) {
         onBackPressed()
     }
@@ -197,44 +192,17 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     fun pickPhoto(view: View) {
-        val intent = Intent()
-        intent.type = "image/*"
-        intent.action = Intent.ACTION_GET_CONTENT
-        startActivityForResult(Intent.createChooser(intent, "Select profile picture"), PICK_PHOTO)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == PICK_PHOTO && resultCode == Activity.RESULT_OK) {
-            AsyncTask.execute(Runnable {
-                profilePhoto = getProfilePhotoFromIntent(data)
-                runOnUiThread({
-                    profilePictureImageView.setImageBitmap(profilePhoto)
-                })
-
-                uploadProfilePhotoToDB(profilePhoto)
-            })
+        dispatchTakeOrPickPictureIntent { bitmap ->
+            profilePhoto = bitmap
+            Log.i("chat", "4")
+            runOnUiThread {
+                Log.i("chat", "5")
+                profilePictureImageView.setImageBitmap(profilePhoto)
+            }
+            Log.i("chat", "6")
+            uploadProfilePhotoToDB(profilePhoto)
+            Log.i("chat", "7")
         }
-    }
-
-    private fun getProfilePhotoFromIntent(intentData: Intent?) : Bitmap {
-        var bitmap : Bitmap
-        try {
-            bitmap = Picasso.get()
-                    .load(intentData?.data)
-                    .resize(400, 0)
-                    .get()
-        } catch (ex: Exception) {
-            // TODO: catch the exception better!
-            // default profile picture
-            return Picasso.get()
-                    .load("https://pixel.nymag.com/imgs/daily/vulture/2016/11/23/23-san-junipero.w330.h330.jpg")
-                    .resize(400, 0)
-                    .get()
-        }
-
-        return bitmap
     }
 
     private fun getUserFromDBAndPopulate(uid: String) {

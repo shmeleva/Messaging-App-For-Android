@@ -19,6 +19,7 @@
     <string name="error_incorrect_password">Either email address or password is incorrect</string>
     <string name="error_registration_failed">Registration failed</string>
     <string name="error_login_failed">Login failed</string>
+    <string name="error_picture_upload_failed">Ooops! There was a problem uploading your image.</string>
     <string name="dialog_button_positive">OK</string>
     <string name="dialog_button_negative">Cancel</string>
 
@@ -29,6 +30,13 @@
     <string name="settings_download_image_resolution">Download Image Resolution</string>
     <string name="settings_theme">Theme</string>
     <string name="settings_log_out">Log Out</string>
+
+    <string name="dialog_picture_source_from_camera">From camera</string>
+    <string name="dialog_picture_source_from_gallery">From gallery</string>
+    <string-array name="dialog_picture_source">
+        <item>@string/dialog_picture_source_from_camera</item>
+        <item>@string/dialog_picture_source_from_gallery</item>
+    </string-array>
 
     <string name="chat_settings_gallery">Gallery</string>
     <string name="chat_settings_add_member">Add Member</string>

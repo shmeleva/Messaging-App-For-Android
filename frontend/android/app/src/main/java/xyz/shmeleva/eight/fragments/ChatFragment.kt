@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -105,7 +106,7 @@ class ChatFragment : Fragment() {
         if (context is OnFragmentInteractionListener) {
             fragmentInteractionListener = context
         } else {
-            throw RuntimeException(context!!.toString() + " must implement OnFragmentInteractionListener")
+            throw RuntimeException(context!!.toString() + " must implement OnFragmentInteractionListener") as Throwable
         }
     }
 
@@ -120,7 +121,7 @@ class ChatFragment : Fragment() {
     }
 
     private fun sendImage() {
-        // TODO
+        (activity as BaseFragmentActivity).dispatchTakeOrPickPictureIntent { bitmap ->  }
     }
 
     private fun sendMessage(text: String) {
