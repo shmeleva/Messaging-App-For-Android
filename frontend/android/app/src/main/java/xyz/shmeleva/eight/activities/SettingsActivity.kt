@@ -270,6 +270,7 @@ class SettingsActivity : BaseFragmentActivity() {
         val uid = currentUser.id
         val oldUsername = currentUser.username
         currentUser.username = newUsername
+        currentUser.lowercaseUsername = newUsername.toLowerCase()
 
         return updateUserInDB()
                 .addOnSuccessListener {
@@ -278,6 +279,7 @@ class SettingsActivity : BaseFragmentActivity() {
                 }
                 .addOnFailureListener {
                     currentUser.username = oldUsername
+                    currentUser.lowercaseUsername = oldUsername.toLowerCase()
                     showErrorResult("Duplicate username!")
                 }
     }
