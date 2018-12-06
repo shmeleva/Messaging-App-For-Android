@@ -1,5 +1,6 @@
 package xyz.shmeleva.eight.models
 
+import com.google.firebase.database.Exclude
 import com.google.firebase.database.IgnoreExtraProperties
 import java.util.*
 
@@ -10,7 +11,7 @@ import java.util.*
 class Chat(
         var id: String = "",
         var isGroupChat: Boolean = false,
-        var members: MutableMap<String, Boolean> = mutableMapOf(),
+        var members: Map<String, Boolean> = mapOf(),
         var lastMessage: String = "",
         var updatedAt: Long = Date().time // Should be updated with chat is created and a new message is sent
 ) {
@@ -24,6 +25,17 @@ class Chat(
         }
 
         return other.id == id
+    }
+
+    @Exclude
+    fun toMap(): Map<String, Any?> {
+        return mapOf(
+                "id" to id,
+                "isGroupChat" to isGroupChat,
+                "members" to members,
+                "lastMessage" to lastMessage,
+                "updatedAt" to updatedAt
+        )
     }
 
     fun isMember(uid: String): Boolean {
