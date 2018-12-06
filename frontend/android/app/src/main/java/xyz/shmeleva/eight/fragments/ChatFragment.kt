@@ -42,6 +42,8 @@ class ChatFragment : Fragment() {
     private var chatId: String? = null
     private var isGroupChat: Boolean = false
 
+    private var shouldScrollToBottom = true
+
     private var fragmentInteractionListener: OnFragmentInteractionListener? = null
     private val doubleClickBlocker: DoubleClickBlocker = DoubleClickBlocker()
 
@@ -49,6 +51,7 @@ class ChatFragment : Fragment() {
     private lateinit var database: DatabaseReference
     private lateinit var storage: StorageReference
 
+    private lateinit var layoutManager: LinearLayoutManager
     private lateinit var adapter: FirebaseRecyclerAdapter<Message, RecyclerView.ViewHolder>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -127,17 +130,30 @@ class ChatFragment : Fragment() {
                 clickListener = { chat : Message -> onMessageClicked(chat) }
         )
 
-        val layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
+        layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
 
         adapter.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 super.onItemRangeInserted(positionStart, itemCount)
-                layoutManager.smoothScrollToPosition(chatMessagesRecyclerView, null, adapter.itemCount)
+                val lastMessage = adapter.getItem(adapter.itemCount - 1)
+                if (shouldScrollToBottom || lastMessage.senderId == auth.currentUser!!.uid) {
+                    scrollToBottom()
+                }
             }
         })
 
         chatMessagesRecyclerView.layoutManager = layoutManager
         chatMessagesRecyclerView.adapter = adapter
+        chatMessagesRecyclerView.addOnScrollListener(object: RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView?, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+
+                val lastVisiblePosition = layoutManager.findLastCompletelyVisibleItemPosition()
+                val lastPosition = adapter.itemCount - 1
+
+                shouldScrollToBottom = lastVisiblePosition == lastPosition
+            }
+        })
     }
 
     override fun onStart() {
@@ -168,6 +184,10 @@ class ChatFragment : Fragment() {
         activity?.hideKeyboard()
         val chatSettingsFragment = PrivateChatSettingsFragment.newInstance(false)
         (activity as BaseFragmentActivity?)?.addFragment(chatSettingsFragment as android.support.v4.app.Fragment)
+    }
+
+    private fun scrollToBottom() {
+        layoutManager.smoothScrollToPosition(chatMessagesRecyclerView, null, adapter.itemCount - 1)
     }
 
     private fun sendImage() {
