@@ -2,16 +2,16 @@ package xyz.shmeleva.eight.activities
 
 import android.content.Intent
 import android.graphics.Bitmap
-import android.net.Uri
-import android.os.AsyncTask
+import android.os.AsyncTask.execute
 import android.provider.MediaStore
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
 import android.util.Log
-import com.squareup.picasso.Picasso
 import xyz.shmeleva.eight.R
+import com.bumptech.glide.Glide
+
 
 open class BaseFragmentActivity(private val containerViewId: Int =  0) : AppCompatActivity() {
 
@@ -70,12 +70,12 @@ open class BaseFragmentActivity(private val containerViewId: Int =  0) : AppComp
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
         if ((requestCode == REQUEST_PICTURE_CAPTURE || requestCode == PICK_PICTURE) && resultCode == RESULT_OK) {
             try {
-                Log.i("chat", "1")
-                AsyncTask.execute {
+                execute {
                     val bitmap = if (requestCode == REQUEST_PICTURE_CAPTURE)
                         data.extras.get("data") as Bitmap
                     else
-                        Picasso.get().load(data.data).get()
+                        //Picasso.get().load(data.data).get()
+                        Glide.with(this).asBitmap().load(data.data).submit().get()
 
                     pictureCallback(bitmap)
                 }

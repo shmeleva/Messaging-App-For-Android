@@ -12,6 +12,7 @@ class Message(
         var id: String = "",
         var text: String = "",
         var imageUrl: String = "",
+        var imageFeature: String = "",
         var senderId: String = "",
         var timestamp: Long = Date().time
 ) {

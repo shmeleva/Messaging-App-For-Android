@@ -1,8 +1,10 @@
 package xyz.shmeleva.eight.fragments
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -18,17 +20,20 @@ import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 
 import kotlinx.android.synthetic.main.fragment_chat.*
 
 import com.stfalcon.multiimageview.MultiImageView
-import kotlinx.android.synthetic.main.activity_login.*
 
 import xyz.shmeleva.eight.R
 import xyz.shmeleva.eight.activities.BaseFragmentActivity
 import xyz.shmeleva.eight.adapters.MessageListAdapter
 import xyz.shmeleva.eight.models.Message
 import xyz.shmeleva.eight.utilities.*
+import java.io.ByteArrayOutputStream
+import java.util.*
 
 class ChatFragment : Fragment() {
 
@@ -42,6 +47,7 @@ class ChatFragment : Fragment() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
+    private lateinit var storage: StorageReference
 
     private lateinit var adapter: FirebaseRecyclerAdapter<Message, RecyclerView.ViewHolder>
 
@@ -56,6 +62,7 @@ class ChatFragment : Fragment() {
 
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().reference
+        storage = FirebaseStorage.getInstance().reference
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -165,8 +172,43 @@ class ChatFragment : Fragment() {
     }
 
     private fun sendImage() {
-        (activity as BaseFragmentActivity).dispatchTakeOrPickPictureIntent { _ ->  }
+        (activity as BaseFragmentActivity).dispatchTakeOrPickPictureIntent { bitmap ->
+            val byteArrayOutputStream = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
+            val data = byteArrayOutputStream.toByteArray()
+
+            val imageUrl = "images/${UUID.randomUUID()}"
+            storage.child(imageUrl).putBytes(data)
+                    .addOnSuccessListener {
+                        val messageId = database.child("chatMessages").child(chatId!!).push().key!!
+                        val message = Message(
+                                id = messageId,
+                                imageUrl = imageUrl,
+                                senderId = auth.currentUser!!.uid
+                        )
+
+                        val childUpdates = HashMap<String, Any>()
+                        childUpdates["chatMessages/$chatId/$messageId"] = message.toMap()
+                        childUpdates["chats/$chatId/lastMessage"] = "\uD83D\uDCF7"
+                        childUpdates["chats/$chatId/updatedAt"] = message.timestamp
+                        database.updateChildren(childUpdates)
+                                .addOnFailureListener {
+                                    activity?.runOnUiThread {
+                                        Snackbar.make(view!!, R.string.error_picture_upload_failed, Snackbar.LENGTH_LONG)
+                                                .show()
+                                    }
+                                }
+                    }
+                    .addOnFailureListener {
+                        activity?.runOnUiThread {
+                            Snackbar.make(view!!, R.string.error_picture_upload_failed, Snackbar.LENGTH_LONG)
+                                    .show()
+                        }
+                    }
+        }
     }
+
+
 
     private fun sendMessage(text: String) {
         val messageId = database.child("chatMessages").child(chatId!!).push().key!!
