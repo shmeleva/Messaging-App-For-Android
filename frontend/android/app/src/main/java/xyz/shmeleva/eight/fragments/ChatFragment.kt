@@ -121,7 +121,7 @@ class ChatFragment : Fragment() {
     }
 
     private fun sendImage() {
-        (activity as BaseFragmentActivity).dispatchTakeOrPickPictureIntent { bitmap ->  }
+        (activity as BaseFragmentActivity).dispatchTakeOrPickPictureIntent { _, _ ->  }
     }
 
     private fun sendMessage(text: String) {

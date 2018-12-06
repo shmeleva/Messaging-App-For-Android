@@ -2,6 +2,7 @@ package xyz.shmeleva.eight.activities
 
 import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.AsyncTask
 import android.provider.MediaStore
 import android.support.design.widget.Snackbar
@@ -40,9 +41,9 @@ open class BaseFragmentActivity(private val containerViewId: Int =  0) : AppComp
     val REQUEST_PICTURE_CAPTURE = 1
     val PICK_PICTURE = 2
 
-    private var pictureCallback: (Bitmap) -> Unit = { }
+    private var pictureCallback: (Bitmap, Uri) -> Unit = { _, _ -> }
 
-    fun dispatchTakeOrPickPictureIntent(callback: (Bitmap) -> Unit) {
+    fun dispatchTakeOrPickPictureIntent(callback: (Bitmap, Uri) -> Unit) {
         AlertDialog.Builder(this)
                 .setItems(R.array.dialog_picture_source) { _, which ->
                     pictureCallback = callback
@@ -71,13 +72,12 @@ open class BaseFragmentActivity(private val containerViewId: Int =  0) : AppComp
             try {
                 Log.i("chat", "1")
                 AsyncTask.execute {
-                    Log.i("chat", "2")
                     val bitmap = if (requestCode == REQUEST_PICTURE_CAPTURE)
                         data.extras.get("data") as Bitmap
                     else
                         Picasso.get().load(data.data).get()
-                    Log.i("chat", "3")
-                    pictureCallback(bitmap)
+
+                    pictureCallback(bitmap, data.data)
                 }
             }
             catch (ex: Exception) {

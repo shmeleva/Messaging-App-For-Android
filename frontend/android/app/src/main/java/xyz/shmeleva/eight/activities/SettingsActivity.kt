@@ -192,16 +192,12 @@ class SettingsActivity : BaseFragmentActivity() {
     }
 
     fun pickPhoto(view: View) {
-        dispatchTakeOrPickPictureIntent { bitmap ->
+        dispatchTakeOrPickPictureIntent { bitmap, _ ->
             profilePhoto = bitmap
-            Log.i("chat", "4")
             runOnUiThread {
-                Log.i("chat", "5")
                 profilePictureImageView.setImageBitmap(profilePhoto)
             }
-            Log.i("chat", "6")
             uploadProfilePhotoToDB(profilePhoto)
-            Log.i("chat", "7")
         }
     }
 

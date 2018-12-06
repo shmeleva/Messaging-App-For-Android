@@ -30,13 +30,12 @@ import java.io.ByteArrayOutputStream
 import java.time.temporal.TemporalAdjusters.next
 import java.util.*
 
-class RegistrationActivity : AppCompatActivity() {
+class RegistrationActivity : BaseFragmentActivity() {
     @JvmField
     val PICK_PHOTO = 1
     private lateinit var auth: FirebaseAuth
-    private lateinit var profilePhoto: Bitmap
+    private var profilePhoto: Bitmap? = null
 
-    private var fileUri: Uri? = null
     private lateinit var storageRef: StorageReference
     private lateinit var database: DatabaseReference
 
@@ -72,7 +71,7 @@ class RegistrationActivity : AppCompatActivity() {
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
 
-                        val imageUri = if (fileUri != null) "images/" + UUID.randomUUID().toString() else "";
+                        val imageUri = if (profilePhoto != null) "images/" + UUID.randomUUID().toString() else "";
                         val user = User(auth.currentUser!!.uid, username, imageUri)
                         database.child("users").child(user.id).setValue(user)
                                 .addOnSuccessListener {
@@ -82,9 +81,9 @@ class RegistrationActivity : AppCompatActivity() {
                                         showErrorResult(e.message)
                                     }
 
-                                    if (fileUri != null) {
+                                    if (profilePhoto != null) {
                                         val baos = ByteArrayOutputStream()
-                                        profilePhoto.compress(Bitmap.CompressFormat.PNG, 100, baos)
+                                        profilePhoto!!.compress(Bitmap.CompressFormat.PNG, 100, baos)
                                         val data = baos.toByteArray()
 
                                         storageRef.child(imageUri).putBytes(data)
@@ -135,22 +134,10 @@ class RegistrationActivity : AppCompatActivity() {
     }
 
     fun pickPhoto(view: View) {
-        val intent = Intent()
-        intent.type = "image/*"
-        intent.action = Intent.ACTION_GET_CONTENT
-        startActivityForResult(Intent.createChooser(intent, "Select profile picture"), PICK_PHOTO)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == PICK_PHOTO && resultCode == Activity.RESULT_OK) {
-            AsyncTask.execute {
-                profilePhoto = getProfilePhotoFromIntent(data)
-                runOnUiThread {
-                    registrationProfilePictureImageView.setImageBitmap(profilePhoto)
-                    fileUri = data?.data
-                }
+        dispatchTakeOrPickPictureIntent { bitmap, uri ->
+            profilePhoto = bitmap
+            runOnUiThread {
+                registrationProfilePictureImageView.setImageBitmap(profilePhoto)
             }
         }
     }
@@ -189,24 +176,5 @@ class RegistrationActivity : AppCompatActivity() {
         }
 
         return true
-    }
-
-    private fun getProfilePhotoFromIntent(intentData: Intent?): Bitmap {
-        var bitmap: Bitmap
-        try {
-            bitmap = Picasso.get()
-                    .load(intentData?.data)
-                    .resize(400, 0)
-                    .get()
-        } catch (ex: Exception) {
-            // TODO: catch the exception better!
-            // default profile picture
-            return Picasso.get()
-                    .load("https://pixel.nymag.com/imgs/daily/vulture/2016/11/23/23-san-junipero.w330.h330.jpg")
-                    .resize(400, 0)
-                    .get()
-        }
-
-        return bitmap
     }
 }
