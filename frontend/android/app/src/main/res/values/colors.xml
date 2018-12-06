@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="white">#ffffff</color>
+    <color name="fairGray">#EEEEEE</color>
     <color name="lightGray">#8C8C8C</color>
     <color name="black">#000000</color>
 
@@ -10,9 +11,11 @@
     <color name="primaryLightColor">#62727b</color>
     <color name="primaryDarkColor">#102027</color>
     <color name="secondaryColor">#00796b</color>
-    <color name="secondaryLightColor">#48a999</color>
+    <color name="secondaryLightColor">#b8e0d9</color>
     <color name="secondaryDarkColor">#004c40</color>
     <color name="primaryTextColor">#ffffff</color>
     <color name="secondaryTextColor">#ffffff</color>
     <color name="errorTextColor">#b00020</color>
+
+    <color name="black_overlay">#66000000</color>
 </resources>

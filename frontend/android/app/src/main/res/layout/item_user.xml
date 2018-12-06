@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
+
+    <com.stfalcon.multiimageview.MultiImageView
+        android:id="@+id/userImageView"
+        android:layout_width="@dimen/profile_picture_size_normal"
+        android:layout_height="@dimen/profile_picture_size_normal"
+        android:layout_marginStart="@dimen/spacing_normal"
+        android:layout_marginTop="@dimen/spacing_small"
+        android:layout_marginEnd="@dimen/spacing_normal"
+        android:layout_marginBottom="@dimen/spacing_small"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"/>
+
+    <CheckBox
+        android:id="@+id/userCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_margin="@dimen/spacing_normal"/>
+
+    <TextView
+        android:id="@+id/userTextView"
+        android:layout_marginTop="@dimen/spacing_normal"
+        android:layout_marginEnd="@dimen/spacing_normal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/userImageView"
+        android:layout_toStartOf="@id/userCheckBox"
+        android:layout_centerVertical="true"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:includeFontPadding="false"
+        style="@style/AppTheme.TextAppearance.Body2"
+        android:text="Pavel Durov"
+        />
+
+</RelativeLayout>

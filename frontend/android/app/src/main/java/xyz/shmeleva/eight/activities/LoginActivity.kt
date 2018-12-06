@@ -62,6 +62,8 @@ class LoginActivity : AppCompatActivity() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }))
+
+        // TODO: get the extra message and show it
     }
 
     fun logIn(view: View) {
@@ -80,6 +82,14 @@ class LoginActivity : AppCompatActivity() {
                     if (task.isSuccessful) {
                         val intent = Intent(this, ChatListActivity::class.java)
                         startActivity(intent)
+                    }
+                    else {
+                        val toast = Toast.makeText(
+                                applicationContext,
+                                getString(R.string.error_login_failed) + "\n" + task.exception?.message,
+                                Toast.LENGTH_LONG
+                        )
+                        toast.show()
                     }
                 }
     }
@@ -106,10 +116,7 @@ class LoginActivity : AppCompatActivity() {
             loginPasswordTextInputLayout.error = getString(R.string.error_required_field_password)
             return false
         }
-        if (password.length < 6) {
-            loginPasswordTextInputLayout.error = getString(R.string.error_invalid_password)
-            return false
-        }
+
         return true
     }
 }

@@ -31,4 +31,20 @@
     <dimen name="tall_toolbar_height">288dp</dimen>
     <dimen name="shrine_toolbar_image_offset_top">24dp</dimen>
 
+    <dimen name="message_avatar_width">40dp</dimen>
+    <dimen name="message_avatar_height">40dp</dimen>
+    <dimen name="message_padding_left">16dp</dimen>
+    <dimen name="message_padding_right">16dp</dimen>
+    <dimen name="message_padding_top">16dp</dimen>
+    <dimen name="message_padding_bottom">16dp</dimen>
+    <dimen name="message_text_size">17sp</dimen>
+    <dimen name="message_time_text_size">14sp</dimen>
+    <dimen name="message_date_header_text_size">16sp</dimen>
+    <dimen name="message_date_header_padding">16dp</dimen>
+    <dimen name="message_incoming_bubble_margin_right">40dp</dimen>
+    <dimen name="message_outgoing_bubble_margin_left">88dp</dimen>
+
+    <dimen name="profile_picture_size_normal">40dp</dimen>
+    <dimen name="profile_picture_size_small">24dp</dimen>
+
 </resources>

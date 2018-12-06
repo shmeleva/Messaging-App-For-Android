@@ -1,0 +1,56 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/outgoingMessageRelativeLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
+    android:layout_marginTop="8dp">
+
+    <com.google.android.flexbox.FlexboxLayout
+        android:id="@+id/outgoingMessageBubbleFlexboxLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/message_outgoing_bubble_margin_left"
+        android:layout_alignParentEnd="true"
+        android:orientation="vertical"
+        app:alignContent="stretch"
+        app:alignItems="stretch"
+        app:flexWrap="wrap"
+        app:justifyContent="flex_end"
+        style="@style/AppTheme.ChatMessage.Outgoing">
+
+        <FrameLayout
+            android:id="@+id/outgoingMessageContentFrameLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/outgoingMessageContentTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+
+            <ImageView
+                android:id="@+id/outgoingMessageContentImageView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                />
+
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/outgoingMessageTimeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/outgoingMessageContentFrameLayout"
+            android:layout_marginStart="8dp"
+            app:layout_alignSelf="center"
+            style="@style/AppTheme.TextAppearance.Overline"/>
+
+    </com.google.android.flexbox.FlexboxLayout>
+
+</RelativeLayout>

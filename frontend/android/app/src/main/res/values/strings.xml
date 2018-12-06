@@ -17,6 +17,11 @@
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">Password must be at least 6 characters long</string>
     <string name="error_incorrect_password">Either email address or password is incorrect</string>
+    <string name="error_registration_failed">Registration failed</string>
+    <string name="error_login_failed">Login failed</string>
+    <string name="error_picture_upload_failed">Ooops! There was a problem uploading your image.</string>
+    <string name="dialog_button_positive">OK</string>
+    <string name="dialog_button_negative">Cancel</string>
 
 
     <string name="settings_account">Account</string>
@@ -25,6 +30,36 @@
     <string name="settings_download_image_resolution">Download Image Resolution</string>
     <string name="settings_theme">Theme</string>
     <string name="settings_log_out">Log Out</string>
+
+    <string name="dialog_picture_source_from_camera">From camera</string>
+    <string name="dialog_picture_source_from_gallery">From gallery</string>
+    <string-array name="dialog_picture_source">
+        <item>@string/dialog_picture_source_from_camera</item>
+        <item>@string/dialog_picture_source_from_gallery</item>
+    </string-array>
+
+    <string name="chat_settings_gallery">Gallery</string>
+    <string name="chat_settings_add_member">Add Member</string>
+    <string name="chat_settings_leave_group_chat">Leave Group</string>
+
+    <string name="gallery_group_by_dialog_title">Group By</string>
+    <string name="gallery_group_by_date">Date</string>
+    <string name="gallery_group_by_features">Features</string>
+    <string name="gallery_group_by_sender">Sender</string>
+    <string-array name="gallery_group_by_options_private">
+        <item>@string/gallery_group_by_date</item>
+        <item>@string/gallery_group_by_features</item>
+    </string-array>
+    <string-array name="gallery_group_by_options_group">
+        <item>@string/gallery_group_by_date</item>
+        <item>@string/gallery_group_by_features</item>
+        <item>@string/gallery_group_by_sender</item>
+    </string-array>
+
+
+    <string name="extra_message_key">xyz.shmeleva.eight.EXTRA_MESSAGE</string>
+    <string name="message_registration_successful">You\'ve signed up! Now please log in</string>
+    <string name="message_logout">You have logged out. To continue using the app, please log in again</string>
 
     <!-- These are used in Android Studio LoginActivity template. I'll get to these later. -->
 
@@ -35,4 +70,19 @@
     <string name="title_activity_register">RegisterActivity</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_chat_list">ChatListActivity</string>
+
+    <string name="settings_image_resolution_low">Low</string>
+    <string name="settings_image_resolution_medium">Medium</string>
+    <string name="settings_image_resolution_high">High</string>
+    <string name="settings_prompt_save_btn">Save</string>
+    <string name="settings_prompt_cancel_btn">Cancel</string>
+
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="title_activity_fullscreen_image">FullscreenImageActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+
 </resources>

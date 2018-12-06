@@ -1,17 +1,43 @@
 package xyz.shmeleva.eight.activities
 
+import android.app.Activity
+import android.content.Intent
+import android.graphics.Bitmap
+import android.net.Uri
+import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.util.Patterns
 import android.view.View
+import android.widget.ImageView
 import android.widget.Toast
+import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_registration.*
+import kotlinx.android.synthetic.main.activity_settings.*
 import xyz.shmeleva.eight.R
+import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.FirebaseStorage
+import xyz.shmeleva.eight.models.User
+import java.io.ByteArrayOutputStream
+import java.time.temporal.TemporalAdjusters.next
+import java.util.*
 
-class RegistrationActivity : AppCompatActivity() {
+class RegistrationActivity : BaseFragmentActivity() {
+    @JvmField
+    val PICK_PHOTO = 1
     private lateinit var auth: FirebaseAuth
+    private var profilePhoto: Bitmap? = null
+
+    private lateinit var storageRef: StorageReference
+    private lateinit var database: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,40 +46,135 @@ class RegistrationActivity : AppCompatActivity() {
         // Initialize Firebase Auth
         FirebaseApp.initializeApp(this)
         auth = FirebaseAuth.getInstance()
+        storageRef = FirebaseStorage.getInstance().reference
+        database = FirebaseDatabase.getInstance().reference
     }
 
-    public override fun onStart() {
+    override fun onStart() {
         super.onStart()
-        // Check if user is signed in (non-null) and update UI accordingly.
-        val currentUser = auth.currentUser
-
-        // TODO: do something
     }
 
     fun signUp(view: View) {
+        var username = registrationUsernameEditText.text.toString()
         var email = registrationEmailEditText.text.toString()
         var password = registrationPasswordEditText.text.toString()
+
+        var isValidUsername = validateUsername(username)
+        var isValidEmail = validateEmail(email)
+        var isValidPassword = validatePassword(password)
+        //
+        if (!isValidUsername || !isValidEmail || !isValidPassword) {
+            return
+        }
 
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
-                        // Sign in success, update UI with the signed-in user's information
-                        var text = "Registration succeeded for email: " + email + " and password: " + password + "!";
-                        Log.d("info", "createUserWithEmail:success")
-                        Toast.makeText(baseContext, text,
-                                Toast.LENGTH_SHORT).show()
-                        val user = auth.currentUser
+
+                        val imageUri = if (profilePhoto != null) "images/" + UUID.randomUUID().toString() else "";
+                        val user = User(auth.currentUser!!.uid, username, username.toLowerCase(), imageUri)
+                        database.child("users").child(user.id).setValue(user)
+                                .addOnSuccessListener {
+
+                                    database.child("usernames").child(user.username).setValue(user.id)
+                                            .addOnFailureListener{ e->
+                                        showErrorResult(e.message)
+                                    }
+
+                                    if (profilePhoto != null) {
+                                        val baos = ByteArrayOutputStream()
+                                        profilePhoto!!.compress(Bitmap.CompressFormat.PNG, 100, baos)
+                                        val data = baos.toByteArray()
+
+                                        storageRef.child(imageUri).putBytes(data)
+                                                .addOnSuccessListener {
+                                                    navigatToChatListActivity()
+                                                }
+                                                .addOnFailureListener { e ->
+                                                    showErrorResult(e.message)
+                                                }
+                                    } else {
+                                        navigatToChatListActivity()
+                                    }
+
+                                }.addOnFailureListener { e ->
+                                    auth.currentUser?.delete()
+                                            ?.addOnCompleteListener{ task ->
+                                                showErrorResult("Duplicate username!")
+                                            }
+                                }
                     } else {
-                        // If sign in fails, display a message to the user.
-                        var text = "Registration failed for email: " + email + " and password: " + password;
-                        Log.w("info", "createUserWithEmail:failure", task.exception)
-                        Toast.makeText(baseContext, text,
-                                Toast.LENGTH_SHORT).show()
+                        showErrorResult(task.exception?.message)
                     }
                 }
     }
 
-    fun navigateBack(view:View) {
+    private fun navigatToChatListActivity() {
+        val chatListActivityIntent = Intent(this, ChatListActivity::class.java)
+        chatListActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        chatListActivityIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+
+        startActivity(chatListActivityIntent)
+        finish()
+    }
+
+    private fun showErrorResult(message: String?) {
+        signUpButton.error = getString(R.string.error_registration_failed)
+
+        val toast = Toast.makeText(
+                applicationContext,
+                getString(R.string.error_registration_failed) + "\n" + message,
+                Toast.LENGTH_LONG
+        )
+        toast.show()
+    }
+
+    fun navigateBack(view: View) {
         onBackPressed()
+    }
+
+    fun pickPhoto(view: View) {
+        dispatchTakeOrPickPictureIntent { bitmap ->
+            profilePhoto = bitmap
+            runOnUiThread {
+                registrationProfilePictureImageView.setImageBitmap(profilePhoto)
+            }
+        }
+    }
+
+    private fun validateUsername(username: String): Boolean {
+        if (username.isBlank()) {
+            registrationUsernameTextInputLayout.error = getString(R.string.error_required_field_display_name)
+            return false
+        }
+
+        return true
+    }
+
+    private fun validateEmail(email: String): Boolean {
+        if (email.isBlank()) {
+            registrationEmailTextInputLayout.error = getString(R.string.error_required_field_email)
+            return false
+        }
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            registrationEmailTextInputLayout.error = getString(R.string.error_invalid_email)
+            return false
+        }
+
+        return true
+    }
+
+    private fun validatePassword(password: String): Boolean {
+        if (password.isBlank()) {
+            registrationPasswordTextInputLayout.error = getString(R.string.error_required_field_password)
+            return false
+        }
+
+        if (password.length < 6) {
+            registrationPasswordTextInputLayout.error = getString(R.string.error_invalid_password)
+            return false
+        }
+
+        return true
     }
 }

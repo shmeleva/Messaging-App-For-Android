@@ -74,6 +74,7 @@
     </style>
 
     <style name="AppTheme.TextAppearance.Body2" parent="Base.TextAppearance.AppCompat.Body1">
+        <item name="android:textSize">@dimen/font_normal</item>
     </style>
 
     <style name="AppTheme.TextAppearance.Body2.Translucent">
@@ -101,7 +102,7 @@
     <!-- CHAT MESSAGES: -->
 
     <style name="AppTheme.ChatMessage">
-        <item name="android:foreground">?selectableItemBackground</item>
+        <!--<item name="android:foreground">?selectableItemBackground</item>-->
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
         <item name="android:padding">@dimen/spacing_normal</item>
@@ -113,6 +114,29 @@
 
     <style name="AppTheme.ChatMessage.Incoming">
         <item name="android:background">@drawable/bg_incoming_message</item>
+    </style>
+
+    <!-- Buttons -->
+
+    <style name="AppTheme.Button.Back" parent="Theme.AppCompat">
+        <item name="android:src">@drawable/ic_baseline_arrow_back_24px</item>
+        <item name="android:tint">@color/white</item>
+        <item name="android:hapticFeedbackEnabled">true</item>
+        <item name="android:background">?selectableItemBackgroundBorderless</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <style name="FullscreenTheme" parent="AppTheme">
+        <item name="android:actionBarStyle">@style/FullscreenActionBarStyle</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:windowBackground">@null</item>
+        <item name="metaButtonBarStyle">?android:attr/buttonBarStyle</item>
+        <item name="metaButtonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
+    </style>
+
+    <style name="FullscreenActionBarStyle" parent="Widget.AppCompat.ActionBar">
+        <item name="android:background">@color/black_overlay</item>
     </style>
 
 </resources>
