@@ -5,26 +5,39 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.fragment_private_chat_settings.*
 
 import xyz.shmeleva.eight.R
 import xyz.shmeleva.eight.activities.BaseFragmentActivity
 import xyz.shmeleva.eight.activities.ChatActivity
+import xyz.shmeleva.eight.models.Chat
+import xyz.shmeleva.eight.models.User
 
 class PrivateChatSettingsFragment : Fragment() {
 
+    private val TAG = "PrivChatSettingsFrgmnt"
+
     private var shouldLaunchChat: Boolean? = null
+    private var user: User? = null
 
     private var fragmentInteractionListener: OnFragmentInteractionListener? = null
+
+    private lateinit var auth: FirebaseAuth
+    private lateinit var database: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
             shouldLaunchChat = arguments!!.getBoolean(ARG_SHOULD_LAUNCH_CHAT)
         }
+        auth = FirebaseAuth.getInstance()
+        database = FirebaseDatabase.getInstance().reference
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -36,9 +49,7 @@ class PrivateChatSettingsFragment : Fragment() {
         privateChatBackButton.setOnClickListener {_ -> activity?.onBackPressed()}
         privateChatStartFab.setOnClickListener {_ ->
             if (shouldLaunchChat == true) {
-                val chatActivityIntent = Intent(activity, ChatActivity::class.java)
-                startActivity(chatActivityIntent)
-                activity?.finishAfterTransition()
+                getOrCreatePrivateChat()
             }
             else {
                 activity?.onBackPressed()
@@ -47,6 +58,68 @@ class PrivateChatSettingsFragment : Fragment() {
         privateChatGalleryRelativeLayout.setOnClickListener { _ ->
             (activity as BaseFragmentActivity).addFragment(GalleryFragment.newInstance(true))
         }
+    }
+
+    fun setUser(targetUser: User) {
+        user = targetUser
+    }
+
+    private fun activateChat(chatId: String) {
+        val chatActivityIntent = Intent(activity, ChatActivity::class.java)
+        chatActivityIntent.putExtra("chatId", chatId)
+        startActivity(chatActivityIntent)
+        activity?.finishAfterTransition()
+    }
+
+    private fun createChat(memberIds: Set<String>) {
+        val newChatId: String = database.child("chats").push().key!!
+        val newChat = Chat(
+                id = newChatId,
+                isGroupChat = memberIds.size > 2,
+                members = memberIds.map { it to true }.toMap()
+        )
+
+        val childUpdates = HashMap<String, Any>()
+        childUpdates["/chats/$newChatId"] = newChat.toMap()
+
+        for (userId in memberIds) {
+            childUpdates["/users/$userId/chats/$newChatId"] = mapOf("joinedAt" to newChat.updatedAt)
+        }
+
+        database.updateChildren(childUpdates)
+                .addOnSuccessListener {
+                    activateChat(newChatId)
+                }
+                .addOnFailureListener {
+                    Log.e(TAG, "Failed to update new chat $newChatId: ${it.message}")
+                }
+    }
+
+    private fun getOrCreatePrivateChat() {
+        database.child("chats").addListenerForSingleValueEvent(object: ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    val selectedUserIds = setOf(auth.currentUser!!.uid, user!!.id)
+
+                    for (chatSnapshot in snapshot.children) {
+                        val chat = chatSnapshot.getValue(Chat::class.java)
+
+                        if (chat != null && chat.members.keys == selectedUserIds) {
+                            Log.i(TAG, "Found chat ${chat.id}")
+                            activateChat(chat.id)
+                            return
+                        }
+                    }
+
+                    Log.i(TAG, "Private chat not found")
+                    createChat(selectedUserIds)
+                }
+            }
+
+            override fun onCancelled(e: DatabaseError) {
+                Log.e(TAG, "Failed to retrieve chats: ${e.message}")
+            }
+        })
     }
 
     fun onButtonPressed(uri: Uri) {

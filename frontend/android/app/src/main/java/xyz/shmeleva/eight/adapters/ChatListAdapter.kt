@@ -17,7 +17,7 @@ import java.util.*
  * Created by shagg on 19.11.2018.
  */
 //
-class ChatListAdapter(val chatList: ArrayList<Chat>, val clickListener: (Chat) -> Unit, val currentUserId: String?) : RecyclerView.Adapter<ChatListAdapter.ViewHolder>() {
+class ChatListAdapter(val chatList: ArrayList<Chat>, val clickListener: (Chat) -> Unit, val currentUserId: String) : RecyclerView.Adapter<ChatListAdapter.ViewHolder>() {
     override fun getItemCount(): Int {
         return  chatList.size
     }
@@ -34,7 +34,7 @@ class ChatListAdapter(val chatList: ArrayList<Chat>, val clickListener: (Chat) -
 
         if (Date(chat.joinedAt).after(Date(chat.updatedAt))) {
             holder.lastMessageTextView.text = ""
-            holder.lastMessageTimeTextView.text = ""
+            holder.lastMessageTimeTextView.text = TimestampFormatter.format(chat.joinedAt)
         } else {
             holder.lastMessageTextView.text = chat.lastMessage
             holder.lastMessageTimeTextView.text = TimestampFormatter.format(chat.updatedAt)

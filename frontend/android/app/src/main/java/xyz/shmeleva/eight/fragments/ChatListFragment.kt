@@ -117,7 +117,7 @@ class ChatListFragment : Fragment() {
         })
 
         chatListRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
-        adapter = ChatListAdapter(chats, { chat : Chat -> onChatClicked(chat) }, auth.currentUser?.uid)
+        adapter = ChatListAdapter(chats, { chat : Chat -> onChatClicked(chat) }, auth.currentUser!!.uid)
         chatListRecyclerView.adapter = adapter
 
         FirebaseInstanceId.getInstance().instanceId
@@ -234,62 +234,55 @@ class ChatListFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        val currentUser: FirebaseUser? = auth.currentUser
-        if (currentUser != null) {
-            userListener = object: ValueEventListener {
-                override fun onDataChange(userSnapshot: DataSnapshot) {
-                    Log.i(TAG, "users/${currentUser.uid} onDataChange!")
+        userListener = object: ValueEventListener {
+            override fun onDataChange(userSnapshot: DataSnapshot) {
+                Log.i(TAG, "users/${auth.currentUser!!.uid} onDataChange!")
 
-                    if (userSnapshot.exists()) {
-                        val user = userSnapshot.getValue(User::class.java)
-                        if (user != null) {
-                            // Remove no longer valid chats
-                            val chatsToRemove = arrayListOf<Chat>()
-                            for (chat in chats) {
-                                if (!user.chats.containsKey(chat.id)) {
-                                    chatsToRemove.add(chat)
-                                }
+                if (userSnapshot.exists()) {
+                    val user = userSnapshot.getValue(User::class.java)
+                    if (user != null) {
+                        // Remove no longer valid chats
+                        val chatsToRemove = arrayListOf<Chat>()
+                        for (chat in chats) {
+                            if (!user.chats.containsKey(chat.id)) {
+                                chatsToRemove.add(chat)
                             }
-                            chats.removeAll(chatsToRemove)
-
-                            // Add user's new chats
-                            for ((chatId, value) in user.chats) {
-                                val joinedAt: Long = value["joinedAt"]!!
-                                val chat = Chat(id=chatId)
-                                chat.joinedAt = joinedAt
-
-                                if (!chats.contains(chat)) {
-                                    chats.add(chat)
-                                }
-                            }
-
-                            sortChats()
-                            adapter.notifyDataSetChanged()
-
-                            attachChatsListener()
                         }
+                        chats.removeAll(chatsToRemove)
+
+                        // Add user's new chats
+                        for ((chatId, value) in user.chats) {
+                            val joinedAt: Long = value["joinedAt"]!!
+                            val chat = Chat(id = chatId)
+                            chat.joinedAt = joinedAt
+
+                            if (!chats.contains(chat)) {
+                                chats.add(chat)
+                            }
+                        }
+
+                        sortChats()
+                        adapter.notifyDataSetChanged()
+
+                        attachChatsListener()
                     }
                 }
-
-                override fun onCancelled(e: DatabaseError) {
-                    Log.e(TAG, "Failed to retrieve user ${currentUser.uid}'s chats: $e.message")
-                }
             }
-            database.child("users").child(currentUser.uid).addValueEventListener(userListener)
-            Log.i(TAG, "Attached userListener")
+
+            override fun onCancelled(e: DatabaseError) {
+                Log.e(TAG, "Failed to retrieve user ${auth.currentUser!!.uid}'s chats: $e.message")
+            }
         }
+        database.child("users").child(auth.currentUser!!.uid).addValueEventListener(userListener)
+        Log.i(TAG, "Attached userListener")
     }
 
     override fun onStop() {
         super.onStop()
         Log.i(TAG, "Detach all listeners")
-        val currentUser: FirebaseUser? = auth.currentUser
-        if (currentUser != null) {
-            database.child("users").child(currentUser.uid).removeEventListener(userListener)
-
-            detachChatsListener()
-            detachUsersListener()
-        }
+        database.child("users").child(auth.currentUser!!.uid).removeEventListener(userListener)
+        detachChatsListener()
+        detachUsersListener()
     }
 
     // TODO: Rename method, update argument and hook method into UI event
