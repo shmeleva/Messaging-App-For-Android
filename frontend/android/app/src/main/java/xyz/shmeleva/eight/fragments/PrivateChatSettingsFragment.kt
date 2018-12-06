@@ -69,9 +69,10 @@ class PrivateChatSettingsFragment : Fragment() {
         user = targetUser
     }
 
-    private fun activateChat(chatId: String) {
+    private fun activateChat(chat: Chat) {
         val chatActivityIntent = Intent(activity, ChatActivity::class.java)
-        chatActivityIntent.putExtra("chatId", chatId)
+        chatActivityIntent.putExtra("chatId", chat.id)
+        chatActivityIntent.putExtra("isGroupChat", chat.isGroupChat)
         startActivity(chatActivityIntent)
         activity?.finishAfterTransition()
     }
@@ -93,7 +94,7 @@ class PrivateChatSettingsFragment : Fragment() {
 
         database.updateChildren(childUpdates)
                 .addOnSuccessListener {
-                    activateChat(newChatId)
+                    activateChat(newChat)
                 }
                 .addOnFailureListener {
                     Log.e(TAG, "Failed to update new chat $newChatId: ${it.message}")
@@ -111,7 +112,7 @@ class PrivateChatSettingsFragment : Fragment() {
 
                         if (chat != null && chat.members.keys == selectedUserIds) {
                             Log.i(TAG, "Found chat ${chat.id}")
-                            activateChat(chat.id)
+                            activateChat(chat)
                             return
                         }
                     }
