@@ -25,6 +25,7 @@ import xyz.shmeleva.eight.adapters.UserListAdapter
 import xyz.shmeleva.eight.models.Chat
 import xyz.shmeleva.eight.models.User
 import xyz.shmeleva.eight.utilities.DoubleClickBlocker
+import xyz.shmeleva.eight.utilities.hideKeyboard
 
 /**
  * A simple [Fragment] subclass.
@@ -225,6 +226,7 @@ class SearchFragment : Fragment() {
 
     private fun onUserClicked(user : User) {
         if (source == SOURCE_SEARCH) {
+            activity?.hideKeyboard()
             val fragment = PrivateChatSettingsFragment.newInstance(true)
             fragment.setUser(user)
             (activity as BaseFragmentActivity).addFragment(fragment)
@@ -232,6 +234,7 @@ class SearchFragment : Fragment() {
         }
 
         if (source == SOURCE_NEW_PRIVATE_CHAT) {
+            activity?.hideKeyboard()
             getOrCreatePrivateChat(user)
             return
         }
@@ -249,13 +252,6 @@ class SearchFragment : Fragment() {
                 addedUsers.removeAt(userIndex)
                 searchAddedUsersRecyclerView.adapter.notifyItemRemoved(userIndex)
             }
-        }
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    fun onButtonPressed(uri: Uri) {
-        if (mListener != null) {
-            mListener!!.onFragmentInteraction(uri)
         }
     }
 

@@ -133,7 +133,7 @@ class ChatFragment : Fragment() {
     }
 
     private fun openChatSettings() {
-
+        activity?.hideKeyboard()
         val chatSettingsFragment = PrivateChatSettingsFragment.newInstance(false)
         (activity as BaseFragmentActivity?)?.addFragment(chatSettingsFragment as android.support.v4.app.Fragment)
     }

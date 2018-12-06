@@ -16,6 +16,7 @@ import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.FirebaseStorage
 import xyz.shmeleva.eight.models.User
 import xyz.shmeleva.eight.utilities.DoubleClickBlocker
+import xyz.shmeleva.eight.utilities.hideKeyboard
 import java.io.ByteArrayOutputStream
 import java.util.*
 
@@ -49,6 +50,8 @@ class RegistrationActivity : BaseFragmentActivity() {
         if (doubleClickBlocker.isDoubleClick()) {
             return
         }
+
+        hideKeyboard()
 
         val username = registrationUsernameEditText.text.toString()
         val email = registrationEmailEditText.text.toString()
@@ -105,6 +108,8 @@ class RegistrationActivity : BaseFragmentActivity() {
     }
 
     private fun navigateToChatListActivity() {
+        hideKeyboard()
+
         val chatListActivityIntent = Intent(this, ChatListActivity::class.java)
         chatListActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         chatListActivityIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
@@ -125,11 +130,10 @@ class RegistrationActivity : BaseFragmentActivity() {
     }
 
     fun navigateBack(@Suppress("UNUSED_PARAMETER")view: View) {
-
         if (doubleClickBlocker.isDoubleClick()) {
             return
         }
-
+        hideKeyboard()
         onBackPressed()
     }
 

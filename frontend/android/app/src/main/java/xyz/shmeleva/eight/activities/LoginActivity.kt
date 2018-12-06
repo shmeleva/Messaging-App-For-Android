@@ -37,6 +37,7 @@ import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.activity_registration.*
 import xyz.shmeleva.eight.R
 import xyz.shmeleva.eight.utilities.DoubleClickBlocker
+import xyz.shmeleva.eight.utilities.hideKeyboard
 
 class LoginActivity : AppCompatActivity() {
 
@@ -74,6 +75,8 @@ class LoginActivity : AppCompatActivity() {
         if (doubleClickBlocker.isDoubleClick()) {
             return
         }
+
+        hideKeyboard()
 
         var email = loginEmailEditText.text.toString()
         var password = loginPasswordEditText.text.toString()
