@@ -24,10 +24,12 @@ import android.graphics.BitmapFactory
 import android.os.AsyncTask
 import android.util.Log
 import android.widget.Toast
+import com.bumptech.glide.Glide
 import com.google.android.gms.tasks.Task
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import kotlinx.android.synthetic.main.fragment_private_chat_settings.*
 import xyz.shmeleva.eight.models.User
 import xyz.shmeleva.eight.utilities.DoubleClickBlocker
 import java.io.ByteArrayOutputStream
@@ -254,15 +256,8 @@ class SettingsActivity : BaseFragmentActivity() {
 
     private fun populateProfilePhotoFromDB(url: String) {
         if (url.isNotEmpty()) {
-            AsyncTask.execute(Runnable {
-                val profilePhotoRef = storageRef.child(url)
-                profilePhotoRef.getBytes(50*1000*1000).addOnSuccessListener {
-                    val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
-                    runOnUiThread(Runnable {
-                        profilePictureImageView.setImageBitmap(bitmap)
-                    })
-                }
-            })
+            val ref = FirebaseStorage.getInstance().reference.child(url)
+            Glide.with(this).load(ref).into(profilePictureImageView)
         }
     }
 

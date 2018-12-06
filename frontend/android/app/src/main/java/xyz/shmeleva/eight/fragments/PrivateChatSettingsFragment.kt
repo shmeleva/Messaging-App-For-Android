@@ -2,6 +2,7 @@ package xyz.shmeleva.eight.fragments
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.AsyncTask
@@ -11,10 +12,15 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.MultiTransformation
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import jp.wasabeef.glide.transformations.MaskTransformation
 import kotlinx.android.synthetic.main.activity_settings.*
 import kotlinx.android.synthetic.main.fragment_private_chat_settings.*
 
@@ -200,15 +206,8 @@ class PrivateChatSettingsFragment : Fragment() {
 
     private fun populateProfilePhotoFromDB(url: String) {
         if (url.isNotEmpty()) {
-            AsyncTask.execute(Runnable {
-                val profilePhotoRef = storageRef.child(url)
-                profilePhotoRef.getBytes(50*1000*1000).addOnSuccessListener {
-                    val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
-                    activity!!.runOnUiThread(Runnable {
-                        privateChatPictureImageView.setImageBitmap(bitmap)
-                    })
-                }
-            })
+            val ref = FirebaseStorage.getInstance().reference.child(url)
+            Glide.with(context!!).load(ref).into(privateChatPictureImageView)
         }
     }
 }
