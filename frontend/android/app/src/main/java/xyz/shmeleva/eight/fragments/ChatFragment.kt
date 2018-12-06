@@ -122,7 +122,7 @@ class ChatFragment : Fragment() {
         if (context is OnFragmentInteractionListener) {
             fragmentInteractionListener = context
         } else {
-            throw RuntimeException(context!!.toString() + " must implement OnFragmentInteractionListener") as Throwable
+            throw RuntimeException(context!!.toString() + " must implement OnFragmentInteractionListener")
         }
     }
 
@@ -146,7 +146,7 @@ class ChatFragment : Fragment() {
     }
 
     private fun onMessageClicked(message: Message) {
-
+        //TODO
     }
 
     interface OnFragmentInteractionListener {

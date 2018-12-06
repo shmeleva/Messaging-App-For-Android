@@ -44,7 +44,7 @@ class RegistrationActivity : BaseFragmentActivity() {
         super.onStart()
     }
 
-    fun signUp(view: View) {
+    fun signUp(@Suppress("UNUSED_PARAMETER")view: View) {
 
         if (doubleClickBlocker.isDoubleClick()) {
             return
@@ -92,9 +92,9 @@ class RegistrationActivity : BaseFragmentActivity() {
                                         navigateToChatListActivity()
                                     }
 
-                                }.addOnFailureListener { e ->
+                                }.addOnFailureListener { _ ->
                                     auth.currentUser?.delete()
-                                            ?.addOnCompleteListener{ task ->
+                                            ?.addOnCompleteListener{ _ ->
                                                 showErrorResult("Duplicate username!")
                                             }
                                 }
@@ -124,7 +124,7 @@ class RegistrationActivity : BaseFragmentActivity() {
         toast.show()
     }
 
-    fun navigateBack(view: View) {
+    fun navigateBack(@Suppress("UNUSED_PARAMETER")view: View) {
 
         if (doubleClickBlocker.isDoubleClick()) {
             return
@@ -133,7 +133,7 @@ class RegistrationActivity : BaseFragmentActivity() {
         onBackPressed()
     }
 
-    fun pickPhoto(view: View) {
+    fun pickPhoto(@Suppress("UNUSED_PARAMETER")view: View) {
 
         if (doubleClickBlocker.isDoubleClick()) {
             return

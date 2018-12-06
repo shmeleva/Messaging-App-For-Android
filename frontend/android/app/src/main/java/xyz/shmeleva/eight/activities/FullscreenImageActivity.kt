@@ -75,13 +75,13 @@ class FullscreenImageActivity : AppCompatActivity() {
         hideHandler.postDelayed(hideRunnable, delayMillis.toLong())
     }
 
-    fun onBack(view: View) {
+    fun onBack(@Suppress("UNUSED_PARAMETER")view: View) {
         if (doubleClickBlocker.isSingleClick()) {
             onBackPressed()
         }
     }
 
-    fun onDownload(view: View) {
+    fun onDownload(@Suppress("UNUSED_PARAMETER")view: View) {
         if (doubleClickBlocker.isSingleClick()) {
 
         }

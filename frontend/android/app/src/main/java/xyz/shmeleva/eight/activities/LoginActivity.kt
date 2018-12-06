@@ -69,7 +69,7 @@ class LoginActivity : AppCompatActivity() {
         // TODO: get the extra message and show it
     }
 
-    fun logIn(view: View) {
+    fun logIn(@Suppress("UNUSED_PARAMETER")view: View) {
 
         if (doubleClickBlocker.isDoubleClick()) {
             return
@@ -102,7 +102,7 @@ class LoginActivity : AppCompatActivity() {
                 }
     }
 
-    fun startRegistrationActivity(view: View) {
+    fun startRegistrationActivity(@Suppress("UNUSED_PARAMETER")view: View) {
 
         if (doubleClickBlocker.isDoubleClick()) {
             return

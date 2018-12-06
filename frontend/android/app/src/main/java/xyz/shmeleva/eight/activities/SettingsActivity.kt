@@ -89,7 +89,7 @@ class SettingsActivity : BaseFragmentActivity() {
 
                 AlertDialog.Builder(this)
                         .setView(usernameDialog)
-                        .setPositiveButton(R.string.settings_prompt_save_btn, DialogInterface.OnClickListener { dialog, whichButton ->
+                        .setPositiveButton(R.string.settings_prompt_save_btn, DialogInterface.OnClickListener { dialog, _ ->
                             val changedUsername = usernameDialog.dialogUsername.text.toString()
                             uploadUsernameToDB(changedUsername)
                                     .addOnSuccessListener {
@@ -99,7 +99,7 @@ class SettingsActivity : BaseFragmentActivity() {
                                     }
                             dialog.dismiss()
                         })
-                        .setNegativeButton(R.string.settings_prompt_cancel_btn, DialogInterface.OnClickListener{ dialog, whichButton ->
+                        .setNegativeButton(R.string.settings_prompt_cancel_btn, DialogInterface.OnClickListener{ dialog, _ ->
                             dialog.cancel()
                         })
                         .show()
@@ -111,7 +111,7 @@ class SettingsActivity : BaseFragmentActivity() {
                 val currentImageResolutionIndex= imageResolutionArray.indexOf(uploadImageResolution)
                 AlertDialog.Builder(this)
                         .setSingleChoiceItems(imageResolutionArray, currentImageResolutionIndex, null)
-                        .setPositiveButton(R.string.settings_prompt_save_btn, DialogInterface.OnClickListener { dialog, whichButton ->
+                        .setPositiveButton(R.string.settings_prompt_save_btn, { dialog, _ ->
                             val selectedPosition = (dialog as AlertDialog).listView.checkedItemPosition
                             uploadImageResolution = imageResolutionArray[selectedPosition]
                             uploadResolutionTextView.setText(uploadImageResolution)
@@ -119,7 +119,7 @@ class SettingsActivity : BaseFragmentActivity() {
                             editor.apply()
                             dialog.dismiss()
                         })
-                        .setNegativeButton(R.string.settings_prompt_cancel_btn, DialogInterface.OnClickListener { dialog, whichButton ->
+                        .setNegativeButton(R.string.settings_prompt_cancel_btn, { dialog, _ ->
                             dialog.cancel()
                         })
                         .show()
@@ -131,17 +131,17 @@ class SettingsActivity : BaseFragmentActivity() {
                 val currentImageResolutionIndex= imageResolutionArray.indexOf(downloadImageResolution)
                 AlertDialog.Builder(this)
                         .setSingleChoiceItems(imageResolutionArray, currentImageResolutionIndex, null)
-                        .setPositiveButton(R.string.settings_prompt_save_btn, DialogInterface.OnClickListener { dialog, whichButton ->
+                        .setPositiveButton(R.string.settings_prompt_save_btn) { dialog, _ ->
                             val selectedPosition = (dialog as AlertDialog).listView.checkedItemPosition
                             downloadImageResolution = imageResolutionArray[selectedPosition]
                             downloadResolutionTextView.setText(downloadImageResolution)
                             editor.putString("downloadResolution", downloadImageResolution)
                             editor.apply()
                             dialog.dismiss()
-                        })
-                        .setNegativeButton(R.string.settings_prompt_cancel_btn, DialogInterface.OnClickListener { dialog, whichButton ->
+                        }
+                        .setNegativeButton(R.string.settings_prompt_cancel_btn) { dialog, _ ->
                             dialog.cancel()
-                        })
+                        }
                         .show()
             }
         }
@@ -151,17 +151,18 @@ class SettingsActivity : BaseFragmentActivity() {
                 val currentTheme = themeArray.indexOf(theme)
                 AlertDialog.Builder(this)
                         .setSingleChoiceItems(themeArray, currentTheme, null)
-                        .setPositiveButton(R.string.settings_prompt_save_btn, DialogInterface.OnClickListener { dialog, whichButton ->
+                        .setPositiveButton(R.string.settings_prompt_save_btn) { dialog, _ ->
                             val selectedTheme = (dialog as AlertDialog).listView.checkedItemPosition
                             theme = themeArray[selectedTheme]
                             themeTextView.setText(theme)
                             editor.putString("theme", theme)
                             editor.apply()
                             dialog.dismiss()
-                        })
-                        .setNegativeButton(R.string.settings_prompt_cancel_btn, DialogInterface.OnClickListener { dialog, whichButton ->
+                        }
+                        .setNegativeButton(R.string.settings_prompt_cancel_btn) { dialog, _ ->
                             dialog.cancel()
-                        }).show()
+                        }
+                        .show()
             }
         }
     }
@@ -182,7 +183,7 @@ class SettingsActivity : BaseFragmentActivity() {
         themeTextView.setText(theme)
     }
 
-    fun navigateBack(view: View) {
+    fun navigateBack(@Suppress("UNUSED_PARAMETER")view: View) {
 
         if (doubleClickBlocker.isDoubleClick()) {
             return
@@ -191,7 +192,7 @@ class SettingsActivity : BaseFragmentActivity() {
         onBackPressed()
     }
 
-    fun logOut(view: View) {
+    fun logOut(@Suppress("UNUSED_PARAMETER")view: View) {
 
         if (doubleClickBlocker.isDoubleClick()) {
             return
@@ -211,7 +212,7 @@ class SettingsActivity : BaseFragmentActivity() {
         finish()
     }
 
-    fun pickPhoto(view: View) {
+    fun pickPhoto(@Suppress("UNUSED_PARAMETER")view: View) {
 
         if (doubleClickBlocker.isDoubleClick()) {
             return
