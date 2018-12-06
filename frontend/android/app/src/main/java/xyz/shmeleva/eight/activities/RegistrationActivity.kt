@@ -1,38 +1,28 @@
 package xyz.shmeleva.eight.activities
 
-import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
-import android.net.Uri
-import android.os.AsyncTask
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.util.Patterns
 import android.view.View
-import android.widget.ImageView
 import android.widget.Toast
-import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseApp
-import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_registration.*
-import kotlinx.android.synthetic.main.activity_settings.*
 import xyz.shmeleva.eight.R
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.FirebaseStorage
 import xyz.shmeleva.eight.models.User
+import xyz.shmeleva.eight.utilities.DoubleClickBlocker
 import java.io.ByteArrayOutputStream
-import java.time.temporal.TemporalAdjusters.next
 import java.util.*
 
 class RegistrationActivity : BaseFragmentActivity() {
-    @JvmField
-    val PICK_PHOTO = 1
+
+    private val doubleClickBlocker: DoubleClickBlocker = DoubleClickBlocker()
+
     private lateinit var auth: FirebaseAuth
     private var profilePhoto: Bitmap? = null
 
@@ -55,13 +45,18 @@ class RegistrationActivity : BaseFragmentActivity() {
     }
 
     fun signUp(view: View) {
-        var username = registrationUsernameEditText.text.toString()
-        var email = registrationEmailEditText.text.toString()
-        var password = registrationPasswordEditText.text.toString()
 
-        var isValidUsername = validateUsername(username)
-        var isValidEmail = validateEmail(email)
-        var isValidPassword = validatePassword(password)
+        if (doubleClickBlocker.isDoubleClick()) {
+            return
+        }
+
+        val username = registrationUsernameEditText.text.toString()
+        val email = registrationEmailEditText.text.toString()
+        val password = registrationPasswordEditText.text.toString()
+
+        val isValidUsername = validateUsername(username)
+        val isValidEmail = validateEmail(email)
+        val isValidPassword = validatePassword(password)
         //
         if (!isValidUsername || !isValidEmail || !isValidPassword) {
             return
@@ -88,13 +83,13 @@ class RegistrationActivity : BaseFragmentActivity() {
 
                                         storageRef.child(imageUri).putBytes(data)
                                                 .addOnSuccessListener {
-                                                    navigatToChatListActivity()
+                                                    navigateToChatListActivity()
                                                 }
                                                 .addOnFailureListener { e ->
                                                     showErrorResult(e.message)
                                                 }
                                     } else {
-                                        navigatToChatListActivity()
+                                        navigateToChatListActivity()
                                     }
 
                                 }.addOnFailureListener { e ->
@@ -109,7 +104,7 @@ class RegistrationActivity : BaseFragmentActivity() {
                 }
     }
 
-    private fun navigatToChatListActivity() {
+    private fun navigateToChatListActivity() {
         val chatListActivityIntent = Intent(this, ChatListActivity::class.java)
         chatListActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         chatListActivityIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
@@ -130,10 +125,20 @@ class RegistrationActivity : BaseFragmentActivity() {
     }
 
     fun navigateBack(view: View) {
+
+        if (doubleClickBlocker.isDoubleClick()) {
+            return
+        }
+
         onBackPressed()
     }
 
     fun pickPhoto(view: View) {
+
+        if (doubleClickBlocker.isDoubleClick()) {
+            return
+        }
+
         dispatchTakeOrPickPictureIntent { bitmap ->
             profilePhoto = bitmap
             runOnUiThread {

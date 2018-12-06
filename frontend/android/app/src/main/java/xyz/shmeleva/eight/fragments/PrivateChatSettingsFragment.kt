@@ -18,6 +18,7 @@ import xyz.shmeleva.eight.activities.BaseFragmentActivity
 import xyz.shmeleva.eight.activities.ChatActivity
 import xyz.shmeleva.eight.models.Chat
 import xyz.shmeleva.eight.models.User
+import xyz.shmeleva.eight.utilities.DoubleClickBlocker
 
 class PrivateChatSettingsFragment : Fragment() {
 
@@ -27,6 +28,7 @@ class PrivateChatSettingsFragment : Fragment() {
     private var user: User? = null
 
     private var fragmentInteractionListener: OnFragmentInteractionListener? = null
+    private val doubleClickBlocker: DoubleClickBlocker = DoubleClickBlocker()
 
     private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
@@ -46,17 +48,20 @@ class PrivateChatSettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        privateChatBackButton.setOnClickListener {_ -> activity?.onBackPressed()}
-        privateChatStartFab.setOnClickListener {_ ->
-            if (shouldLaunchChat == true) {
-                getOrCreatePrivateChat()
-            }
-            else {
+        privateChatBackButton.setOnClickListener {_ ->
+            if (doubleClickBlocker.isSingleClick()) {
                 activity?.onBackPressed()
             }
         }
+        privateChatStartFab.setOnClickListener {_ ->
+            if (doubleClickBlocker.isSingleClick()) {
+                if (shouldLaunchChat == true) getOrCreatePrivateChat() else activity?.onBackPressed()
+            }
+        }
         privateChatGalleryRelativeLayout.setOnClickListener { _ ->
-            (activity as BaseFragmentActivity).addFragment(GalleryFragment.newInstance(true))
+            if (doubleClickBlocker.isSingleClick()) {
+                (activity as BaseFragmentActivity).addFragment(GalleryFragment.newInstance(true))
+            }
         }
     }
 
@@ -122,12 +127,6 @@ class PrivateChatSettingsFragment : Fragment() {
         })
     }
 
-    fun onButtonPressed(uri: Uri) {
-        if (fragmentInteractionListener != null) {
-            fragmentInteractionListener!!.onFragmentInteraction(uri)
-        }
-    }
-
     override fun onAttach(context: Context?) {
         super.onAttach(context)
         if (context is OnFragmentInteractionListener) {
@@ -149,7 +148,6 @@ class PrivateChatSettingsFragment : Fragment() {
     companion object {
         private val ARG_SHOULD_LAUNCH_CHAT = "shouldLaunchChat"
 
-        // shouldLaunchChat: true when added from GroupChatSettingsFragment, SearchFragment, CreatePrivateChatFragment; false when added from ChatFragment
         fun newInstance(shouldLaunchChat: Boolean): PrivateChatSettingsFragment {
             val fragment = PrivateChatSettingsFragment()
             val args = Bundle()

@@ -31,6 +31,7 @@ class ChatFragment : Fragment() {
     private var chatId: String? = null
 
     private var fragmentInteractionListener: OnFragmentInteractionListener? = null
+    private val doubleClickBlocker: DoubleClickBlocker = DoubleClickBlocker()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,17 +56,32 @@ class ChatFragment : Fragment() {
         // Example of setting a name:
         chatTitleTextView.text = "Pavel Durov"
 
-        chatBackButton.setOnClickListener { _ -> activity?.onBackPressed()}
-        chatImageView.setOnClickListener {_ -> openChatSettings()}
-        chatTitleTextView.setOnClickListener {_ -> openChatSettings()}
-        chatActionImageButton.setOnClickListener {_ ->
-            val message = chatEditText.text.toString()
-            if (message.isBlank()) {
-                sendImage()
+        chatBackButton.setOnClickListener { _ ->
+            if (doubleClickBlocker.isSingleClick()) {
+                activity?.onBackPressed()
             }
-            else {
-                sendMessage(message)
-            }}
+        }
+        chatImageView.setOnClickListener {_ ->
+            if (doubleClickBlocker.isSingleClick()) {
+                openChatSettings()
+            }
+        }
+        chatTitleTextView.setOnClickListener {_ ->
+            if (doubleClickBlocker.isSingleClick()) {
+                openChatSettings()
+            }
+        }
+        chatActionImageButton.setOnClickListener {_ ->
+            if (doubleClickBlocker.isSingleClick()) {
+                val message = chatEditText.text.toString()
+                if (message.isBlank()) {
+                    sendImage()
+                }
+                else {
+                    sendMessage(message)
+                }
+            }
+        }
 
         chatEditText.addTextChangedListener((object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
@@ -116,6 +132,7 @@ class ChatFragment : Fragment() {
     }
 
     private fun openChatSettings() {
+
         val chatSettingsFragment = PrivateChatSettingsFragment.newInstance(false)
         (activity as BaseFragmentActivity?)?.addFragment(chatSettingsFragment as android.support.v4.app.Fragment)
     }

@@ -36,9 +36,12 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.activity_registration.*
 import xyz.shmeleva.eight.R
+import xyz.shmeleva.eight.utilities.DoubleClickBlocker
 
 class LoginActivity : AppCompatActivity() {
+
     private lateinit var auth: FirebaseAuth
+    private val doubleClickBlocker: DoubleClickBlocker = DoubleClickBlocker()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,6 +70,11 @@ class LoginActivity : AppCompatActivity() {
     }
 
     fun logIn(view: View) {
+
+        if (doubleClickBlocker.isDoubleClick()) {
+            return
+        }
+
         var email = loginEmailEditText.text.toString()
         var password = loginPasswordEditText.text.toString()
         //
@@ -95,6 +103,11 @@ class LoginActivity : AppCompatActivity() {
     }
 
     fun startRegistrationActivity(view: View) {
+
+        if (doubleClickBlocker.isDoubleClick()) {
+            return
+        }
+
         val intent = Intent(this, RegistrationActivity::class.java)
         startActivity(intent)
     }

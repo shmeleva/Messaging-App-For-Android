@@ -31,6 +31,7 @@
             android:tint="#FFFFFF"
             android:hapticFeedbackEnabled="true"
             android:contentDescription=""
+            android:onClick="onBack"
             />
 
         <ImageView
@@ -42,6 +43,7 @@
             android:src="@drawable/ic_baseline_cloud_download_24px"
             android:tint="#FFFFFF"
             android:hapticFeedbackEnabled="true"
+            android:onClick="onDownload"
             />
 
         </RelativeLayout>
