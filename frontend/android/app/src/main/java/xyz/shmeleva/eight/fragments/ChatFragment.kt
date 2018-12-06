@@ -120,14 +120,17 @@ class ChatFragment : Fragment() {
                 clickListener = { chat : Message -> onMessageClicked(chat) }
         )
 
-        // TODO: Load more messages
-//        adapter.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
-//            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-//                super.onItemRangeInserted(positionStart, itemCount)
-//            }
-//        })
+        val layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
 
-        chatMessagesRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
+        // TODO: Load more messages
+        adapter.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+                layoutManager.smoothScrollToPosition(chatMessagesRecyclerView, null, adapter.itemCount)
+            }
+        })
+
+        chatMessagesRecyclerView.layoutManager = layoutManager
         chatMessagesRecyclerView.adapter = adapter
     }
 
