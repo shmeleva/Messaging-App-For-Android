@@ -41,7 +41,8 @@ class SearchFragment : Fragment() {
 
     private lateinit var database: DatabaseReference
 
-    val users = ArrayList<User>(arrayListOf(User(username = "...")))
+    val users = ArrayList<User>(arrayListOf(
+            User(id="1", username = "1")))
     val addedUsers = arrayListOf<User>()
     lateinit var usersAdapter: UserListAdapter
     lateinit var addedUsersAdapter: AddedUsersAdapter
@@ -155,15 +156,17 @@ class SearchFragment : Fragment() {
     }
 
     private fun onUserSelected(user: User, isSelected: Boolean) {
-        if (isSelected) {
+        if (user.isSelected) {
             addedUsers.add(user)
             searchAddedUsersRecyclerView.adapter.notifyItemInserted(addedUsers.size - 1)
             searchAddedUsersRecyclerView.scrollToPosition(addedUsers.size - 1);
         }
         else {
-            var userIndex = addedUsers.indexOf(user)
-            addedUsers.removeAt(userIndex)
-            searchAddedUsersRecyclerView.adapter.notifyItemRemoved(userIndex)
+            val userIndex = addedUsers.indexOfFirst { u -> u.id == user.id }
+            if (userIndex != -1) {
+                addedUsers.removeAt(userIndex)
+                searchAddedUsersRecyclerView.adapter.notifyItemRemoved(userIndex)
+            }
         }
     }
 

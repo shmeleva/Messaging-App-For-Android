@@ -36,8 +36,15 @@ class UserListAdapter(val userList: ArrayList<User>,
 
         if (selectionEnabled) {
             holder.checkBox.visibility = View.VISIBLE
+
+            holder.checkBox.setOnCheckedChangeListener(null)
+            holder.checkBox.isChecked = user.isSelected
+            holder.checkBox.setOnCheckedChangeListener { _, isChecked ->
+                user.isSelected = isChecked;
+                selectListener(user, isChecked)
+            }
+
             holder.itemView.setOnClickListener { holder.checkBox.isChecked = !holder.checkBox.isChecked }
-            holder.checkBox.setOnCheckedChangeListener { _, isChecked -> selectListener(user, isChecked) }
         }
         else {
             holder.checkBox.visibility = View.GONE
