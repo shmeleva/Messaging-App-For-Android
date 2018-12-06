@@ -107,31 +107,32 @@ class SearchFragment : Fragment() {
             override fun onQueryTextChange(searchString: String): Boolean {
                 users.clear()
                 usersAdapter.notifyDataSetChanged()
+                val lowercaseSearchString = searchString.toLowerCase()
 
-                if (searchString.length < MINIMUM_SEARCH_LENGTH) {
-                    database.child("users").orderByChild("username").equalTo(searchString).addListenerForSingleValueEvent(object: ValueEventListener {
+                if (lowercaseSearchString.length < MINIMUM_SEARCH_LENGTH) {
+                    database.child("users").orderByChild("lowercaseUsername").equalTo(lowercaseSearchString).addListenerForSingleValueEvent(object: ValueEventListener {
                         override fun onDataChange(snapshot: DataSnapshot) {
-                            Log.i(TAG, "users username equal to $searchString onDataChange!")
+                            Log.i(TAG, "users username equal to $lowercaseSearchString onDataChange!")
                             if (snapshot.exists()) {
                                 updateUserList(snapshot)
                             }
                         }
 
                         override fun onCancelled(e: DatabaseError) {
-                            Log.e(TAG, "Failed to retrieve a user whose username matches \"$searchString\": ${e.message}")
+                            Log.e(TAG, "Failed to retrieve a user whose username matches \"$lowercaseSearchString\": ${e.message}")
                         }
                     })
                 } else {
-                    database.child("users").orderByChild("username").startAt(searchString).endAt("$searchString\uf8ff").addListenerForSingleValueEvent(object: ValueEventListener {
+                    database.child("users").orderByChild("lowercaseUsername").startAt(lowercaseSearchString).endAt("$lowercaseSearchString\uf8ff").addListenerForSingleValueEvent(object: ValueEventListener {
                         override fun onDataChange(snapshot: DataSnapshot) {
-                            Log.i(TAG, "users username starts with $searchString onDataChange!")
+                            Log.i(TAG, "users username starts with $lowercaseSearchString onDataChange!")
                             if (snapshot.exists()) {
                                 updateUserList(snapshot)
                             }
                         }
 
                         override fun onCancelled(e: DatabaseError) {
-                            Log.e(TAG, "Failed to retrieve users whose username starts with \"$searchString\": ${e.message}")
+                            Log.e(TAG, "Failed to retrieve users whose username starts with \"$lowercaseSearchString\": ${e.message}")
                         }
                     })
                 }
@@ -207,7 +208,7 @@ class SearchFragment : Fragment() {
         users.clear()
         for (userSnapshot in snapshot.children) {
             val user = userSnapshot.getValue(User::class.java)
-            if (user != null) {
+            if (user != null && user.id != auth.currentUser!!.uid) {
                 users.add(user)
             }
         }

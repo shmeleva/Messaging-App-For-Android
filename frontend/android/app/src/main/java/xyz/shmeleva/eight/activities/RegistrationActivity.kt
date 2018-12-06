@@ -72,7 +72,7 @@ class RegistrationActivity : BaseFragmentActivity() {
                     if (task.isSuccessful) {
 
                         val imageUri = if (profilePhoto != null) "images/" + UUID.randomUUID().toString() else "";
-                        val user = User(auth.currentUser!!.uid, username, imageUri)
+                        val user = User(auth.currentUser!!.uid, username, username.toLowerCase(), imageUri)
                         database.child("users").child(user.id).setValue(user)
                                 .addOnSuccessListener {
 

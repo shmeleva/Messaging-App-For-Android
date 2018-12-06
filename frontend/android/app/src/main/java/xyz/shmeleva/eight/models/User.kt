@@ -10,6 +10,7 @@ import com.google.firebase.database.IgnoreExtraProperties
 data class User(
         var id: String = "",
         var username: String = "",
+        var lowercaseUsername: String = "",
         var profilePicUrl: String = "",
         var chats: MutableMap<String, MutableMap<String, Long>> = mutableMapOf(),
         var isSelected: Boolean = false
@@ -27,6 +28,7 @@ data class User(
         return mapOf(
                 "id" to id,
                 "username" to username,
+                "lowercaseUsername" to lowercaseUsername,
                 "profilePicUrl" to profilePicUrl,
                 "chats" to chats
         )
