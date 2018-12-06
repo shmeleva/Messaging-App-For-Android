@@ -116,7 +116,7 @@ class ChatFragment : Fragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }))
 
-        val query = database.child("chatMessages").child(chatId!!).limitToLast(20)
+        val query = database.child("chatMessages").child(chatId!!)
         val options = FirebaseRecyclerOptions.Builder<Message>()
                 .setQuery(query, Message::class.java)
                 .build()
@@ -129,7 +129,6 @@ class ChatFragment : Fragment() {
 
         val layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
 
-        // TODO: Load more messages
         adapter.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 super.onItemRangeInserted(positionStart, itemCount)
