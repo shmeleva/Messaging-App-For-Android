@@ -325,6 +325,8 @@ class ChatListFragment : Fragment() {
 
     private fun onChatClicked(chat : Chat) {
         val chatActivityIntent = Intent(activity, ChatActivity::class.java)
+        chatActivityIntent.putExtra("chatId", chat.id)
+        chatActivityIntent.putExtra("isGroupChat", chat.isGroupChat)
         startActivity(chatActivityIntent)
     }
 

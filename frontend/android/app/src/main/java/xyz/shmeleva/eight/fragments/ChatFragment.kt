@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -12,7 +13,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import com.firebase.ui.database.FirebaseRecyclerAdapter
+import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 
 import kotlinx.android.synthetic.main.fragment_chat.*
 
@@ -24,21 +29,33 @@ import xyz.shmeleva.eight.activities.BaseFragmentActivity
 import xyz.shmeleva.eight.adapters.MessageListAdapter
 import xyz.shmeleva.eight.models.Message
 import xyz.shmeleva.eight.utilities.*
-import java.util.*
 
 class ChatFragment : Fragment() {
 
+    private val TAG = "ChatFragment"
+
     private var chatId: String? = null
+    private var isGroupChat: Boolean = false
 
     private var fragmentInteractionListener: OnFragmentInteractionListener? = null
     private val doubleClickBlocker: DoubleClickBlocker = DoubleClickBlocker()
+
+    private lateinit var auth: FirebaseAuth
+    private lateinit var database: DatabaseReference
+
+    private lateinit var adapter: FirebaseRecyclerAdapter<Message, RecyclerView.ViewHolder>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         if (arguments != null) {
             chatId = arguments!!.getString(ARG_CHAT_ID)
+            isGroupChat = arguments!!.getBoolean(ARG_IS_GROUP_CHAT)
+            Log.i(TAG, "chatId: ${chatId}, isGroupChat: $isGroupChat")
         }
+
+        auth = FirebaseAuth.getInstance()
+        database = FirebaseDatabase.getInstance().reference
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -92,30 +109,36 @@ class ChatFragment : Fragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }))
 
-        val uid = FirebaseAuth.getInstance().currentUser!!.uid
+        val query = database.child("chatMessages").child(chatId!!).limitToLast(20)
+        val options = FirebaseRecyclerOptions.Builder<Message>()
+                .setQuery(query, Message::class.java)
+                .build()
+        adapter = MessageListAdapter(
+                userId = auth.currentUser!!.uid,
+                isGroupChat = isGroupChat,
+                options = options,
+                clickListener = { chat : Message -> onMessageClicked(chat) }
+        )
+
+        // TODO: Load more messages
+//        adapter.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
+//            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+//                super.onItemRangeInserted(positionStart, itemCount)
+//            }
+//        })
 
         chatMessagesRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
-        val messages = ArrayList<Message>(listOf(
-                Message("X", "1st message", "", uid, Date().time),
-                Message("X", "2nd message", "", "01", Date().time),
-                Message("X", "3rd message", "", "02", Date().time),
-                Message("X", "4th message", "", uid, Date().time),
-                Message("X", "5th message", "", "02", Date().time),
-                Message("X", "6th message", "", "01", Date().time),
-                Message("X", "7th message", "", "01", Date().time),
-                Message("X", "8th message", "", "02", Date().time),
-                Message("X", "9th message", "", uid, Date().time),
-                Message("X", "10th message", "", "01", Date().time),
-                Message("X", "11th message", "", "01", Date().time),
-                Message("X", "12th message", "", uid, Date().time),
-                Message("X", "13th message", "", "02", Date().time),
-                Message("X", "14th message", "", "02", Date().time),
-                Message("X", "15th message", "", uid, Date().time),
-                Message("X", "16th message", "", "02", Date().time),
-                Message("X", "", "https://www.businessfinland.fi/globalassets/new-pictures/business-finland-world-ideas.jpg", "02", Date().time)))
-        var adapter = MessageListAdapter(uid, true, messages, { chat : Message -> onMessageClicked(chat) })
         chatMessagesRecyclerView.adapter = adapter
-        chatMessagesRecyclerView.scrollToPosition(messages.size - 1)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        adapter.startListening()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        adapter.stopListening()
     }
 
     override fun onAttach(context: Context?) {
@@ -143,7 +166,24 @@ class ChatFragment : Fragment() {
     }
 
     private fun sendMessage(text: String) {
-        // TODO
+        val messageId = database.child("chatMessages").child(chatId!!).push().key!!
+        val message = Message(
+                id = messageId,
+                text = text,
+                senderId = auth.currentUser!!.uid
+        )
+
+        val childUpdates = HashMap<String, Any>()
+        childUpdates["chatMessages/$chatId/$messageId"] = message.toMap()
+        childUpdates["chats/$chatId/lastMessage"] = text
+        childUpdates["chats/$chatId/updatedAt"] = message.timestamp
+        database.updateChildren(childUpdates)
+                .addOnSuccessListener {
+                    chatEditText.setText("")
+                }
+                .addOnFailureListener {
+                    Log.e(TAG, "Failed to update new message $messageId: ${it.message}")
+                }
     }
 
     private fun onMessageClicked(message: Message) {
@@ -156,11 +196,13 @@ class ChatFragment : Fragment() {
 
     companion object {
         private val ARG_CHAT_ID = "chatId"
+        private val ARG_IS_GROUP_CHAT = "isGroupChat"
 
-        fun newInstance(chatId: String): ChatFragment {
+        fun newInstance(chatId: String, isGroupChat: Boolean): ChatFragment {
             val fragment = ChatFragment()
             val args = Bundle()
             args.putString(ARG_CHAT_ID, chatId)
+            args.putBoolean(ARG_IS_GROUP_CHAT, isGroupChat)
             fragment.arguments = args
             return fragment
         }

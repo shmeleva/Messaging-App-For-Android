@@ -10,7 +10,7 @@ import java.util.*
 @IgnoreExtraProperties
 class Chat(
         var id: String = "",
-        var isGroupChat: Boolean = false,
+        @field:JvmField var isGroupChat: Boolean = false,
         var members: Map<String, Boolean> = mapOf(),
         var lastMessage: String = "",
         var updatedAt: Long = Date().time // Should be updated with chat is created and a new message is sent
