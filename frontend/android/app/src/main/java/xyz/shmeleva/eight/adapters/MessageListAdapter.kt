@@ -12,6 +12,8 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
 import com.stfalcon.multiimageview.MultiImageView
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
 
 import  xyz.shmeleva.eight.R
 import  xyz.shmeleva.eight.models.*
@@ -19,16 +21,20 @@ import xyz.shmeleva.eight.utilities.TimestampFormatter
 import xyz.shmeleva.eight.utilities.loadImages
 import java.util.*
 
-class MessageListAdapter(val userId: String, val isGroupChat: Boolean, val messageList: ArrayList<Message>, val clickListener: (Message) -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class MessageListAdapter(
+        val userId: String,
+        val isGroupChat: Boolean,
+        val messageList: ArrayList<Message> = arrayListOf(),
+        val options: FirebaseRecyclerOptions<Message>,
+        val clickListener: (Message) -> Unit
+) : FirebaseRecyclerAdapter<Message, RecyclerView.ViewHolder>(options) {
+
+    private val TAG = "MessageListAdapter"
 
     val INCOMING_TEXT_MESSAGE = 0
     val INCOMING_IMAGE_MESSAGE = 1
     val OUTGOING_TEXT_MESSAGE = 2
     val OUTGOING_IMAGE_MESSAGE = 3
-
-    override fun getItemCount(): Int {
-        return  messageList.size
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflate = { viewResId: Int -> LayoutInflater.from(parent.context).inflate(viewResId, parent, false) }
@@ -54,8 +60,7 @@ class MessageListAdapter(val userId: String, val isGroupChat: Boolean, val messa
         throw IllegalArgumentException()
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val message = messageList[position];
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, message: Message) {
         when (holder.itemViewType) {
             INCOMING_TEXT_MESSAGE -> (holder as IncomingTextMessageViewHolder).bind(message, isGroupChat)
             INCOMING_IMAGE_MESSAGE -> (holder as IncomingImageMessageViewHolder).bind(message, isGroupChat)
@@ -66,7 +71,7 @@ class MessageListAdapter(val userId: String, val isGroupChat: Boolean, val messa
     }
 
     override fun getItemViewType(position: Int): Int {
-        val message = messageList[position];
+        val message = getItem(position)
         if (message.senderId == userId) {
             return  if (message.text.isNotEmpty()) OUTGOING_TEXT_MESSAGE else OUTGOING_IMAGE_MESSAGE
         }
