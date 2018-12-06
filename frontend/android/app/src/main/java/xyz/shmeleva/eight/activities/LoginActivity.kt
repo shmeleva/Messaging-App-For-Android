@@ -86,13 +86,12 @@ class LoginActivity : AppCompatActivity() {
         var isValidPassword = validatePassword(password)
         //
         if (!isValidEmail || !isValidPassword) {
-            signInButton.isClickable = true
+            signInButton.isEnabled = true
             return
         }
         //
         auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
-                    signInButton.isClickable = true
                     if (task.isSuccessful) {
                         val intent = Intent(this, ChatListActivity::class.java)
                         startActivity(intent)
@@ -105,6 +104,7 @@ class LoginActivity : AppCompatActivity() {
                         )
                         toast.show()
                     }
+                    signInButton.isEnabled = true
                 }
     }
 
