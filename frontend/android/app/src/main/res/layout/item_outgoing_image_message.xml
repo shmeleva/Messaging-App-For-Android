@@ -3,37 +3,35 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/outgoingMessageRelativeLayout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="4dp"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
-    android:layout_marginTop="4dp">
+    android:layout_height="wrap_content">
 
     <com.google.android.flexbox.FlexboxLayout
         android:id="@+id/outgoingMessageBubbleFlexboxLayout"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/message_outgoing_bubble_margin_left"
         android:layout_alignParentEnd="true"
         android:orientation="vertical"
-        android:elevation="2dp"
         app:alignContent="stretch"
         app:alignItems="stretch"
         app:flexWrap="wrap"
         app:justifyContent="flex_end"
-        style="@style/AppTheme.ChatMessage.Outgoing">
+        style="@style/AppTheme.ChatMessage">
 
-        <TextView
-            android:id="@+id/outgoingMessageContentTextView"
+        <xyz.shmeleva.eight.views.AspectRatioImageView
+            android:id="@+id/outgoingMessageContentImageView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:elevation="2dp"
+            app:aspectRatio="1"
+            app:dominantMeasurement="width"
             />
 
         <TextView
             android:id="@+id/outgoingMessageTimeTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/outgoingMessageContentTextView"
+            android:layout_below="@id/outgoingMessageContentImageView"
             android:layout_marginStart="8dp"
             app:layout_alignSelf="center"
             style="@style/AppTheme.TextAppearance.Overline"/>

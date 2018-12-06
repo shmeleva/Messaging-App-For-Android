@@ -3,11 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/incomingMessageRelativeLayout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="4dp"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
-    android:layout_marginTop="4dp">
+    android:layout_height="wrap_content">
 
     <com.stfalcon.multiimageview.MultiImageView
         android:id="@+id/incomingMessageSenderImageView"
@@ -17,7 +13,7 @@
 
     <com.google.android.flexbox.FlexboxLayout
         android:id="@+id/incomingMessageBubbleFlexboxLayout"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/message_incoming_bubble_margin_right"
         android:layout_toEndOf="@id/incomingMessageSenderImageView"
@@ -27,7 +23,7 @@
         app:alignItems="stretch"
         app:flexWrap="wrap"
         app:justifyContent="flex_end"
-        style="@style/AppTheme.ChatMessage.Incoming">
+        style="@style/AppTheme.ChatMessage">
 
         <TextView
             android:id="@+id/incomingMessageSenderTextView"
@@ -38,17 +34,20 @@
             app:layout_alignSelf="flex_start"
             style="@style/AppTheme.TextAppearance.Body2"/>
 
-        <TextView
-            android:id="@+id/incomingMessageContentTextView"
+        <xyz.shmeleva.eight.views.AspectRatioImageView
+            android:id="@+id/incomingMessageContentImageView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:elevation="2dp"
+            app:aspectRatio="1"
+            app:dominantMeasurement="width"
             />
 
         <TextView
             android:id="@+id/incomingMessageTimeTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/incomingMessageContentTextView"
+            android:layout_below="@id/incomingMessageContentImageView"
             android:layout_marginStart="8dp"
             app:layout_alignSelf="center"
             style="@style/AppTheme.TextAppearance.Overline"/>

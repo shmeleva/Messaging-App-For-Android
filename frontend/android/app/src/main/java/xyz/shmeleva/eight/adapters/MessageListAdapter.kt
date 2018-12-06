@@ -1,6 +1,8 @@
 package xyz.shmeleva.eight.adapters
 
+import android.graphics.BitmapFactory
 import android.media.Image
+import android.os.AsyncTask
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -14,12 +16,23 @@ import com.bumptech.glide.request.RequestOptions
 import com.stfalcon.multiimageview.MultiImageView
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import kotlinx.android.synthetic.main.fragment_private_chat_settings.*
 
 import  xyz.shmeleva.eight.R
 import  xyz.shmeleva.eight.models.*
 import xyz.shmeleva.eight.utilities.TimestampFormatter
 import xyz.shmeleva.eight.utilities.loadImages
 import java.util.*
+import android.R.attr.thumb
+import android.app.Activity
+import android.graphics.Bitmap
+import android.util.Log
+import com.bumptech.glide.load.MultiTransformation
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import com.bumptech.glide.request.RequestOptions.bitmapTransform
+import jp.wasabeef.glide.transformations.MaskTransformation
+
 
 class MessageListAdapter(
         val userId: String,
@@ -45,7 +58,7 @@ class MessageListAdapter(
                 return IncomingTextMessageViewHolder(incomingTextMessageView)
             }
             INCOMING_IMAGE_MESSAGE -> {
-                val incomingImageMessageView = inflate(R.layout.item_incoming_text_message)
+                val incomingImageMessageView = inflate(R.layout.item_incoming_image_message)
                 return IncomingImageMessageViewHolder(incomingImageMessageView)
             }
             OUTGOING_TEXT_MESSAGE -> {
@@ -53,7 +66,7 @@ class MessageListAdapter(
                 return OutgoingTextMessageViewHolder(outgoingTextMessageView)
             }
             OUTGOING_IMAGE_MESSAGE -> {
-                val outgoingImageMessageView = inflate(R.layout.item_outgoing_text_message)
+                val outgoingImageMessageView = inflate(R.layout.item_outgoing_image_message)
                 return OutgoingImageMessageViewHolder(outgoingImageMessageView)
             }
         }
@@ -82,8 +95,6 @@ class MessageListAdapter(
         val senderImageView = itemView.findViewById<MultiImageView>(R.id.incomingMessageSenderImageView)
         val senderTextView = itemView.findViewById<TextView>(R.id.incomingMessageSenderTextView)
         val timeTextView = itemView.findViewById<TextView>(R.id.incomingMessageTimeTextView)
-        val contentTextView = itemView.findViewById<TextView>(R.id.incomingMessageContentTextView)
-        val contentImageView = itemView.findViewById<ImageView>(R.id.incomingMessageContentImageView)
 
         init {
             senderImageView.shape = MultiImageView.Shape.CIRCLE
@@ -103,9 +114,8 @@ class MessageListAdapter(
     }
 
     class IncomingTextMessageViewHolder(itemView: View): IncomingMessageViewHolder(itemView) {
-        init {
-            contentImageView.visibility = View.GONE
-        }
+
+        val contentTextView = itemView.findViewById<TextView>(R.id.incomingMessageContentTextView)
 
         override fun bind(message: Message, isGroupChat: Boolean) {
             super.bind(message, isGroupChat)
@@ -115,25 +125,22 @@ class MessageListAdapter(
 
     class IncomingImageMessageViewHolder(itemView: View): IncomingMessageViewHolder(itemView) {
 
-        private val requestOptions = RequestOptions().transforms(CenterCrop(), RoundedCorners(15))
-
-        init {
-            contentTextView.visibility = View.GONE
-        }
+        val contentImageView = itemView.findViewById<ImageView>(R.id.incomingMessageContentImageView)
 
         override fun bind(message: Message, isGroupChat: Boolean) {
             super.bind(message, isGroupChat)
+            val ref = FirebaseStorage.getInstance().reference.child(message.imageUrl)
             Glide.with(contentImageView.context)
-                    .load(message.imageUrl)
-                    .apply(requestOptions)
+                    .load(ref)
+                    .apply(bitmapTransform(MultiTransformation<Bitmap>(CenterCrop(),
+                            MaskTransformation(R.drawable.bg_outgoing_message))))
                     .into(contentImageView)
         }
     }
 
     open class OutgoingMessageViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+
         val timeTextView = itemView.findViewById<TextView>(R.id.outgoingMessageTimeTextView)
-        val contentTextView = itemView.findViewById<TextView>(R.id.outgoingMessageContentTextView)
-        val contentImageView = itemView.findViewById<ImageView>(R.id.outgoingMessageContentImageView)
 
         open fun bind(message: Message) {
             timeTextView.text = TimestampFormatter.format(message.timestamp)
@@ -141,9 +148,8 @@ class MessageListAdapter(
     }
 
     class OutgoingTextMessageViewHolder(itemView: View): OutgoingMessageViewHolder(itemView) {
-        init {
-            contentImageView.visibility = View.GONE
-        }
+
+        val contentTextView = itemView.findViewById<TextView>(R.id.outgoingMessageContentTextView)
 
         override fun bind(message: Message) {
             super.bind(message)
@@ -153,17 +159,16 @@ class MessageListAdapter(
 
     class OutgoingImageMessageViewHolder(itemView: View): OutgoingMessageViewHolder(itemView) {
 
-        private val requestOptions = RequestOptions().transforms(CenterCrop(), RoundedCorners(15))
-
-        init {
-            contentTextView.visibility = View.GONE
-        }
+        val contentImageView = itemView.findViewById<ImageView>(R.id.outgoingMessageContentImageView)
 
         override fun bind(message: Message) {
             super.bind(message)
+
+            val ref = FirebaseStorage.getInstance().reference.child(message.imageUrl)
             Glide.with(contentImageView.context)
-                    .load(message.imageUrl)
-                    .apply(requestOptions)
+                    .load(ref)
+                    .apply(bitmapTransform(MultiTransformation<Bitmap>(CenterCrop(),
+                            MaskTransformation(R.drawable.bg_outgoing_message))))
                     .into(contentImageView)
         }
     }
