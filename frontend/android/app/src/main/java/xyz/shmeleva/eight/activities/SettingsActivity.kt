@@ -15,7 +15,6 @@ import android.widget.EditText
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 
-import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_settings.*
 import kotlinx.android.synthetic.main.settings_username_dialog.view.*
 import xyz.shmeleva.eight.R

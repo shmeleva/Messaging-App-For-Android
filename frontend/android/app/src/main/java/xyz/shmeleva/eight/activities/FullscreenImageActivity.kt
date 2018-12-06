@@ -5,7 +5,7 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.view.View
-import com.squareup.picasso.Picasso
+import com.bumptech.glide.Glide
 import xyz.shmeleva.eight.R
 import kotlinx.android.synthetic.main.activity_fullscreen_image.*
 import xyz.shmeleva.eight.utilities.DoubleClickBlocker
@@ -32,14 +32,11 @@ class FullscreenImageActivity : AppCompatActivity() {
 
         areControlsVisible = true
 
-        val builder = Picasso.Builder(this)
-        builder.listener(object : Picasso.Listener {
-            override fun onImageLoadFailed(picasso: Picasso, uri: Uri, exception: Exception) {
-                exception.printStackTrace()
-            }
-        })
         val imageUrl = intent.getStringExtra("imageUrl")
-        builder.build().load(imageUrl).into(fullscreenImageView)
+        Glide.with(this)
+                .load(imageUrl)
+                .into(fullscreenImageView)
+
 
         fullscreenImageView.setOnClickListener { toggle() }
         fullscreenImageBackButton.setOnTouchListener(delayHideTouchListener)

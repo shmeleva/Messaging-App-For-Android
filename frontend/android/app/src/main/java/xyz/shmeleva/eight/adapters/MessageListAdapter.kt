@@ -7,16 +7,17 @@ import android.view.ViewGroup
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.request.RequestOptions
 import com.stfalcon.multiimageview.MultiImageView
 
 import  xyz.shmeleva.eight.R
 import  xyz.shmeleva.eight.models.*
 import xyz.shmeleva.eight.utilities.TimestampFormatter
 import xyz.shmeleva.eight.utilities.loadImages
-import java.text.SimpleDateFormat
 import java.util.*
-import xyz.shmeleva.eight.utilities.RoundedTransformation
-import com.squareup.picasso.Picasso
 
 class MessageListAdapter(val userId: String, val isGroupChat: Boolean, val messageList: ArrayList<Message>, val clickListener: (Message) -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -108,16 +109,18 @@ class MessageListAdapter(val userId: String, val isGroupChat: Boolean, val messa
     }
 
     class IncomingImageMessageViewHolder(itemView: View): IncomingMessageViewHolder(itemView) {
+
+        private val requestOptions = RequestOptions().transforms(CenterCrop(), RoundedCorners(15))
+
         init {
             contentTextView.visibility = View.GONE
         }
 
         override fun bind(message: Message, isGroupChat: Boolean) {
             super.bind(message, isGroupChat)
-            Picasso
-                    .get()
+            Glide.with(contentImageView.context)
                     .load(message.imageUrl)
-                    .transform(RoundedTransformation(15))
+                    .apply(requestOptions)
                     .into(contentImageView)
         }
     }
@@ -144,16 +147,18 @@ class MessageListAdapter(val userId: String, val isGroupChat: Boolean, val messa
     }
 
     class OutgoingImageMessageViewHolder(itemView: View): OutgoingMessageViewHolder(itemView) {
+
+        private val requestOptions = RequestOptions().transforms(CenterCrop(), RoundedCorners(15))
+
         init {
             contentTextView.visibility = View.GONE
         }
 
         override fun bind(message: Message) {
             super.bind(message)
-            Picasso
-                    .get()
+            Glide.with(contentImageView.context)
                     .load(message.imageUrl)
-                    .transform(RoundedTransformation(15))
+                    .apply(requestOptions)
                     .into(contentImageView)
         }
     }

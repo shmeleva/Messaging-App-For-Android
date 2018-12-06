@@ -11,6 +11,10 @@ import kotlinx.android.synthetic.main.fragment_chat.*
 import com.amulyakhare.textdrawable.TextDrawable
 import com.amulyakhare.textdrawable.util.ColorGenerator
 import xyz.shmeleva.eight.R
+import com.bumptech.glide.request.target.SimpleTarget
+import android.R.attr.path
+import android.transition.Transition
+import com.bumptech.glide.Glide
 
 
 /**
@@ -37,6 +41,14 @@ fun MultiImageView.loadImages(urls: ArrayList<String>, width: Int, height: Int) 
                     override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
                     override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {}
                 })
+        /*Glide.with(this)
+                .asBitmap()
+                .load(url)
+                .into(object : CustomTarget<Bitmap> (100, 100) {
+                    override fun onResourceReady(resource: Bitmap, transition: com.bumptech.glide.request.transition.Transition<in Bitmap>?) {
+                        callback.onReady(createMarkerIcon(resource, iconId))
+                    }
+                })*/
     }
 }
 

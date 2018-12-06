@@ -76,6 +76,7 @@ class LoginActivity : AppCompatActivity() {
             return
         }
 
+        signInButton.isClickable = false
         hideKeyboard()
 
         var email = loginEmailEditText.text.toString()
@@ -85,11 +86,13 @@ class LoginActivity : AppCompatActivity() {
         var isValidPassword = validatePassword(password)
         //
         if (!isValidEmail || !isValidPassword) {
+            signInButton.isClickable = true
             return
         }
         //
         auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
+                    signInButton.isClickable = true
                     if (task.isSuccessful) {
                         val intent = Intent(this, ChatListActivity::class.java)
                         startActivity(intent)

@@ -51,6 +51,7 @@ class RegistrationActivity : BaseFragmentActivity() {
             return
         }
 
+        signUpButton.isEnabled = false
         hideKeyboard()
 
         val username = registrationUsernameEditText.text.toString()
@@ -62,6 +63,7 @@ class RegistrationActivity : BaseFragmentActivity() {
         val isValidPassword = validatePassword(password)
         //
         if (!isValidUsername || !isValidEmail || !isValidPassword) {
+            signUpButton.isEnabled = true
             return
         }
 
@@ -89,19 +91,23 @@ class RegistrationActivity : BaseFragmentActivity() {
                                                     navigateToChatListActivity()
                                                 }
                                                 .addOnFailureListener { e ->
+                                                    signUpButton.isEnabled = true
                                                     showErrorResult(e.message)
                                                 }
                                     } else {
+                                        signUpButton.isEnabled = true
                                         navigateToChatListActivity()
                                     }
 
                                 }.addOnFailureListener { _ ->
                                     auth.currentUser?.delete()
                                             ?.addOnCompleteListener{ _ ->
+                                                signUpButton.isEnabled = true
                                                 showErrorResult("Duplicate username!")
                                             }
                                 }
                     } else {
+                        signUpButton.isEnabled = true
                         showErrorResult(task.exception?.message)
                     }
                 }
