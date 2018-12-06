@@ -14,7 +14,7 @@ class ChatActivity : BaseFragmentActivity(R.id.chatFragmentContainer),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
-        var chatId = intent?.extras?.getInt("chatId") ?: 0
+        var chatId = intent?.extras?.getString("chatId") ?: ""
         replaceFragment(ChatFragment.newInstance(chatId) as android.support.v4.app.Fragment)
 }
 
