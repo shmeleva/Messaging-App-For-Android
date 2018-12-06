@@ -11,7 +11,8 @@ data class User(
         var id: String = "",
         var username: String = "",
         var profilePicUrl: String = "",
-        var chats: MutableMap<String, MutableMap<String, Long>> = mutableMapOf()
+        var chats: MutableMap<String, MutableMap<String, Long>> = mutableMapOf(),
+        var isSelected: Boolean = false
 ) {
     override fun equals(other: Any?): Boolean {
         if (other !is User) {

@@ -192,7 +192,7 @@ class SettingsActivity : BaseFragmentActivity() {
     }
 
     fun pickPhoto(view: View) {
-        dispatchTakeOrPickPictureIntent { bitmap, _ ->
+        dispatchTakeOrPickPictureIntent { bitmap ->
             profilePhoto = bitmap
             runOnUiThread {
                 profilePictureImageView.setImageBitmap(profilePhoto)

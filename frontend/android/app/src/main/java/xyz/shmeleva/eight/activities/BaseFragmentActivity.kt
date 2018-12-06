@@ -41,9 +41,9 @@ open class BaseFragmentActivity(private val containerViewId: Int =  0) : AppComp
     val REQUEST_PICTURE_CAPTURE = 1
     val PICK_PICTURE = 2
 
-    private var pictureCallback: (Bitmap, Uri) -> Unit = { _, _ -> }
+    private var pictureCallback: (Bitmap) -> Unit = { }
 
-    fun dispatchTakeOrPickPictureIntent(callback: (Bitmap, Uri) -> Unit) {
+    fun dispatchTakeOrPickPictureIntent(callback: (Bitmap) -> Unit) {
         AlertDialog.Builder(this)
                 .setItems(R.array.dialog_picture_source) { _, which ->
                     pictureCallback = callback
@@ -77,7 +77,7 @@ open class BaseFragmentActivity(private val containerViewId: Int =  0) : AppComp
                     else
                         Picasso.get().load(data.data).get()
 
-                    pictureCallback(bitmap, data.data)
+                    pictureCallback(bitmap)
                 }
             }
             catch (ex: Exception) {

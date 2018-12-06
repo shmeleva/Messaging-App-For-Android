@@ -77,7 +77,7 @@ class RegistrationActivity : BaseFragmentActivity() {
                                 .addOnSuccessListener {
 
                                     database.child("usernames").child(user.username).setValue(user.id)
-                                            .addOnFailureListener{e->
+                                            .addOnFailureListener{ e->
                                         showErrorResult(e.message)
                                     }
 
@@ -134,7 +134,7 @@ class RegistrationActivity : BaseFragmentActivity() {
     }
 
     fun pickPhoto(view: View) {
-        dispatchTakeOrPickPictureIntent { bitmap, uri ->
+        dispatchTakeOrPickPictureIntent { bitmap ->
             profilePhoto = bitmap
             runOnUiThread {
                 registrationProfilePictureImageView.setImageBitmap(profilePhoto)
