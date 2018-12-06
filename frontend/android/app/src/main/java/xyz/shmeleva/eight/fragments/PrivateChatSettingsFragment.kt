@@ -2,7 +2,9 @@ package xyz.shmeleva.eight.fragments
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.util.Log
@@ -11,6 +13,9 @@ import android.view.View
 import android.view.ViewGroup
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import kotlinx.android.synthetic.main.activity_settings.*
 import kotlinx.android.synthetic.main.fragment_private_chat_settings.*
 
 import xyz.shmeleva.eight.R
@@ -32,6 +37,7 @@ class PrivateChatSettingsFragment : Fragment() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
+    private lateinit var storageRef: StorageReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +46,7 @@ class PrivateChatSettingsFragment : Fragment() {
         }
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().reference
+        storageRef = FirebaseStorage.getInstance().reference
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -63,6 +70,9 @@ class PrivateChatSettingsFragment : Fragment() {
                 (activity as BaseFragmentActivity).addFragment(GalleryFragment.newInstance(true))
             }
         }
+
+        // populate user info
+        getUserFromDBAndPopulate(user!!.id)
     }
 
     fun setUser(targetUser: User) {
@@ -155,6 +165,50 @@ class PrivateChatSettingsFragment : Fragment() {
             args.putBoolean(ARG_SHOULD_LAUNCH_CHAT, shouldLaunchChat)
             fragment.arguments = args
             return fragment
+        }
+    }
+
+    private fun getUserFromDBAndPopulate(uid: String) {
+        var userOneTimeListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.value == null) {
+                    Log.i(TAG, "User not found.")
+                    //logOut(logOutTextView)
+                    return
+                }
+
+                // Get User object and use the values to update the UI
+                val currentUser = dataSnapshot.getValue(User::class.java)!!
+
+                setUsernameLabel(currentUser.username)
+                populateProfilePhotoFromDB(currentUser.profilePicUrl)
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Getting User failed, log a message
+                Log.i(TAG, databaseError.message)
+            }
+        }
+
+        database.child("users").child(uid)
+                .addListenerForSingleValueEvent(userOneTimeListener)
+    }
+
+    fun setUsernameLabel(username: String) {
+        privateChatUsernameTextView.setText(username)
+    }
+
+    private fun populateProfilePhotoFromDB(url: String) {
+        if (url.isNotEmpty()) {
+            AsyncTask.execute(Runnable {
+                val profilePhotoRef = storageRef.child(url)
+                profilePhotoRef.getBytes(50*1000*1000).addOnSuccessListener {
+                    val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
+                    activity!!.runOnUiThread(Runnable {
+                        privateChatPictureImageView.setImageBitmap(bitmap)
+                    })
+                }
+            })
         }
     }
 }
