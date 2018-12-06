@@ -111,7 +111,8 @@ class ChatFragment : Fragment() {
                 Message("X", "13th message", "", "02", Date().time),
                 Message("X", "14th message", "", "02", Date().time),
                 Message("X", "15th message", "", uid, Date().time),
-                Message("X", "16th message", "", "02", Date().time)))
+                Message("X", "16th message", "", "02", Date().time),
+                Message("X", "", "https://www.businessfinland.fi/globalassets/new-pictures/business-finland-world-ideas.jpg", "02", Date().time)))
         var adapter = MessageListAdapter(uid, true, messages, { chat : Message -> onMessageClicked(chat) })
         chatMessagesRecyclerView.adapter = adapter
         chatMessagesRecyclerView.scrollToPosition(messages.size - 1)

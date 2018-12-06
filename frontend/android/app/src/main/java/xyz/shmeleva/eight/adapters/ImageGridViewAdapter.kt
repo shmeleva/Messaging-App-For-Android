@@ -10,6 +10,7 @@ import android.widget.BaseAdapter
 import android.widget.ImageView
 import com.squareup.picasso.Picasso
 import xyz.shmeleva.eight.R
+import xyz.shmeleva.eight.utilities.RoundedTransformation
 
 /**
  * Created by shagg on 26.11.2018.
@@ -31,9 +32,6 @@ class ImageGridViewAdapter(private val context: Context, private val images: Arr
         } else {
             imageView = convertView as ImageView
         }
-
-        //Log.i("imageUrl", images[position])
-        //Picasso.get().load(images[position]).into(imageView);
 
         val builder = Picasso.Builder(context)
         builder.listener(object : Picasso.Listener {

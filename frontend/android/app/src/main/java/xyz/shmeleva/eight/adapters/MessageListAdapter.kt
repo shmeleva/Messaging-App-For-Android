@@ -15,6 +15,8 @@ import xyz.shmeleva.eight.utilities.TimestampFormatter
 import xyz.shmeleva.eight.utilities.loadImages
 import java.text.SimpleDateFormat
 import java.util.*
+import xyz.shmeleva.eight.utilities.RoundedTransformation
+import com.squareup.picasso.Picasso
 
 class MessageListAdapter(val userId: String, val isGroupChat: Boolean, val messageList: ArrayList<Message>, val clickListener: (Message) -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -112,7 +114,11 @@ class MessageListAdapter(val userId: String, val isGroupChat: Boolean, val messa
 
         override fun bind(message: Message, isGroupChat: Boolean) {
             super.bind(message, isGroupChat)
-            // TODO: Load an image
+            Picasso
+                    .get()
+                    .load(message.imageUrl)
+                    .transform(RoundedTransformation(15))
+                    .into(contentImageView)
         }
     }
 
@@ -144,7 +150,11 @@ class MessageListAdapter(val userId: String, val isGroupChat: Boolean, val messa
 
         override fun bind(message: Message) {
             super.bind(message)
-            // TODO: Load an image
+            Picasso
+                    .get()
+                    .load(message.imageUrl)
+                    .transform(RoundedTransformation(15))
+                    .into(contentImageView)
         }
     }
 }
