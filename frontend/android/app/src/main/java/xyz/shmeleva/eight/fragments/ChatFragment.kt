@@ -28,7 +28,7 @@ import java.util.*
 
 class ChatFragment : Fragment() {
 
-    private var chatId: Int? = null
+    private var chatId: String? = null
 
     private var fragmentInteractionListener: OnFragmentInteractionListener? = null
 
@@ -36,7 +36,7 @@ class ChatFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         if (arguments != null) {
-            chatId = arguments!!.getInt(ARG_CHAT_ID)
+            chatId = arguments!!.getString(ARG_CHAT_ID)
         }
     }
 
@@ -139,10 +139,10 @@ class ChatFragment : Fragment() {
     companion object {
         private val ARG_CHAT_ID = "chatId"
 
-        fun newInstance(chatId: Int): ChatFragment {
+        fun newInstance(chatId: String): ChatFragment {
             val fragment = ChatFragment()
             val args = Bundle()
-            args.putInt(ARG_CHAT_ID, chatId)
+            args.putString(ARG_CHAT_ID, chatId)
             fragment.arguments = args
             return fragment
         }

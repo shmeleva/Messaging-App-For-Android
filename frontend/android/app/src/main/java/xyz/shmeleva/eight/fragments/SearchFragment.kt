@@ -12,6 +12,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.Toast
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.fragment_search.*
 
@@ -20,6 +22,7 @@ import xyz.shmeleva.eight.activities.BaseFragmentActivity
 import xyz.shmeleva.eight.activities.ChatActivity
 import xyz.shmeleva.eight.adapters.AddedUsersAdapter
 import xyz.shmeleva.eight.adapters.UserListAdapter
+import xyz.shmeleva.eight.models.Chat
 import xyz.shmeleva.eight.models.User
 
 /**
@@ -39,6 +42,7 @@ class SearchFragment : Fragment() {
 
     private var mListener: OnFragmentInteractionListener? = null
 
+    private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
 
     val users = ArrayList<User>(arrayListOf(
@@ -47,13 +51,13 @@ class SearchFragment : Fragment() {
     lateinit var usersAdapter: UserListAdapter
     lateinit var addedUsersAdapter: AddedUsersAdapter
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
             source = arguments!!.getInt(ARG_SOURCE)
         }
 
+        auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().reference
     }
 
@@ -84,6 +88,18 @@ class SearchFragment : Fragment() {
         else {
             searchAddedUsersRecyclerView.visibility = View.GONE
             searchStartGroupChatFab.visibility = View.GONE
+        }
+
+        searchStartGroupChatFab.setOnClickListener { _ ->
+            if (addedUsers.size == 0) {
+                Toast.makeText(activity, "Please select members", Toast.LENGTH_LONG).show()
+            } else if (addedUsers.size == 1) {
+                getOrCreatePrivateChat(addedUsers[0])
+            } else {
+                val selectedUserIds = addedUsers.map { it -> it.id }.toMutableSet()
+                selectedUserIds.add(auth.currentUser!!.uid)
+                createChat(selectedUserIds)
+            }
         }
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -119,14 +135,71 @@ class SearchFragment : Fragment() {
                         }
                     })
                 }
-                return false
+                return true
             }
 
             override fun onQueryTextSubmit(query: String): Boolean {
-                // TODO
-                return false
+                return true
             }
 
+        })
+    }
+
+    private fun activateChat(chatId: String) {
+        val chatActivityIntent = Intent(activity, ChatActivity::class.java)
+        chatActivityIntent.putExtra("chatId", chatId)
+        startActivity(chatActivityIntent)
+        activity?.finishAfterTransition()
+    }
+
+    private fun createChat(memberIds: Set<String>) {
+        val newChatId: String = database.child("chats").push().key!!
+        val newChat = Chat(
+                id = newChatId,
+                isGroupChat = memberIds.size > 2,
+                members = memberIds.map { it to true }.toMap()
+        )
+
+        val childUpdates = HashMap<String, Any>()
+        childUpdates["/chats/$newChatId"] = newChat.toMap()
+
+        for (userId in memberIds) {
+            childUpdates["/users/$userId/chats/$newChatId"] = mapOf("joinedAt" to newChat.updatedAt)
+        }
+
+        database.updateChildren(childUpdates)
+                .addOnSuccessListener {
+                    activateChat(newChatId)
+                }
+                .addOnFailureListener {
+                    Log.e(TAG, "Failed to update new chat $newChatId: ${it.message}")
+                }
+    }
+
+    private fun getOrCreatePrivateChat(user: User) {
+        database.child("chats").addListenerForSingleValueEvent(object: ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    val selectedUserIds = setOf(auth.currentUser!!.uid, user.id)
+
+                    for (chatSnapshot in snapshot.children) {
+                        val chat = chatSnapshot.getValue(Chat::class.java)
+
+                        if (chat != null && chat.members.keys == selectedUserIds) {
+                            Log.i(TAG, "Found chat ${chat.id}")
+                            activateChat(chat.id)
+                            return
+                        }
+                    }
+
+                    Log.i(TAG, "Private chat not found")
+                    createChat(selectedUserIds)
+                }
+            }
+
+            override fun onCancelled(e: DatabaseError) {
+                Log.e(TAG, "Failed to retrieve chats: ${e.message}")
+            }
         })
     }
 
@@ -143,14 +216,14 @@ class SearchFragment : Fragment() {
 
     private fun onUserClicked(user : User) {
         if (source == SOURCE_SEARCH) {
-            (activity as BaseFragmentActivity).addFragment(PrivateChatSettingsFragment.newInstance(true))
+            val fragment = PrivateChatSettingsFragment.newInstance(true)
+            fragment.setUser(user)
+            (activity as BaseFragmentActivity).addFragment(fragment)
             return
         }
 
         if (source == SOURCE_NEW_PRIVATE_CHAT) {
-            val chatActivityIntent = Intent(activity, ChatActivity::class.java)
-            startActivity(chatActivityIntent)
-            activity?.finishAfterTransition()
+            getOrCreatePrivateChat(user)
             return
         }
     }
