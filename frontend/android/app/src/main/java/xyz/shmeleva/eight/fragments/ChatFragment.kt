@@ -15,11 +15,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.Toast
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 
@@ -30,7 +30,9 @@ import com.stfalcon.multiimageview.MultiImageView
 import xyz.shmeleva.eight.R
 import xyz.shmeleva.eight.activities.BaseFragmentActivity
 import xyz.shmeleva.eight.adapters.MessageListAdapter
+import xyz.shmeleva.eight.models.Chat
 import xyz.shmeleva.eight.models.Message
+import xyz.shmeleva.eight.models.User
 import xyz.shmeleva.eight.utilities.*
 import java.io.ByteArrayOutputStream
 import java.util.*
@@ -43,6 +45,7 @@ class ChatFragment : Fragment() {
     private var isGroupChat: Boolean = false
     private var joinedAt: Long = 0
 
+    private var chat: Chat? = null
     private var shouldScrollToBottom = true
 
     private var fragmentInteractionListener: OnFragmentInteractionListener? = null
@@ -51,6 +54,9 @@ class ChatFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
     private lateinit var storage: StorageReference
+
+    private var chatListener: ValueEventListener? = null
+    private var usersListener: ValueEventListener? = null
 
     private lateinit var layoutManager: LinearLayoutManager
     private lateinit var adapter: FirebaseRecyclerAdapter<Message, RecyclerView.ViewHolder>
@@ -80,9 +86,6 @@ class ChatFragment : Fragment() {
 
         // Example of loading a picture:
         chatImageView.loadImages(arrayListOf("https://pixel.nymag.com/imgs/daily/vulture/2016/11/23/23-san-junipero.w330.h330.jpg"), 40 ,0)
-
-        // Example of setting a name:
-        chatTitleTextView.text = "Pavel Durov"
 
         chatBackButton.setOnClickListener { _ ->
             if (doubleClickBlocker.isSingleClick()) {
@@ -160,11 +163,14 @@ class ChatFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         adapter.startListening()
+        attachChatListener()
     }
 
     override fun onStop() {
         super.onStop()
         adapter.stopListening()
+        detachChatListener()
+        detachUsersListenter()
     }
 
     override fun onAttach(context: Context?) {
@@ -179,6 +185,82 @@ class ChatFragment : Fragment() {
     override fun onDetach() {
         super.onDetach()
         fragmentInteractionListener = null
+    }
+
+    private fun detachUsersListenter() {
+        if (usersListener != null) {
+            database.child("users").removeEventListener(usersListener!!)
+        }
+    }
+
+    private fun attachUsersListener() {
+        detachUsersListenter()
+
+        if (usersListener == null) {
+            usersListener = object: ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        for (userSnapshot in snapshot.children) {
+                            val user = userSnapshot.getValue(User::class.java)
+
+                            if (user != null) {
+                                if (chat != null && chat!!.isMember(user.id)) {
+                                    chat!!.updateMember(user)
+                                }
+
+                                // TODO: Update user in each message (in adapter)
+                            }
+                        }
+
+                        chatTitleTextView.text = chat!!.getMemberNames(auth.currentUser!!.uid)
+                        // TODO: Set chat image
+                    }
+                }
+
+                override fun onCancelled(e: DatabaseError) {
+                    Log.e(TAG, "Failed to retrieve users: ${e.message}")
+                }
+            }
+        }
+
+        database.child("users").addValueEventListener(usersListener!!)
+    }
+
+    private fun detachChatListener() {
+        if (chatListener != null) {
+            database.child("chats").child(chatId!!).removeEventListener(chatListener!!)
+        }
+    }
+
+    private fun attachChatListener() {
+        detachChatListener()
+
+        if (chatListener == null) {
+            chatListener = object: ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        val dbChat = snapshot.getValue(Chat::class.java)
+
+                        if (dbChat != null) {
+                            chat = dbChat
+
+                            if (!chat!!.isMember(auth.currentUser!!.uid)) {
+                                activity?.finish()
+                                Toast.makeText(activity, "You've been removed from this chat", Toast.LENGTH_LONG).show()
+                            }
+
+                            attachUsersListener()
+                        }
+                    }
+                }
+
+                override fun onCancelled(e: DatabaseError) {
+                    Log.e(TAG, "Failed to retrieve chat $chatId: ${e.message}")
+                }
+            }
+        }
+
+        database.child("chats").child(chatId!!).addValueEventListener(chatListener!!)
     }
 
     private fun openChatSettings() {
