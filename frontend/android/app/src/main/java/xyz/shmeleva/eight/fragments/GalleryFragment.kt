@@ -139,7 +139,7 @@ class GalleryFragment : Fragment() {
         private val ARG_IS_PRIVATE = "isPrivate"
         private val ARG_JOINED_AT = "joinedAt"
 
-        fun newInstance(chatId: String, isPrivate: Boolean, joinedAt: Long): GalleryFragment {
+        fun newInstance(chatId: String?, isPrivate: Boolean, joinedAt: Long): GalleryFragment {
             val fragment = GalleryFragment()
             val args = Bundle()
             args.putString(ARG_CHAT_ID, chatId)

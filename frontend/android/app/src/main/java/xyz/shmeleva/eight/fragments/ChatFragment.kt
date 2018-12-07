@@ -78,9 +78,9 @@ class ChatFragment : Fragment() {
         storage = FirebaseStorage.getInstance().reference
 
         if (isGroupChat) {
-            chatSettingsFragment = GroupChatSettingsFragment.newInstance(chatId!!, auth.currentUser!!.uid)
+            chatSettingsFragment = GroupChatSettingsFragment.newInstance(chatId!!, auth.currentUser!!.uid, joinedAt)
         } else {
-            chatSettingsFragment = PrivateChatSettingsFragment.newInstance(false, chatId, auth.currentUser!!.uid)
+            chatSettingsFragment = PrivateChatSettingsFragment.newInstance(false, chatId, auth.currentUser!!.uid, joinedAt)
         }
     }
 
@@ -338,6 +338,7 @@ class ChatFragment : Fragment() {
                                 imageUrl = imageUrl,
                                 senderId = auth.currentUser!!.uid
                         )
+                        message.imageTimestamp = message.timestamp
 
                         val childUpdates = HashMap<String, Any>()
                         childUpdates["chatMessages/$chatId/$messageId"] = message.toMap()

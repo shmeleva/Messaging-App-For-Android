@@ -30,6 +30,7 @@ class GroupChatSettingsFragment : Fragment() {
 
     private var chatId: String? = null
     private var sourceUserId: String? = null
+    private var joinedAt: Long = 0
 
     private var mListener: OnFragmentInteractionListener? = null
     private val doubleClickBlocker: DoubleClickBlocker = DoubleClickBlocker()
@@ -42,6 +43,7 @@ class GroupChatSettingsFragment : Fragment() {
         if (arguments != null) {
             chatId = arguments!!.getString(ARG_CHAT_ID)
             sourceUserId = arguments!!.getString(ARG_SOURCE_USER_ID)
+            joinedAt = arguments!!.getLong(ARG_JOINED_AT)
         }
 
         auth = FirebaseAuth.getInstance()
@@ -63,7 +65,7 @@ class GroupChatSettingsFragment : Fragment() {
         }
         groupChatGalleryRelativeLayout.setOnClickListener { _ ->
             if (doubleClickBlocker.isSingleClick()) {
-                //(activity as BaseFragmentActivity).addFragment(GalleryFragment.newInstance(false))
+                (activity as BaseFragmentActivity).addFragment(GalleryFragment.newInstance(chatId, false, joinedAt))
             }
         }
 
@@ -92,12 +94,14 @@ class GroupChatSettingsFragment : Fragment() {
     companion object {
         private val ARG_CHAT_ID = "chatId"
         private val ARG_SOURCE_USER_ID = "sourceUserId"
+        private val ARG_JOINED_AT = "joinedAt"
 
-        fun newInstance(chatId: String, sourceUserId: String): GroupChatSettingsFragment {
+        fun newInstance(chatId: String, sourceUserId: String, joinedAt: Long): GroupChatSettingsFragment {
             val fragment = GroupChatSettingsFragment()
             val args = Bundle()
             args.putString(ARG_CHAT_ID, chatId)
             args.putString(ARG_SOURCE_USER_ID, sourceUserId)
+            args.putLong(ARG_JOINED_AT, joinedAt)
             fragment.arguments = args
             return fragment
         }
