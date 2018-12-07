@@ -188,7 +188,7 @@ class ChatFragment : Fragment() {
     }
 
     private fun scrollToBottom() {
-        layoutManager.smoothScrollToPosition(chatMessagesRecyclerView, null, adapter.itemCount - 1)
+        layoutManager.scrollToPosition(adapter.itemCount - 1)
     }
 
     private fun sendImage() {
