@@ -200,7 +200,7 @@ class ChatListFragment : Fragment() {
                                 // Remove users who aren't members anymore
                                 val usersToRemove = arrayListOf<User>()
                                 for (user in chat.users) {
-                                    if (!chat.members.containsKey(user.id)) {
+                                    if (!chat.isMember(user.id)) {
                                         usersToRemove.add(user)
                                     }
                                 }
