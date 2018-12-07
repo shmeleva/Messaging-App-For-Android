@@ -16,6 +16,8 @@ class Message(
         var senderId: String = "",
         var timestamp: Long = Date().time
 ) {
+    var sender: User? = null
+
     @Exclude
     fun toMap(): Map<String, Any?> {
         return mapOf(

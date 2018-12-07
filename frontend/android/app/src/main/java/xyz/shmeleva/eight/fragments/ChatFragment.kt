@@ -139,6 +139,7 @@ class ChatFragment : Fragment() {
         adapter.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 super.onItemRangeInserted(positionStart, itemCount)
+                // TODO: Update sender's info
                 val lastMessage = adapter.getItem(adapter.itemCount - 1)
                 if (shouldScrollToBottom || lastMessage.senderId == auth.currentUser!!.uid) {
                     scrollToBottom()
@@ -206,7 +207,13 @@ class ChatFragment : Fragment() {
                                     chat!!.updateMember(user)
                                 }
 
-                                // TODO: Update user in each message (in adapter)
+                                for (i in 0 until adapter.itemCount) {
+                                    val message = adapter.getItem(i)
+                                    if (message.senderId == user.id) {
+                                        message.sender = user
+                                    }
+                                }
+                                adapter.notifyDataSetChanged()
                             }
                         }
 

@@ -102,7 +102,8 @@ class MessageListAdapter(
 
         open fun bind(message: Message, isGroupChat: Boolean) {
             if (isGroupChat) {
-                senderTextView.text = message.senderId
+                senderTextView.text = message.sender?.username ?: ""
+                // TODO: Show the sender's profile image
                 senderImageView.loadImages(arrayListOf("https://pixel.nymag.com/imgs/daily/vulture/2016/11/23/23-san-junipero.w330.h330.jpg"), 24, 0)
             }
             else {
