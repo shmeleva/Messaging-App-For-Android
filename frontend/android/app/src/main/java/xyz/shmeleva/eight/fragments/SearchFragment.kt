@@ -229,7 +229,7 @@ class SearchFragment : Fragment() {
     private fun onUserClicked(user : User) {
         if (source == SOURCE_SEARCH) {
             activity?.hideKeyboard()
-            val fragment = PrivateChatSettingsFragment.newInstance(true, null, auth.currentUser!!.uid)
+            val fragment = PrivateChatSettingsFragment.newInstance(true, null, auth.currentUser!!.uid, 0)
             fragment.setUser(user)
             (activity as BaseFragmentActivity).addFragment(fragment)
             return

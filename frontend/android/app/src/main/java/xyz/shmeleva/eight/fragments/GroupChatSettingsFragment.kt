@@ -4,29 +4,50 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.TextView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.fragment_group_chat_settings.*
 
 import xyz.shmeleva.eight.R
 import xyz.shmeleva.eight.activities.BaseFragmentActivity
+import xyz.shmeleva.eight.adapters.MemberListAdapter
+import xyz.shmeleva.eight.adapters.UserListAdapter
+import xyz.shmeleva.eight.models.Chat
+import xyz.shmeleva.eight.models.User
 import xyz.shmeleva.eight.utilities.DoubleClickBlocker
 
 class GroupChatSettingsFragment : Fragment() {
 
-    private var mParam1: String? = null
-    private var mParam2: String? = null
+    private val TAG = "GroupChatSettingsFrgmnt"
+
+    private var chatId: String? = null
+    private var sourceUserId: String? = null
+    private var joinedAt: Long = 0
 
     private var mListener: OnFragmentInteractionListener? = null
     private val doubleClickBlocker: DoubleClickBlocker = DoubleClickBlocker()
 
+    private lateinit var auth: FirebaseAuth
+    private lateinit var database: DatabaseReference
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
-            mParam1 = arguments!!.getString(ARG_PARAM1)
-            mParam2 = arguments!!.getString(ARG_PARAM2)
+            chatId = arguments!!.getString(ARG_CHAT_ID)
+            sourceUserId = arguments!!.getString(ARG_SOURCE_USER_ID)
+            joinedAt = arguments!!.getLong(ARG_JOINED_AT)
         }
+
+        auth = FirebaseAuth.getInstance()
+        database = FirebaseDatabase.getInstance().reference
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -36,11 +57,20 @@ class GroupChatSettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        groupChatGalleryRelativeLayout.setOnClickListener { _ ->
+
+        groupChatBackImageView.setOnClickListener {_ ->
             if (doubleClickBlocker.isSingleClick()) {
-                (activity as BaseFragmentActivity).addFragment(GalleryFragment.newInstance(false))
+                activity?.onBackPressed()
             }
         }
+        groupChatGalleryRelativeLayout.setOnClickListener { _ ->
+            if (doubleClickBlocker.isSingleClick()) {
+                (activity as BaseFragmentActivity).addFragment(GalleryFragment.newInstance(chatId, false, joinedAt))
+            }
+        }
+
+        // populate chat info
+        getChatAndPopulate()
     }
 
     override fun onAttach(context: Context?) {
@@ -62,16 +92,70 @@ class GroupChatSettingsFragment : Fragment() {
     }
 
     companion object {
-        private val ARG_PARAM1 = "param1"
-        private val ARG_PARAM2 = "param2"
+        private val ARG_CHAT_ID = "chatId"
+        private val ARG_SOURCE_USER_ID = "sourceUserId"
+        private val ARG_JOINED_AT = "joinedAt"
 
-        fun newInstance(param1: String, param2: String): GroupChatSettingsFragment {
+        fun newInstance(chatId: String, sourceUserId: String, joinedAt: Long): GroupChatSettingsFragment {
             val fragment = GroupChatSettingsFragment()
             val args = Bundle()
-            args.putString(ARG_PARAM1, param1)
-            args.putString(ARG_PARAM2, param2)
+            args.putString(ARG_CHAT_ID, chatId)
+            args.putString(ARG_SOURCE_USER_ID, sourceUserId)
+            args.putLong(ARG_JOINED_AT, joinedAt)
             fragment.arguments = args
             return fragment
         }
+    }
+
+    private fun getChatAndPopulate() {
+        var chatOneTimeListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.value == null) {
+                    Log.i(TAG, "Chat not found")
+                    return
+                }
+
+                val chat = dataSnapshot.getValue(Chat::class.java)!!
+
+                var usersOneTimeListener = object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        if (dataSnapshot.value == null) {
+                            Log.i(TAG, "Users not found")
+                            return
+                        }
+
+                        val membersNames : ArrayList<String> = ArrayList()
+
+                        chat.members.forEach {
+                            val member = dataSnapshot.child(it.key).getValue(User::class.java)!!
+                            membersNames.add(member.username)
+                        }
+
+                        populateMemberList(membersNames)
+                    }
+
+                    override fun onCancelled(p0: DatabaseError) {
+
+                    }
+                }
+
+                database.child("users")
+                        .addListenerForSingleValueEvent(usersOneTimeListener)
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Log.i(TAG, databaseError.message)
+            }
+        }
+
+        database.child("chats").child(chatId!!)
+                .addListenerForSingleValueEvent(chatOneTimeListener)
+    }
+
+    private fun populateMemberList(members : ArrayList<String>) {
+        val viewAdapter = MemberListAdapter(members)
+
+        groupChatMemberListRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
+        groupChatMemberListRecyclerView.adapter = viewAdapter
     }
 }

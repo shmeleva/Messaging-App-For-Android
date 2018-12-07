@@ -78,9 +78,9 @@ class ChatFragment : Fragment() {
         storage = FirebaseStorage.getInstance().reference
 
         if (isGroupChat) {
-            chatSettingsFragment = GroupChatSettingsFragment.newInstance(chatId!!, auth.currentUser!!.uid)
+            chatSettingsFragment = GroupChatSettingsFragment.newInstance(chatId!!, auth.currentUser!!.uid, joinedAt)
         } else {
-            chatSettingsFragment = PrivateChatSettingsFragment.newInstance(false, chatId, auth.currentUser!!.uid)
+            chatSettingsFragment = PrivateChatSettingsFragment.newInstance(false, chatId, auth.currentUser!!.uid, joinedAt)
         }
     }
 
@@ -148,7 +148,34 @@ class ChatFragment : Fragment() {
         adapter.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 super.onItemRangeInserted(positionStart, itemCount)
-                // TODO: Update sender's info
+
+                if (isGroupChat) {
+                    for (position in positionStart until positionStart + itemCount) {
+                        val message = adapter.getItem(position)
+
+                        if (message.senderId != auth.currentUser!!.uid) {
+                            database.child("users").child(message.senderId).addListenerForSingleValueEvent(object: ValueEventListener {
+                                override fun onDataChange(userSnapshot: DataSnapshot) {
+                                    Log.i(TAG, "users/${message.senderId} onDataChange!")
+
+                                    if (userSnapshot.exists()) {
+                                        val user = userSnapshot.getValue(User::class.java)
+
+                                        if (user != null) {
+                                            message.sender = user
+                                            adapter.notifyDataSetChanged()
+                                        }
+                                    }
+                                }
+
+                                override fun onCancelled(e: DatabaseError) {
+                                    Log.e(TAG, "Failed to retrieve user ${message.senderId}: ${e.message}")
+                                }
+                            })
+                        }
+                    }
+                }
+
                 val lastMessage = adapter.getItem(adapter.itemCount - 1)
                 if (shouldScrollToBottom || lastMessage.senderId == auth.currentUser!!.uid) {
                     scrollToBottom()
@@ -198,6 +225,7 @@ class ChatFragment : Fragment() {
     private fun detachUsersListenter() {
         if (usersListener != null) {
             database.child("users").removeEventListener(usersListener!!)
+            Log.i(TAG, "Detached usersListener")
         }
     }
 
@@ -207,6 +235,7 @@ class ChatFragment : Fragment() {
         if (usersListener == null) {
             usersListener = object: ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
+                    Log.i(TAG, "users onDataChange!")
                     if (snapshot.exists()) {
                         for (userSnapshot in snapshot.children) {
                             val user = userSnapshot.getValue(User::class.java)
@@ -216,15 +245,17 @@ class ChatFragment : Fragment() {
                                     chat!!.updateMember(user)
                                 }
 
-                                for (i in 0 until adapter.itemCount) {
-                                    val message = adapter.getItem(i)
-                                    if (message.senderId == user.id) {
-                                        message.sender = user
+                                if (isGroupChat) {
+                                    for (i in 0 until adapter.itemCount) {
+                                        val message = adapter.getItem(i)
+                                        if (message.senderId == user.id) {
+                                            message.sender = user
+                                        }
                                     }
                                 }
-                                adapter.notifyDataSetChanged()
                             }
                         }
+                        adapter.notifyDataSetChanged()
 
                         chatTitleTextView.text = chat!!.getMemberNames(auth.currentUser!!.uid)
                         // TODO: Set chat image
@@ -238,11 +269,13 @@ class ChatFragment : Fragment() {
         }
 
         database.child("users").addValueEventListener(usersListener!!)
+        Log.i(TAG, "Attached usersListener")
     }
 
     private fun detachChatListener() {
         if (chatListener != null) {
             database.child("chats").child(chatId!!).removeEventListener(chatListener!!)
+            Log.i(TAG, "Detached chatListener")
         }
     }
 
@@ -275,6 +308,7 @@ class ChatFragment : Fragment() {
         }
 
         database.child("chats").child(chatId!!).addValueEventListener(chatListener!!)
+        Log.i(TAG, "Attached chatListener")
     }
 
     private fun openChatSettings() {
@@ -304,6 +338,7 @@ class ChatFragment : Fragment() {
                                 imageUrl = imageUrl,
                                 senderId = auth.currentUser!!.uid
                         )
+                        message.imageTimestamp = message.timestamp
 
                         val childUpdates = HashMap<String, Any>()
                         childUpdates["chatMessages/$chatId/$messageId"] = message.toMap()

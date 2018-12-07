@@ -39,6 +39,7 @@ class PrivateChatSettingsFragment : Fragment() {
     private var targetUser: User? = null
     private var chatId: String? = null
     private var sourceUserId: String? = null
+    private var joinedAt: Long = 0
 
     private var fragmentInteractionListener: OnFragmentInteractionListener? = null
     private val doubleClickBlocker: DoubleClickBlocker = DoubleClickBlocker()
@@ -53,6 +54,7 @@ class PrivateChatSettingsFragment : Fragment() {
             shouldLaunchChat = arguments!!.getBoolean(ARG_SHOULD_LAUNCH_CHAT)
             chatId = arguments!!.getString(ARG_CHAT_ID)
             sourceUserId = arguments!!.getString(ARG_SOURCE_USER_ID)
+            joinedAt = arguments!!.getLong(ARG_JOINED_AT)
         }
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().reference
@@ -77,7 +79,7 @@ class PrivateChatSettingsFragment : Fragment() {
         }
         privateChatGalleryRelativeLayout.setOnClickListener { _ ->
             if (doubleClickBlocker.isSingleClick()) {
-                (activity as BaseFragmentActivity).addFragment(GalleryFragment.newInstance(true))
+                (activity as BaseFragmentActivity).addFragment(GalleryFragment.newInstance(chatId,true, joinedAt))
             }
         }
 
@@ -177,13 +179,15 @@ class PrivateChatSettingsFragment : Fragment() {
         private val ARG_SHOULD_LAUNCH_CHAT = "shouldLaunchChat"
         private val ARG_CHAT_ID = "chatID"
         private val ARG_SOURCE_USER_ID = "sourceUserId"
+        private val ARG_JOINED_AT = "joinedAt"
 
-        fun newInstance(shouldLaunchChat: Boolean, chatID: String?, sourceUserId: String?): PrivateChatSettingsFragment {
+        fun newInstance(shouldLaunchChat: Boolean, chatID: String?, sourceUserId: String?, joinedAt: Long): PrivateChatSettingsFragment {
             val fragment = PrivateChatSettingsFragment()
             val args = Bundle()
             args.putBoolean(ARG_SHOULD_LAUNCH_CHAT, shouldLaunchChat)
             args.putString(ARG_CHAT_ID, chatID)
             args.putString(ARG_SOURCE_USER_ID, sourceUserId)
+            args.putLong(ARG_JOINED_AT, joinedAt)
             fragment.arguments = args
             return fragment
         }

@@ -3,6 +3,7 @@ package xyz.shmeleva.eight.models
 import com.google.firebase.database.Exclude
 import com.google.firebase.database.IgnoreExtraProperties
 import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * Created by shagg on 19.11.2018.
@@ -16,7 +17,6 @@ class Chat(
         var updatedAt: Long = Date().time // Should be updated with chat is created and a new message is sent
 ) {
     var users: MutableList<User> = mutableListOf()
-    var messages: List<Message> = listOf()
     var joinedAt: Long = Date().time
 
     override fun equals(other: Any?): Boolean {
@@ -57,5 +57,15 @@ class Chat(
             }
         }
         return memberNames.joinToString(", ")
+    }
+
+    fun getMemberNamesList(currentUserId: String?) : ArrayList<String> {
+        val memberNames: ArrayList<String> = ArrayList()
+        for (user in users) {
+            if (currentUserId == null || user.id != currentUserId) {
+                memberNames.add(user.username)
+            }
+        }
+        return memberNames
     }
 }
