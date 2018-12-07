@@ -17,7 +17,6 @@ class Chat(
         var updatedAt: Long = Date().time // Should be updated with chat is created and a new message is sent
 ) {
     var users: MutableList<User> = mutableListOf()
-    var messages: List<Message> = listOf()
     var joinedAt: Long = Date().time
 
     override fun equals(other: Any?): Boolean {
