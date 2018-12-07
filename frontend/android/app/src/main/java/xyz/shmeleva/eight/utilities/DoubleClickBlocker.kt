@@ -7,7 +7,7 @@ class DoubleClickBlocker {
 
     fun isSingleClick() : Boolean {
         var clickTime = SystemClock.elapsedRealtime();
-        if (clickTime - lastClickTime < 1000) { // 1000 = 1second
+        if (clickTime - lastClickTime < 500) {
             return false;
         }
         lastClickTime = clickTime;

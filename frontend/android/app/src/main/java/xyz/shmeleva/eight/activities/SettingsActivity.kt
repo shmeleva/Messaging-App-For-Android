@@ -62,15 +62,16 @@ class SettingsActivity : BaseFragmentActivity() {
         val editor = sharedPreferences.edit()
 
         // local user settings variables
-        var uploadImageResolution = sharedPreferences.getString("uploadResolution", "Low")
-        var downloadImageResolution = sharedPreferences.getString("downloadResolution", "Low")
+        val defaultResolution = resources.getString(R.string.settings_image_resolution_default)
+        var uploadImageResolution = sharedPreferences.getString("uploadResolution", defaultResolution)
+        var downloadImageResolution = sharedPreferences.getString("downloadResolution", defaultResolution)
         var theme = sharedPreferences.getString("theme", "Seaweed")
 
 
         val imageResolutionArray = arrayOf(
-                getResources().getString(R.string.settings_image_resolution_low),
-                getResources().getString(R.string.settings_image_resolution_medium),
-                getResources().getString(R.string.settings_image_resolution_high)
+                resources.getString(R.string.settings_image_resolution_low),
+                resources.getString(R.string.settings_image_resolution_high),
+                resources.getString(R.string.settings_image_resolution_full)
         )
         val themeArray = arrayOf("Seaweed", "Dark")
 
@@ -220,10 +221,10 @@ class SettingsActivity : BaseFragmentActivity() {
         }
 
         dispatchTakeOrPickPictureIntent { bitmap ->
-            Log.i("cancel", "Callback received the bitmap.")
+            Log.i("imageUpload", "Callback received the bitmap.")
             profilePhoto = bitmap
             runOnUiThread {
-                Log.i("cancel", "Setting image on UI thread...")
+                Log.i("imageUpload", "Setting image on UI thread...")
                 profilePictureImageView.setImageBitmap(profilePhoto)
             }
             uploadProfilePhotoToDB(profilePhoto)
@@ -282,15 +283,36 @@ class SettingsActivity : BaseFragmentActivity() {
     }
 
     private fun uploadProfilePhotoToDB(bitmap: Bitmap) {
+        Log.i("imageUpload", "Compressing image...")
         val baos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos)
         val data = baos.toByteArray()
 
+        Log.i("imageUpload", "Image compressed! Sending image...")
+
         if (currentUser.profilePicUrl != "") {
             storageRef.child(currentUser.profilePicUrl).putBytes(data)
+                    .addOnSuccessListener {
+                        Log.i("imageUpload", "Uploaded successfully!")
+                    }
+                    .addOnFailureListener {
+                        Log.i("imageUpload", "Upload failed!")
+                    }
+                    .addOnCanceledListener {
+                        Log.i("imageUpload", "Upload canceled!")
+                    }
         } else {
             val url = "images/" + UUID.randomUUID().toString()
             storageRef.child(url).putBytes(data)
+                    .addOnSuccessListener {
+                        Log.i("imageUpload", "Uploaded successfully!")
+                    }
+                    .addOnFailureListener {
+                        Log.i("imageUpload", "Upload failed!")
+                    }
+                    .addOnCanceledListener {
+                        Log.i("imageUpload", "Upload canceled!")
+                    }
 
             currentUser.profilePicUrl = url
             updateUserInDB()
