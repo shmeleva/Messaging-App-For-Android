@@ -31,6 +31,7 @@ import android.util.Log
 import com.amulyakhare.textdrawable.TextDrawable
 import com.amulyakhare.textdrawable.util.ColorGenerator
 import com.bumptech.glide.load.MultiTransformation
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.bumptech.glide.request.RequestOptions.bitmapTransform
@@ -98,6 +99,8 @@ class MessageListAdapter(
         val senderImageView = itemView.findViewById<ImageView>(R.id.incomingMessageSenderImageView)
         val senderTextView = itemView.findViewById<TextView>(R.id.incomingMessageSenderTextView)
         val timeTextView = itemView.findViewById<TextView>(R.id.incomingMessageTimeTextView)
+        val requestOptions = RequestOptions()
+                .diskCacheStrategy(DiskCacheStrategy.NONE) // because file name is always same
 
         open fun bind(message: Message, isGroupChat: Boolean) {
             if (isGroupChat) {
@@ -110,10 +113,11 @@ class MessageListAdapter(
                             .load(ref)
                             .apply(bitmapTransform(MultiTransformation<Bitmap>(CenterCrop(),
                                     MaskTransformation(R.drawable.shape_circle_small))))
+                            .apply(requestOptions)
                             .into(senderImageView)
                 }
                 else {
-                    val generator = ColorGenerator.MATERIAL;
+                    val generator = ColorGenerator.MATERIAL
                     val username = message.sender?.username ?: "?"
                     val colour = generator.getColor(username)
 

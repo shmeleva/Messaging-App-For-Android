@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="oval">
-    <size
-        android:width="@dimen/profile_picture_size_small"
-        android:height="@dimen/profile_picture_size_small"/>
-</shape>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape
+            android:shape="rectangle">
+            <solid android:color="@color/secondaryLightColor" />
+            <corners android:radius="48dp" />
+        </shape>
+    </item>
+</selector>
