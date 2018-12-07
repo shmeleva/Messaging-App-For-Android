@@ -11,11 +11,14 @@ import java.util.*
 class Message(
         var id: String = "",
         var text: String = "",
+        var senderId: String = "",
+        var timestamp: Long = Date().time,
         var imageUrl: String = "",
         var imageFeature: String = "",
-        var senderId: String = "",
-        var timestamp: Long = Date().time
+        var imageTimestamp: Long = 0
 ) {
+    var sender: User? = null
+
     @Exclude
     fun toMap(): Map<String, Any?> {
         return mapOf(
@@ -23,7 +26,9 @@ class Message(
                 "text" to text,
                 "imageUrl" to imageUrl,
                 "senderId" to senderId,
-                "timestamp" to timestamp
+                "timestamp" to timestamp,
+                "imageFeature" to text,
+                "imageTimestamp" to timestamp
         )
     }
 }

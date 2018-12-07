@@ -8,32 +8,47 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.fragment_gallery.*
 
 import xyz.shmeleva.eight.R
 import xyz.shmeleva.eight.activities.FullscreenImageActivity
 import xyz.shmeleva.eight.adapters.ImageGroupListAdapter
 import xyz.shmeleva.eight.utilities.DoubleClickBlocker
+import xyz.shmeleva.eight.models.Message
+
 
 class GalleryFragment : Fragment() {
 
     private var groupByOptionIndex: Int = 0
     private var groupByOptions: Int = 0
-    private var isPrivate: Boolean = true
 
-    private var mListener: OnFragmentInteractionListener? = null
+    private var chatId: String? = null
+    private var joinedAt: Long = 0
+
     private val doubleClickBlocker: DoubleClickBlocker = DoubleClickBlocker()
+
+    private lateinit var database: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         if (arguments != null) {
-            isPrivate = arguments!!.getBoolean(ARG_IS_PRIVATE)
-            groupByOptions = if (isPrivate) R.array.gallery_group_by_options_private else R.array.gallery_group_by_options_group
+            groupByOptions =
+                    if (arguments!!.getBoolean(ARG_IS_PRIVATE))
+                        R.array.gallery_group_by_options_private
+                    else
+                        R.array.gallery_group_by_options_group
+            chatId = arguments!!.getString(ARG_CHAT_ID)
+            joinedAt = arguments!!.getLong(ARG_JOINED_AT)
         }
+
+        database = FirebaseDatabase.getInstance().reference
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -43,6 +58,35 @@ class GalleryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if (chatId == null || chatId!!.isEmpty() || joinedAt == 0L) {
+            return
+        }
+
+        val query = database
+                .child("chatMessages")
+                .child(chatId!!)
+                .orderByChild("imageTimestamp")
+                .startAt(joinedAt.toDouble())
+                .addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+
+                        if (!snapshot.exists()) {
+                            return
+                        }
+
+                        if (snapshot.exists()) {
+                            val genericTypeIndicator = object : GenericTypeIndicator<ArrayList<Message>>() { }
+                            val messages = snapshot.getValue(genericTypeIndicator) as ArrayList<Message>
+                            messages.forEach {
+                                Log.i("", it.imageUrl)
+                            }
+                        }
+                    }
+
+                    override fun onCancelled(databaseError: DatabaseError) {}
+                })
+
 
         galleryRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
         val imageGroups = arrayListOf(
@@ -90,31 +134,17 @@ class GalleryFragment : Fragment() {
         }
     }
 
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-        /*if (context is OnFragmentInteractionListener) {
-            mListener = context
-        } else {
-            throw RuntimeException(context!!.toString() + " must implement OnFragmentInteractionListener")
-        }*/
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        //mListener = null
-    }
-
-    interface OnFragmentInteractionListener {
-        fun onFragmentInteraction(uri: Uri)
-    }
-
     companion object {
+        private val ARG_CHAT_ID = "chatId"
         private val ARG_IS_PRIVATE = "isPrivate"
+        private val ARG_JOINED_AT = "joinedAt"
 
-        fun newInstance(isPrivate: Boolean): GalleryFragment {
+        fun newInstance(chatId: String, isPrivate: Boolean, joinedAt: Long): GalleryFragment {
             val fragment = GalleryFragment()
             val args = Bundle()
+            args.putString(ARG_CHAT_ID, chatId)
             args.putBoolean(ARG_IS_PRIVATE, isPrivate)
+            args.putLong(ARG_JOINED_AT, joinedAt)
             fragment.arguments = args
             return fragment
         }

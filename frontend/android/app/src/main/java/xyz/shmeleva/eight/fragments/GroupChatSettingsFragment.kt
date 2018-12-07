@@ -38,7 +38,7 @@ class GroupChatSettingsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         groupChatGalleryRelativeLayout.setOnClickListener { _ ->
             if (doubleClickBlocker.isSingleClick()) {
-                (activity as BaseFragmentActivity).addFragment(GalleryFragment.newInstance(false))
+                //(activity as BaseFragmentActivity).addFragment(GalleryFragment.newInstance(false))
             }
         }
     }

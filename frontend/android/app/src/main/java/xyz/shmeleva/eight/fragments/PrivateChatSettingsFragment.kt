@@ -73,7 +73,7 @@ class PrivateChatSettingsFragment : Fragment() {
         }
         privateChatGalleryRelativeLayout.setOnClickListener { _ ->
             if (doubleClickBlocker.isSingleClick()) {
-                (activity as BaseFragmentActivity).addFragment(GalleryFragment.newInstance(true))
+                //(activity as BaseFragmentActivity).addFragment(GalleryFragment.newInstance(true))
             }
         }
 
