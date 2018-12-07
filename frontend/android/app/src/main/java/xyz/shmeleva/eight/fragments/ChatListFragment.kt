@@ -25,24 +25,17 @@ import xyz.shmeleva.eight.activities.ChatActivity
 import xyz.shmeleva.eight.activities.SearchActivity
 import xyz.shmeleva.eight.activities.SettingsActivity
 import xyz.shmeleva.eight.models.User
+import xyz.shmeleva.eight.utilities.DoubleClickBlocker
 
-/**
- * A simple [Fragment] subclass.
- * Activities that contain this fragment must implement the
- * [ChatListFragment.OnFragmentInteractionListener] interface
- * to handle interaction events.
- * Use the [ChatListFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class ChatListFragment : Fragment() {
 
     private val TAG: String = "ChatListFragment"
 
-    // TODO: Rename and change types of parameters
     private var mParam1: String? = null
     private var mParam2: String? = null
 
     private var mListener: OnFragmentInteractionListener? = null
+    private val doubleClickBlocker: DoubleClickBlocker = DoubleClickBlocker()
 
     private var isFabOpen = false
 
@@ -75,7 +68,6 @@ class ChatListFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_chat_list, container, false)
     }
 
@@ -88,47 +80,57 @@ class ChatListFragment : Fragment() {
         rotateBackwardAnimation = AnimationUtils.loadAnimation(activity,R.anim.rotate_backward)
 
         chatListStartChatFab.setOnClickListener { _ ->
-            if (isFabOpen) closeFab() else openFab()
+            if (doubleClickBlocker.isSingleClick()) {
+                if (isFabOpen) closeFab() else openFab()
+            }
         }
 
         chatListStartGroupChatFab.setOnClickListener { _ ->
-            closeFab()
-            val intent = Intent(activity, SearchActivity::class.java)
-            intent.putExtra(SearchFragment.ARG_SOURCE, SearchFragment.SOURCE_NEW_GROUP_CHAT)
-            startActivity(intent)
+            if (doubleClickBlocker.isSingleClick()) {
+                closeFab()
+                val intent = Intent(activity, SearchActivity::class.java)
+                intent.putExtra(SearchFragment.ARG_SOURCE, SearchFragment.SOURCE_NEW_GROUP_CHAT)
+                startActivity(intent)
+            }
         }
 
         chatListStartPrivateChatFab.setOnClickListener { _ ->
-            closeFab()
-            val intent = Intent(activity, SearchActivity::class.java)
-            intent.putExtra(SearchFragment.ARG_SOURCE, SearchFragment.SOURCE_NEW_PRIVATE_CHAT)
-            startActivity(intent)
+            if (doubleClickBlocker.isSingleClick()) {
+                closeFab()
+                val intent = Intent(activity, SearchActivity::class.java)
+                intent.putExtra(SearchFragment.ARG_SOURCE, SearchFragment.SOURCE_NEW_PRIVATE_CHAT)
+                startActivity(intent)
+            }
         }
 
         chatListSettingsButton.setOnClickListener { _ ->
-            val intent = Intent(activity, SettingsActivity::class.java)
-            startActivity(intent)
+            if (doubleClickBlocker.isSingleClick()) {
+                val intent = Intent(activity, SettingsActivity::class.java)
+                startActivity(intent)
+            }
         }
 
-        chatListSearchButton.setOnClickListener({ _ ->
-            val intent = Intent(activity, SearchActivity::class.java)
-            intent.putExtra(SearchFragment.ARG_SOURCE, SearchFragment.SOURCE_SEARCH)
-            startActivity(intent)
-        })
+        chatListSearchButton.setOnClickListener { _ ->
+            if (doubleClickBlocker.isSingleClick()) {
+                val intent = Intent(activity, SearchActivity::class.java)
+                intent.putExtra(SearchFragment.ARG_SOURCE, SearchFragment.SOURCE_SEARCH)
+                startActivity(intent)
+            }
+        }
 
         chatListRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
         adapter = ChatListAdapter(chats, { chat : Chat -> onChatClicked(chat) }, auth.currentUser!!.uid)
         chatListRecyclerView.adapter = adapter
 
         FirebaseInstanceId.getInstance().instanceId
-                .addOnCompleteListener({ task ->
+                .addOnCompleteListener { task ->
                     if (!task.isSuccessful) {
                         Log.w("________", "getInstanceId failed", task.exception)
                     }
 
                     val token = task.result!!.token
                     database.child("tokens").child(auth.uid!!).setValue(token)
-                })
+                }
     }
 
     private fun detachUsersListener() {
@@ -198,7 +200,7 @@ class ChatListFragment : Fragment() {
                                 // Remove users who aren't members anymore
                                 val usersToRemove = arrayListOf<User>()
                                 for (user in chat.users) {
-                                    if (!chat.members.containsKey(user.id)) {
+                                    if (!chat.isMember(user.id)) {
                                         usersToRemove.add(user)
                                     }
                                 }
@@ -285,13 +287,6 @@ class ChatListFragment : Fragment() {
         detachUsersListener()
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    fun onButtonPressed(uri: Uri) {
-        if (mListener != null) {
-            mListener!!.onFragmentInteraction(uri)
-        }
-    }
-
     override fun onAttach(context: Context?) {
         super.onAttach(context)
         if (context is OnFragmentInteractionListener) {
@@ -328,58 +323,22 @@ class ChatListFragment : Fragment() {
         isFabOpen = false;
     }
 
-    /*
-    override fun onCreateOptionsMenu(menu: Menu, menuInflater: MenuInflater) {
-        val inflater = menuInflater
-        inflater.inflate(R.menu.menu_chat_list, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.getItemId()) {
-            R.id.action_settings -> {
-                val intent = Intent(activity, SettingsActivity::class.java)
-                startActivity(intent)
-                return true
-            }
-            else -> return super.onOptionsItemSelected(item)
-        }
-    }
-    */
-
     private fun onChatClicked(chat : Chat) {
         val chatActivityIntent = Intent(activity, ChatActivity::class.java)
+        chatActivityIntent.putExtra("chatId", chat.id)
+        chatActivityIntent.putExtra("isGroupChat", chat.isGroupChat)
+        chatActivityIntent.putExtra("joinedAt", chat.joinedAt)
         startActivity(chatActivityIntent)
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other xyz.shmeleva.eight.fragments contained in that
-     * activity.
-     *
-     *
-     * See the Android Training lesson [Communicating with Other Fragments](http://developer.android.com/training/basics/xyz.shmeleva.eight.fragments/communicating.html) for more information.
-     */
     interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         fun onFragmentInteraction(uri: Uri)
     }
 
     companion object {
-        // TODO: Rename parameter arguments, choose names that match
-        // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
         private val ARG_PARAM1 = "param1"
         private val ARG_PARAM2 = "param2"
 
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment ChatListFragment.
-         */
-        // TODO: Rename and change types and number of parameters
         fun newInstance(param1: String, param2: String): ChatListFragment {
             val fragment = ChatListFragment()
             val args = Bundle()
@@ -389,4 +348,4 @@ class ChatListFragment : Fragment() {
             return fragment
         }
     }
-}// Required empty public constructor
+}

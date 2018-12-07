@@ -17,6 +17,7 @@ import kotlinx.android.synthetic.main.fragment_gallery.*
 import xyz.shmeleva.eight.R
 import xyz.shmeleva.eight.activities.FullscreenImageActivity
 import xyz.shmeleva.eight.adapters.ImageGroupListAdapter
+import xyz.shmeleva.eight.utilities.DoubleClickBlocker
 
 class GalleryFragment : Fragment() {
 
@@ -25,6 +26,7 @@ class GalleryFragment : Fragment() {
     private var isPrivate: Boolean = true
 
     private var mListener: OnFragmentInteractionListener? = null
+    private val doubleClickBlocker: DoubleClickBlocker = DoubleClickBlocker()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,22 +67,26 @@ class GalleryFragment : Fragment() {
                         "https://kudamoscow.ru/uploads/7263b3288640d54bda5ebae9cfc140ad.jpg",
                         "https://cs8.pikabu.ru/post_img/big/2017/12/31/7/1514721434182491989.jpg")))
         val adapter = ImageGroupListAdapter(activity as Context, imageGroups) { imageUrl : String ->
-            val intent = Intent(activity, FullscreenImageActivity::class.java)
-            intent.putExtra("imageUrl", imageUrl)
-            startActivity(intent)
+            if (doubleClickBlocker.isSingleClick()) {
+                val intent = Intent(activity, FullscreenImageActivity::class.java)
+                intent.putExtra("imageUrl", imageUrl)
+                startActivity(intent)
+            }
         }
         galleryRecyclerView.adapter = adapter
 
         gallerySortButton.setOnClickListener {
-            AlertDialog.Builder(context)
-                    .setSingleChoiceItems(R.array.gallery_group_by_options_private, groupByOptionIndex) {dialog, i ->
-                        if (groupByOptionIndex != i) {
-                            groupByOptionIndex = i
-                            // TODO
+            if (doubleClickBlocker.isSingleClick()) {
+                AlertDialog.Builder(context)
+                        .setSingleChoiceItems(R.array.gallery_group_by_options_private, groupByOptionIndex) {dialog, i ->
+                            if (groupByOptionIndex != i) {
+                                groupByOptionIndex = i
+                                // TODO
+                            }
+                            dialog.dismiss()
                         }
-                        dialog.dismiss()
-                    }
-                    .show()
+                        .show()
+            }
         }
     }
 
@@ -98,17 +104,7 @@ class GalleryFragment : Fragment() {
         //mListener = null
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     *
-     *
-     * See the Android Training lesson [Communicating with Other Fragments](http://developer.android.com/training/basics/fragments/communicating.html) for more information.
-     */
     interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         fun onFragmentInteraction(uri: Uri)
     }
 
@@ -123,4 +119,4 @@ class GalleryFragment : Fragment() {
             return fragment
         }
     }
-}// Required empty public constructor
+}

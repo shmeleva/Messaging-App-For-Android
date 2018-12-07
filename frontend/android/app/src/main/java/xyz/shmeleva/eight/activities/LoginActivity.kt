@@ -36,9 +36,13 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.activity_registration.*
 import xyz.shmeleva.eight.R
+import xyz.shmeleva.eight.utilities.DoubleClickBlocker
+import xyz.shmeleva.eight.utilities.hideKeyboard
 
 class LoginActivity : AppCompatActivity() {
+
     private lateinit var auth: FirebaseAuth
+    private val doubleClickBlocker: DoubleClickBlocker = DoubleClickBlocker()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,7 +70,15 @@ class LoginActivity : AppCompatActivity() {
         // TODO: get the extra message and show it
     }
 
-    fun logIn(view: View) {
+    fun logIn(@Suppress("UNUSED_PARAMETER")view: View) {
+
+        if (doubleClickBlocker.isDoubleClick()) {
+            return
+        }
+
+        signInButton.isClickable = false
+        hideKeyboard()
+
         var email = loginEmailEditText.text.toString()
         var password = loginPasswordEditText.text.toString()
         //
@@ -74,6 +86,7 @@ class LoginActivity : AppCompatActivity() {
         var isValidPassword = validatePassword(password)
         //
         if (!isValidEmail || !isValidPassword) {
+            signInButton.isEnabled = true
             return
         }
         //
@@ -91,10 +104,16 @@ class LoginActivity : AppCompatActivity() {
                         )
                         toast.show()
                     }
+                    signInButton.isEnabled = true
                 }
     }
 
-    fun startRegistrationActivity(view: View) {
+    fun startRegistrationActivity(@Suppress("UNUSED_PARAMETER")view: View) {
+
+        if (doubleClickBlocker.isDoubleClick()) {
+            return
+        }
+
         val intent = Intent(this, RegistrationActivity::class.java)
         startActivity(intent)
     }

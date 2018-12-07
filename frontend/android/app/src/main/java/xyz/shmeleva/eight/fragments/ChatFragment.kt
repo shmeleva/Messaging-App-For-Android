@@ -1,10 +1,13 @@
 package xyz.shmeleva.eight.fragments
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -12,31 +15,72 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.Toast
+import com.firebase.ui.database.FirebaseRecyclerAdapter
+import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.*
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 
 import kotlinx.android.synthetic.main.fragment_chat.*
 
 import com.stfalcon.multiimageview.MultiImageView
-import kotlinx.android.synthetic.main.activity_login.*
+import kotlinx.android.synthetic.main.item_incoming_text_message.*
 
 import xyz.shmeleva.eight.R
 import xyz.shmeleva.eight.activities.BaseFragmentActivity
 import xyz.shmeleva.eight.adapters.MessageListAdapter
+import xyz.shmeleva.eight.models.Chat
 import xyz.shmeleva.eight.models.Message
+import xyz.shmeleva.eight.models.User
 import xyz.shmeleva.eight.utilities.*
+import java.io.ByteArrayOutputStream
 import java.util.*
 
 class ChatFragment : Fragment() {
 
+    private val TAG = "ChatFragment"
+
     private var chatId: String? = null
+    private var isGroupChat: Boolean = false
+    private var joinedAt: Long = 0
+
+    private var chat: Chat? = null
+    private var shouldScrollToBottom = true
 
     private var fragmentInteractionListener: OnFragmentInteractionListener? = null
+    private val doubleClickBlocker: DoubleClickBlocker = DoubleClickBlocker()
+
+    private lateinit var auth: FirebaseAuth
+    private lateinit var database: DatabaseReference
+    private lateinit var storage: StorageReference
+
+    private var chatListener: ValueEventListener? = null
+    private var usersListener: ValueEventListener? = null
+
+    private lateinit var layoutManager: LinearLayoutManager
+    private lateinit var adapter: FirebaseRecyclerAdapter<Message, RecyclerView.ViewHolder>
+
+    private lateinit var chatSettingsFragment: android.support.v4.app.Fragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         if (arguments != null) {
             chatId = arguments!!.getString(ARG_CHAT_ID)
+            isGroupChat = arguments!!.getBoolean(ARG_IS_GROUP_CHAT)
+            joinedAt = arguments!!.getLong(ARG_JOINED_AT)
+        }
+
+        auth = FirebaseAuth.getInstance()
+        database = FirebaseDatabase.getInstance().reference
+        storage = FirebaseStorage.getInstance().reference
+
+        if (isGroupChat) {
+            chatSettingsFragment = GroupChatSettingsFragment.newInstance(chatId!!, auth.currentUser!!.uid)
+        } else {
+            chatSettingsFragment = PrivateChatSettingsFragment.newInstance(false, chatId, auth.currentUser!!.uid)
         }
     }
 
@@ -52,20 +96,32 @@ class ChatFragment : Fragment() {
         // Example of loading a picture:
         chatImageView.loadImages(arrayListOf("https://pixel.nymag.com/imgs/daily/vulture/2016/11/23/23-san-junipero.w330.h330.jpg"), 40 ,0)
 
-        // Example of setting a name:
-        chatTitleTextView.text = "Pavel Durov"
-
-        chatBackButton.setOnClickListener { _ -> activity?.onBackPressed()}
-        chatImageView.setOnClickListener {_ -> openChatSettings()}
-        chatTitleTextView.setOnClickListener {_ -> openChatSettings()}
-        chatActionImageButton.setOnClickListener {_ ->
-            val message = chatEditText.text.toString()
-            if (message.isBlank()) {
-                sendImage()
+        chatBackButton.setOnClickListener { _ ->
+            if (doubleClickBlocker.isSingleClick()) {
+                activity?.onBackPressed()
             }
-            else {
-                sendMessage(message)
-            }}
+        }
+        chatImageView.setOnClickListener {_ ->
+            if (doubleClickBlocker.isSingleClick()) {
+                openChatSettings()
+            }
+        }
+        chatTitleTextView.setOnClickListener {_ ->
+            if (doubleClickBlocker.isSingleClick()) {
+                openChatSettings()
+            }
+        }
+        chatActionImageButton.setOnClickListener {_ ->
+            if (doubleClickBlocker.isSingleClick()) {
+                val message = chatEditText.text.toString()
+                if (message.isBlank()) {
+                    sendImage()
+                }
+                else {
+                    sendMessage(message)
+                }
+            }
+        }
 
         chatEditText.addTextChangedListener((object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
@@ -76,29 +132,53 @@ class ChatFragment : Fragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }))
 
-        val uid = FirebaseAuth.getInstance().currentUser!!.uid
+        val query = database.child("chatMessages").child(chatId!!).orderByChild("timestamp").startAt(joinedAt.toDouble())
+        val options = FirebaseRecyclerOptions.Builder<Message>()
+                .setQuery(query, Message::class.java)
+                .build()
+        adapter = MessageListAdapter(
+                userId = auth.currentUser!!.uid,
+                isGroupChat = isGroupChat,
+                options = options,
+                clickListener = { chat : Message -> onMessageClicked(chat) }
+        )
 
-        chatMessagesRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
-        val messages = ArrayList<Message>(listOf(
-                Message("X", "1st message", "", uid, Date().time),
-                Message("X", "2nd message", "", "01", Date().time),
-                Message("X", "3rd message", "", "02", Date().time),
-                Message("X", "4th message", "", uid, Date().time),
-                Message("X", "5th message", "", "02", Date().time),
-                Message("X", "6th message", "", "01", Date().time),
-                Message("X", "7th message", "", "01", Date().time),
-                Message("X", "8th message", "", "02", Date().time),
-                Message("X", "9th message", "", uid, Date().time),
-                Message("X", "10th message", "", "01", Date().time),
-                Message("X", "11th message", "", "01", Date().time),
-                Message("X", "12th message", "", uid, Date().time),
-                Message("X", "13th message", "", "02", Date().time),
-                Message("X", "14th message", "", "02", Date().time),
-                Message("X", "15th message", "", uid, Date().time),
-                Message("X", "16th message", "", "02", Date().time)))
-        var adapter = MessageListAdapter(uid, true, messages, { chat : Message -> onMessageClicked(chat) })
+        layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
+
+        adapter.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+                // TODO: Update sender's info
+                val lastMessage = adapter.getItem(adapter.itemCount - 1)
+                if (shouldScrollToBottom || lastMessage.senderId == auth.currentUser!!.uid) {
+                    scrollToBottom()
+                }
+            }
+        })
+
+        chatMessagesRecyclerView.layoutManager = layoutManager
         chatMessagesRecyclerView.adapter = adapter
-        chatMessagesRecyclerView.scrollToPosition(messages.size - 1)
+        chatMessagesRecyclerView.addOnScrollListener(object: RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val lastVisiblePosition = layoutManager.findLastCompletelyVisibleItemPosition()
+                val lastPosition = adapter.itemCount - 1
+                shouldScrollToBottom = lastVisiblePosition == lastPosition
+            }
+        })
+    }
+
+    override fun onStart() {
+        super.onStart()
+        adapter.startListening()
+        attachChatListener()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        adapter.stopListening()
+        detachChatListener()
+        detachUsersListenter()
     }
 
     override fun onAttach(context: Context?) {
@@ -106,7 +186,7 @@ class ChatFragment : Fragment() {
         if (context is OnFragmentInteractionListener) {
             fragmentInteractionListener = context
         } else {
-            throw RuntimeException(context!!.toString() + " must implement OnFragmentInteractionListener") as Throwable
+            throw RuntimeException(context!!.toString() + " must implement OnFragmentInteractionListener")
         }
     }
 
@@ -115,21 +195,162 @@ class ChatFragment : Fragment() {
         fragmentInteractionListener = null
     }
 
+    private fun detachUsersListenter() {
+        if (usersListener != null) {
+            database.child("users").removeEventListener(usersListener!!)
+        }
+    }
+
+    private fun attachUsersListener() {
+        detachUsersListenter()
+
+        if (usersListener == null) {
+            usersListener = object: ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        for (userSnapshot in snapshot.children) {
+                            val user = userSnapshot.getValue(User::class.java)
+
+                            if (user != null) {
+                                if (chat != null && chat!!.isMember(user.id)) {
+                                    chat!!.updateMember(user)
+                                }
+
+                                for (i in 0 until adapter.itemCount) {
+                                    val message = adapter.getItem(i)
+                                    if (message.senderId == user.id) {
+                                        message.sender = user
+                                    }
+                                }
+                                adapter.notifyDataSetChanged()
+                            }
+                        }
+
+                        chatTitleTextView.text = chat!!.getMemberNames(auth.currentUser!!.uid)
+                        // TODO: Set chat image
+                    }
+                }
+
+                override fun onCancelled(e: DatabaseError) {
+                    Log.e(TAG, "Failed to retrieve users: ${e.message}")
+                }
+            }
+        }
+
+        database.child("users").addValueEventListener(usersListener!!)
+    }
+
+    private fun detachChatListener() {
+        if (chatListener != null) {
+            database.child("chats").child(chatId!!).removeEventListener(chatListener!!)
+        }
+    }
+
+    private fun attachChatListener() {
+        detachChatListener()
+
+        if (chatListener == null) {
+            chatListener = object: ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        val dbChat = snapshot.getValue(Chat::class.java)
+
+                        if (dbChat != null) {
+                            chat = dbChat
+
+                            if (!chat!!.isMember(auth.currentUser!!.uid)) {
+                                activity?.finish()
+                                Toast.makeText(activity, "You've been removed from this chat", Toast.LENGTH_LONG).show()
+                            }
+
+                            attachUsersListener()
+                        }
+                    }
+                }
+
+                override fun onCancelled(e: DatabaseError) {
+                    Log.e(TAG, "Failed to retrieve chat $chatId: ${e.message}")
+                }
+            }
+        }
+
+        database.child("chats").child(chatId!!).addValueEventListener(chatListener!!)
+    }
+
     private fun openChatSettings() {
-        val chatSettingsFragment = PrivateChatSettingsFragment.newInstance(false)
-        (activity as BaseFragmentActivity?)?.addFragment(chatSettingsFragment as android.support.v4.app.Fragment)
+        activity?.hideKeyboard()
+
+
+
+        (activity as BaseFragmentActivity?)?.addFragment(chatSettingsFragment)
+    }
+
+    private fun scrollToBottom() {
+        layoutManager.scrollToPosition(adapter.itemCount - 1)
     }
 
     private fun sendImage() {
-        (activity as BaseFragmentActivity).dispatchTakeOrPickPictureIntent { _ ->  }
+        (activity as BaseFragmentActivity).dispatchTakeOrPickPictureIntent { bitmap ->
+            val byteArrayOutputStream = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
+            val data = byteArrayOutputStream.toByteArray()
+
+            val imageUrl = "images/${UUID.randomUUID()}"
+            storage.child(imageUrl).putBytes(data)
+                    .addOnSuccessListener {
+                        val messageId = database.child("chatMessages").child(chatId!!).push().key!!
+                        val message = Message(
+                                id = messageId,
+                                imageUrl = imageUrl,
+                                senderId = auth.currentUser!!.uid
+                        )
+
+                        val childUpdates = HashMap<String, Any>()
+                        childUpdates["chatMessages/$chatId/$messageId"] = message.toMap()
+                        childUpdates["chats/$chatId/lastMessage"] = "\uD83D\uDCF7"
+                        childUpdates["chats/$chatId/updatedAt"] = message.timestamp
+                        database.updateChildren(childUpdates)
+                                .addOnFailureListener {
+                                    activity?.runOnUiThread {
+                                        Snackbar.make(view!!, R.string.error_picture_upload_failed, Snackbar.LENGTH_LONG)
+                                                .show()
+                                    }
+                                }
+                    }
+                    .addOnFailureListener {
+                        activity?.runOnUiThread {
+                            Snackbar.make(view!!, R.string.error_picture_upload_failed, Snackbar.LENGTH_LONG)
+                                    .show()
+                        }
+                    }
+        }
     }
 
+
+
     private fun sendMessage(text: String) {
-        // TODO
+        val messageId = database.child("chatMessages").child(chatId!!).push().key!!
+        val message = Message(
+                id = messageId,
+                text = text,
+                senderId = auth.currentUser!!.uid
+        )
+
+        val childUpdates = HashMap<String, Any>()
+        childUpdates["chatMessages/$chatId/$messageId"] = message.toMap()
+        childUpdates["chats/$chatId/lastMessage"] = text
+        childUpdates["chats/$chatId/updatedAt"] = message.timestamp
+        database.updateChildren(childUpdates)
+                .addOnSuccessListener {
+                    chatEditText.setText("")
+                }
+                .addOnFailureListener {
+                    Log.e(TAG, "Failed to update new message $messageId: ${it.message}")
+                }
     }
 
     private fun onMessageClicked(message: Message) {
-
+        //TODO
     }
 
     interface OnFragmentInteractionListener {
@@ -138,11 +359,15 @@ class ChatFragment : Fragment() {
 
     companion object {
         private val ARG_CHAT_ID = "chatId"
+        private val ARG_IS_GROUP_CHAT = "isGroupChat"
+        private val ARG_JOINED_AT = "joinedAt"
 
-        fun newInstance(chatId: String): ChatFragment {
+        fun newInstance(chatId: String, isGroupChat: Boolean, joinedAt: Long): ChatFragment {
             val fragment = ChatFragment()
             val args = Bundle()
             args.putString(ARG_CHAT_ID, chatId)
+            args.putBoolean(ARG_IS_GROUP_CHAT, isGroupChat)
+            args.putLong(ARG_JOINED_AT, joinedAt)
             fragment.arguments = args
             return fragment
         }

@@ -24,6 +24,8 @@ import xyz.shmeleva.eight.adapters.AddedUsersAdapter
 import xyz.shmeleva.eight.adapters.UserListAdapter
 import xyz.shmeleva.eight.models.Chat
 import xyz.shmeleva.eight.models.User
+import xyz.shmeleva.eight.utilities.DoubleClickBlocker
+import xyz.shmeleva.eight.utilities.hideKeyboard
 
 /**
  * A simple [Fragment] subclass.
@@ -41,6 +43,7 @@ class SearchFragment : Fragment() {
     private var source: Int? = null
 
     private var mListener: OnFragmentInteractionListener? = null
+    private val doubleClickBlocker: DoubleClickBlocker = DoubleClickBlocker()
 
     private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
@@ -69,7 +72,11 @@ class SearchFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        searchBackButton.setOnClickListener({ _ -> activity?.onBackPressed()})
+        searchBackButton.setOnClickListener { _ ->
+            if (doubleClickBlocker.isSingleClick()) {
+                activity?.onBackPressed()
+            }
+        }
 
         searchRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
         usersAdapter = UserListAdapter(users,
@@ -91,14 +98,16 @@ class SearchFragment : Fragment() {
         }
 
         searchStartGroupChatFab.setOnClickListener { _ ->
-            if (addedUsers.size == 0) {
-                Toast.makeText(activity, "Please select members", Toast.LENGTH_LONG).show()
-            } else if (addedUsers.size == 1) {
-                getOrCreatePrivateChat(addedUsers[0])
-            } else {
-                val selectedUserIds = addedUsers.map { it -> it.id }.toMutableSet()
-                selectedUserIds.add(auth.currentUser!!.uid)
-                createChat(selectedUserIds)
+            if (doubleClickBlocker.isSingleClick()) {
+                if (addedUsers.size == 0) {
+                    Toast.makeText(activity, "Please select members", Toast.LENGTH_LONG).show()
+                } else if (addedUsers.size == 1) {
+                    getOrCreatePrivateChat(addedUsers[0])
+                } else {
+                    val selectedUserIds = addedUsers.map { it -> it.id }.toMutableSet()
+                    selectedUserIds.add(auth.currentUser!!.uid)
+                    createChat(selectedUserIds)
+                }
             }
         }
 
@@ -146,9 +155,11 @@ class SearchFragment : Fragment() {
         })
     }
 
-    private fun activateChat(chatId: String) {
+    private fun activateChat(chat: Chat) {
         val chatActivityIntent = Intent(activity, ChatActivity::class.java)
-        chatActivityIntent.putExtra("chatId", chatId)
+        chatActivityIntent.putExtra("chatId", chat.id)
+        chatActivityIntent.putExtra("isGroupChat", chat.isGroupChat)
+        chatActivityIntent.putExtra("joinedAt", chat.joinedAt)
         startActivity(chatActivityIntent)
         activity?.finishAfterTransition()
     }
@@ -170,7 +181,7 @@ class SearchFragment : Fragment() {
 
         database.updateChildren(childUpdates)
                 .addOnSuccessListener {
-                    activateChat(newChatId)
+                    activateChat(newChat)
                 }
                 .addOnFailureListener {
                     Log.e(TAG, "Failed to update new chat $newChatId: ${it.message}")
@@ -188,7 +199,7 @@ class SearchFragment : Fragment() {
 
                         if (chat != null && chat.members.keys == selectedUserIds) {
                             Log.i(TAG, "Found chat ${chat.id}")
-                            activateChat(chat.id)
+                            activateChat(chat)
                             return
                         }
                     }
@@ -217,13 +228,15 @@ class SearchFragment : Fragment() {
 
     private fun onUserClicked(user : User) {
         if (source == SOURCE_SEARCH) {
-            val fragment = PrivateChatSettingsFragment.newInstance(true)
+            activity?.hideKeyboard()
+            val fragment = PrivateChatSettingsFragment.newInstance(true, null, auth.currentUser!!.uid)
             fragment.setUser(user)
             (activity as BaseFragmentActivity).addFragment(fragment)
             return
         }
 
         if (source == SOURCE_NEW_PRIVATE_CHAT) {
+            activity?.hideKeyboard()
             getOrCreatePrivateChat(user)
             return
         }
@@ -241,13 +254,6 @@ class SearchFragment : Fragment() {
                 addedUsers.removeAt(userIndex)
                 searchAddedUsersRecyclerView.adapter.notifyItemRemoved(userIndex)
             }
-        }
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    fun onButtonPressed(uri: Uri) {
-        if (mListener != null) {
-            mListener!!.onFragmentInteraction(uri)
         }
     }
 

@@ -72,8 +72,9 @@
     <string name="title_activity_chat_list">ChatListActivity</string>
 
     <string name="settings_image_resolution_low">Low</string>
-    <string name="settings_image_resolution_medium">Medium</string>
     <string name="settings_image_resolution_high">High</string>
+    <string name="settings_image_resolution_full">Full</string>
+    <string name="settings_image_resolution_default">@string/settings_image_resolution_low</string>
     <string name="settings_prompt_save_btn">Save</string>
     <string name="settings_prompt_cancel_btn">Cancel</string>
 

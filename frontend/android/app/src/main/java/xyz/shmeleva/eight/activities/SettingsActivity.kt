@@ -15,7 +15,6 @@ import android.widget.EditText
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 
-import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_settings.*
 import kotlinx.android.synthetic.main.settings_username_dialog.view.*
 import xyz.shmeleva.eight.R
@@ -25,17 +24,25 @@ import android.graphics.BitmapFactory
 import android.os.AsyncTask
 import android.util.Log
 import android.widget.Toast
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.signature.ObjectKey
 import com.google.android.gms.tasks.Task
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import kotlinx.android.synthetic.main.fragment_private_chat_settings.*
 import xyz.shmeleva.eight.models.User
+import xyz.shmeleva.eight.utilities.DoubleClickBlocker
 import java.io.ByteArrayOutputStream
 import java.util.*
 
 // TODO: handle DB failures?
 
 class SettingsActivity : BaseFragmentActivity() {
+
+    private val doubleClickBlocker: DoubleClickBlocker = DoubleClickBlocker()
 
     private val TAG: String = "SettingsActivity"
     private lateinit var auth: FirebaseAuth
@@ -58,15 +65,16 @@ class SettingsActivity : BaseFragmentActivity() {
         val editor = sharedPreferences.edit()
 
         // local user settings variables
-        var uploadImageResolution = sharedPreferences.getString("uploadResolution", "Low")
-        var downloadImageResolution = sharedPreferences.getString("downloadResolution", "Low")
+        val defaultResolution = resources.getString(R.string.settings_image_resolution_default)
+        var uploadImageResolution = sharedPreferences.getString("uploadResolution", defaultResolution)
+        var downloadImageResolution = sharedPreferences.getString("downloadResolution", defaultResolution)
         var theme = sharedPreferences.getString("theme", "Seaweed")
 
 
         val imageResolutionArray = arrayOf(
-                getResources().getString(R.string.settings_image_resolution_low),
-                getResources().getString(R.string.settings_image_resolution_medium),
-                getResources().getString(R.string.settings_image_resolution_high)
+                resources.getString(R.string.settings_image_resolution_low),
+                resources.getString(R.string.settings_image_resolution_high),
+                resources.getString(R.string.settings_image_resolution_full)
         )
         val themeArray = arrayOf("Seaweed", "Dark")
 
@@ -76,83 +84,91 @@ class SettingsActivity : BaseFragmentActivity() {
         setThemeLabel(theme)
 
         usernameRelativeLayout.setOnClickListener() {
-            val usernameDialog = LayoutInflater.from(this)
-                    .inflate(R.layout.settings_username_dialog, null)
 
-            val dialogEditText = usernameDialog.findViewById<EditText>(R.id.dialogUsername)
-            dialogEditText.setText(usernameTextView.text)
+            if (doubleClickBlocker.isSingleClick()) {
+                val usernameDialog = LayoutInflater.from(this)
+                        .inflate(R.layout.settings_username_dialog, null)
 
-            AlertDialog.Builder(this)
-                    .setView(usernameDialog)
-                    .setPositiveButton(R.string.settings_prompt_save_btn, DialogInterface.OnClickListener { dialog, whichButton ->
-                        val changedUsername = usernameDialog.dialogUsername.text.toString()
-                        uploadUsernameToDB(changedUsername)
-                                .addOnSuccessListener {
-                                    usernameTextView.setText(changedUsername)
-                                    editor.putString("username", changedUsername)
-                                    editor.apply()
-                                }
-                        dialog.dismiss()
-                    })
-                    .setNegativeButton(R.string.settings_prompt_cancel_btn, DialogInterface.OnClickListener{ dialog, whichButton ->
+                val dialogEditText = usernameDialog.findViewById<EditText>(R.id.dialogUsername)
+                dialogEditText.setText(usernameTextView.text)
+
+                AlertDialog.Builder(this)
+                        .setView(usernameDialog)
+                        .setPositiveButton(R.string.settings_prompt_save_btn, DialogInterface.OnClickListener { dialog, _ ->
+                            val changedUsername = usernameDialog.dialogUsername.text.toString()
+                            uploadUsernameToDB(changedUsername)
+                                    .addOnSuccessListener {
+                                        usernameTextView.setText(changedUsername)
+                                        editor.putString("username", changedUsername)
+                                        editor.apply()
+                                    }
+                            dialog.dismiss()
+                        })
+                        .setNegativeButton(R.string.settings_prompt_cancel_btn, DialogInterface.OnClickListener{ dialog, _ ->
                             dialog.cancel()
-                    })
-                    .show()
-
+                        })
+                        .show()
+            }
         }
 
-        uploadResolutionRelativeLayout.setOnClickListener(){
-            val currentImageResolutionIndex= imageResolutionArray.indexOf(uploadImageResolution)
-            AlertDialog.Builder(this)
-                    .setSingleChoiceItems(imageResolutionArray, currentImageResolutionIndex, null)
-                    .setPositiveButton(R.string.settings_prompt_save_btn, DialogInterface.OnClickListener { dialog, whichButton ->
-                        val selectedPosition = (dialog as AlertDialog).listView.checkedItemPosition
-                        uploadImageResolution = imageResolutionArray[selectedPosition]
-                        uploadResolutionTextView.setText(uploadImageResolution)
-                        editor.putString("uploadResolution", uploadImageResolution)
-                        editor.apply()
-                        dialog.dismiss()
-                    })
-                    .setNegativeButton(R.string.settings_prompt_cancel_btn, DialogInterface.OnClickListener { dialog, whichButton ->
-                        dialog.cancel()
-                    })
-                    .show()
-
+        uploadResolutionRelativeLayout.setOnClickListener {
+            if (doubleClickBlocker.isSingleClick()) {
+                val currentImageResolutionIndex= imageResolutionArray.indexOf(uploadImageResolution)
+                AlertDialog.Builder(this)
+                        .setSingleChoiceItems(imageResolutionArray, currentImageResolutionIndex, null)
+                        .setPositiveButton(R.string.settings_prompt_save_btn, { dialog, _ ->
+                            val selectedPosition = (dialog as AlertDialog).listView.checkedItemPosition
+                            uploadImageResolution = imageResolutionArray[selectedPosition]
+                            uploadResolutionTextView.setText(uploadImageResolution)
+                            editor.putString("uploadResolution", uploadImageResolution)
+                            editor.apply()
+                            dialog.dismiss()
+                        })
+                        .setNegativeButton(R.string.settings_prompt_cancel_btn, { dialog, _ ->
+                            dialog.cancel()
+                        })
+                        .show()
+            }
         }
 
-        downloadResolutionRelativeLayout.setOnClickListener() {
-            val currentImageResolutionIndex= imageResolutionArray.indexOf(downloadImageResolution)
-            AlertDialog.Builder(this)
-                    .setSingleChoiceItems(imageResolutionArray, currentImageResolutionIndex, null)
-                    .setPositiveButton(R.string.settings_prompt_save_btn, DialogInterface.OnClickListener { dialog, whichButton ->
-                        val selectedPosition = (dialog as AlertDialog).listView.checkedItemPosition
-                        downloadImageResolution = imageResolutionArray[selectedPosition]
-                        downloadResolutionTextView.setText(downloadImageResolution)
-                        editor.putString("downloadResolution", downloadImageResolution)
-                        editor.apply()
-                        dialog.dismiss()
-                    })
-                    .setNegativeButton(R.string.settings_prompt_cancel_btn, DialogInterface.OnClickListener { dialog, whichButton ->
-                        dialog.cancel()
-                    })
-                    .show()
+        downloadResolutionRelativeLayout.setOnClickListener {
+            if (doubleClickBlocker.isSingleClick()) {
+                val currentImageResolutionIndex= imageResolutionArray.indexOf(downloadImageResolution)
+                AlertDialog.Builder(this)
+                        .setSingleChoiceItems(imageResolutionArray, currentImageResolutionIndex, null)
+                        .setPositiveButton(R.string.settings_prompt_save_btn) { dialog, _ ->
+                            val selectedPosition = (dialog as AlertDialog).listView.checkedItemPosition
+                            downloadImageResolution = imageResolutionArray[selectedPosition]
+                            downloadResolutionTextView.setText(downloadImageResolution)
+                            editor.putString("downloadResolution", downloadImageResolution)
+                            editor.apply()
+                            dialog.dismiss()
+                        }
+                        .setNegativeButton(R.string.settings_prompt_cancel_btn) { dialog, _ ->
+                            dialog.cancel()
+                        }
+                        .show()
+            }
         }
 
-        themeRelativeLayout.setOnClickListener() {
-            val currentTheme = themeArray.indexOf(theme)
-            AlertDialog.Builder(this)
-                    .setSingleChoiceItems(themeArray, currentTheme, null)
-                    .setPositiveButton(R.string.settings_prompt_save_btn, DialogInterface.OnClickListener { dialog, whichButton ->
-                        val selectedTheme = (dialog as AlertDialog).listView.checkedItemPosition
-                        theme = themeArray[selectedTheme]
-                        themeTextView.setText(theme)
-                        editor.putString("theme", theme)
-                        editor.apply()
-                        dialog.dismiss()
-                    })
-                    .setNegativeButton(R.string.settings_prompt_cancel_btn, DialogInterface.OnClickListener { dialog, whichButton ->
-                        dialog.cancel()
-                    }).show()
+        themeRelativeLayout.setOnClickListener {
+            if (doubleClickBlocker.isSingleClick()) {
+                val currentTheme = themeArray.indexOf(theme)
+                AlertDialog.Builder(this)
+                        .setSingleChoiceItems(themeArray, currentTheme, null)
+                        .setPositiveButton(R.string.settings_prompt_save_btn) { dialog, _ ->
+                            val selectedTheme = (dialog as AlertDialog).listView.checkedItemPosition
+                            theme = themeArray[selectedTheme]
+                            themeTextView.setText(theme)
+                            editor.putString("theme", theme)
+                            editor.apply()
+                            dialog.dismiss()
+                        }
+                        .setNegativeButton(R.string.settings_prompt_cancel_btn) { dialog, _ ->
+                            dialog.cancel()
+                        }
+                        .show()
+            }
         }
     }
 
@@ -172,11 +188,21 @@ class SettingsActivity : BaseFragmentActivity() {
         themeTextView.setText(theme)
     }
 
-    fun navigateBack(view: View) {
+    fun navigateBack(@Suppress("UNUSED_PARAMETER")view: View) {
+
+        if (doubleClickBlocker.isDoubleClick()) {
+            return
+        }
+
         onBackPressed()
     }
 
-    fun logOut(view: View) {
+    fun logOut(@Suppress("UNUSED_PARAMETER")view: View) {
+
+        if (doubleClickBlocker.isDoubleClick()) {
+            return
+        }
+
         auth.signOut()
 
         // delete the profile picture from internal storage
@@ -191,10 +217,17 @@ class SettingsActivity : BaseFragmentActivity() {
         finish()
     }
 
-    fun pickPhoto(view: View) {
+    fun pickPhoto(@Suppress("UNUSED_PARAMETER")view: View) {
+
+        if (doubleClickBlocker.isDoubleClick()) {
+            return
+        }
+
         dispatchTakeOrPickPictureIntent { bitmap ->
+            Log.i("imageUpload", "Callback received the bitmap.")
             profilePhoto = bitmap
             runOnUiThread {
+                Log.i("imageUpload", "Setting image on UI thread...")
                 profilePictureImageView.setImageBitmap(profilePhoto)
             }
             uploadProfilePhotoToDB(profilePhoto)
@@ -228,16 +261,15 @@ class SettingsActivity : BaseFragmentActivity() {
     }
 
     private fun populateProfilePhotoFromDB(url: String) {
-        if (url != null && url != "") {
-            AsyncTask.execute(Runnable {
-                val profilePhotoRef = storageRef.child(url)
-                profilePhotoRef.getBytes(50*1000*1000).addOnSuccessListener {
-                    val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
-                    runOnUiThread(Runnable {
-                        profilePictureImageView.setImageBitmap(bitmap)
-                    })
-                }
-            })
+        if (url.isNotEmpty()) {
+            val ref = FirebaseStorage.getInstance().reference.child(url)
+            val requestOptions = RequestOptions()
+                    .diskCacheStrategy(DiskCacheStrategy.NONE) // because file name is always same
+                    .skipMemoryCache(true);
+            Glide.with(this)
+                    .load(ref)
+                    .apply(requestOptions)
+                    .into(profilePictureImageView)
         }
     }
 
@@ -260,15 +292,38 @@ class SettingsActivity : BaseFragmentActivity() {
     }
 
     private fun uploadProfilePhotoToDB(bitmap: Bitmap) {
+        Log.i("imageUpload", "Compressing image...")
         val baos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos)
         val data = baos.toByteArray()
 
+        Log.i("imageUpload", "Image compressed! Sending image...")
+
         if (currentUser.profilePicUrl != "") {
+            Log.i("imageUpload", "Updating ${currentUser.profilePicUrl}")
             storageRef.child(currentUser.profilePicUrl).putBytes(data)
+                    .addOnSuccessListener {
+                        Log.i("imageUpload", "Uploaded successfully!")
+                    }
+                    .addOnFailureListener {
+                        Log.i("imageUpload", "Upload failed!")
+                    }
+                    .addOnCanceledListener {
+                        Log.i("imageUpload", "Upload canceled!")
+                    }
         } else {
             val url = "images/" + UUID.randomUUID().toString()
+            Log.i("imageUpload", "Creating ${url}")
             storageRef.child(url).putBytes(data)
+                    .addOnSuccessListener {
+                        Log.i("imageUpload", "Uploaded successfully!")
+                    }
+                    .addOnFailureListener {
+                        Log.i("imageUpload", "Upload failed!")
+                    }
+                    .addOnCanceledListener {
+                        Log.i("imageUpload", "Upload canceled!")
+                    }
 
             currentUser.profilePicUrl = url
             updateUserInDB()

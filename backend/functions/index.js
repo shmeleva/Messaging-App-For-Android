@@ -1,10 +1,11 @@
 const admin = require('firebase-admin');
 const functions = require('firebase-functions');
 
-admin.initializeApp(functions.config().firebase);
+admin.initializeApp({
+  databaseURL: 'https://mcc-fall-2018-g08.firebaseio.com/',
+  projectId: 'mcc-fall-2018-g08',
+});
 
-const createChat = require('./create-chat');
-const getChats = require('./get-chats');
+const newChatNotification = require('./newChatNotification');
 
-exports.createChat = functions.https.onRequest(createChat.handler);
-exports.getChats = functions.https.onRequest(getChats.handler);
+exports.newChatNotification = newChatNotification.handler;

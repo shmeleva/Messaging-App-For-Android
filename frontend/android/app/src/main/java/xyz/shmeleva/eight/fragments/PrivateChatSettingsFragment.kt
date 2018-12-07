@@ -2,15 +2,26 @@ package xyz.shmeleva.eight.fragments
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.MultiTransformation
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import jp.wasabeef.glide.transformations.MaskTransformation
+import kotlinx.android.synthetic.main.activity_settings.*
 import kotlinx.android.synthetic.main.fragment_private_chat_settings.*
 
 import xyz.shmeleva.eight.R
@@ -18,26 +29,34 @@ import xyz.shmeleva.eight.activities.BaseFragmentActivity
 import xyz.shmeleva.eight.activities.ChatActivity
 import xyz.shmeleva.eight.models.Chat
 import xyz.shmeleva.eight.models.User
+import xyz.shmeleva.eight.utilities.DoubleClickBlocker
 
 class PrivateChatSettingsFragment : Fragment() {
 
     private val TAG = "PrivChatSettingsFrgmnt"
 
     private var shouldLaunchChat: Boolean? = null
-    private var user: User? = null
+    private var targetUser: User? = null
+    private var chatId: String? = null
+    private var sourceUserId: String? = null
 
     private var fragmentInteractionListener: OnFragmentInteractionListener? = null
+    private val doubleClickBlocker: DoubleClickBlocker = DoubleClickBlocker()
 
     private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
+    private lateinit var storageRef: StorageReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
             shouldLaunchChat = arguments!!.getBoolean(ARG_SHOULD_LAUNCH_CHAT)
+            chatId = arguments!!.getString(ARG_CHAT_ID)
+            sourceUserId = arguments!!.getString(ARG_SOURCE_USER_ID)
         }
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().reference
+        storageRef = FirebaseStorage.getInstance().reference
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -46,27 +65,41 @@ class PrivateChatSettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        privateChatBackButton.setOnClickListener {_ -> activity?.onBackPressed()}
-        privateChatStartFab.setOnClickListener {_ ->
-            if (shouldLaunchChat == true) {
-                getOrCreatePrivateChat()
-            }
-            else {
+        privateChatBackButton.setOnClickListener {_ ->
+            if (doubleClickBlocker.isSingleClick()) {
                 activity?.onBackPressed()
             }
         }
-        privateChatGalleryRelativeLayout.setOnClickListener { _ ->
-            (activity as BaseFragmentActivity).addFragment(GalleryFragment.newInstance(true))
+        privateChatStartFab.setOnClickListener {_ ->
+            if (doubleClickBlocker.isSingleClick()) {
+                if (shouldLaunchChat == true) getOrCreatePrivateChat() else activity?.onBackPressed()
+            }
         }
+        privateChatGalleryRelativeLayout.setOnClickListener { _ ->
+            if (doubleClickBlocker.isSingleClick()) {
+                (activity as BaseFragmentActivity).addFragment(GalleryFragment.newInstance(true))
+            }
+        }
+
+        // populate user info
+        if (targetUser == null) {
+            getTargetUserAndPopulate()
+        } else {
+            setUsernameLabel(targetUser!!.username)
+            populateProfilePhotoFromDB(targetUser!!.profilePicUrl)
+        }
+
     }
 
     fun setUser(targetUser: User) {
-        user = targetUser
+        this.targetUser = targetUser
     }
 
-    private fun activateChat(chatId: String) {
+    private fun activateChat(chat: Chat) {
         val chatActivityIntent = Intent(activity, ChatActivity::class.java)
-        chatActivityIntent.putExtra("chatId", chatId)
+        chatActivityIntent.putExtra("chatId", chat.id)
+        chatActivityIntent.putExtra("isGroupChat", chat.isGroupChat)
+        chatActivityIntent.putExtra("joinedAt", chat.joinedAt)
         startActivity(chatActivityIntent)
         activity?.finishAfterTransition()
     }
@@ -88,7 +121,7 @@ class PrivateChatSettingsFragment : Fragment() {
 
         database.updateChildren(childUpdates)
                 .addOnSuccessListener {
-                    activateChat(newChatId)
+                    activateChat(newChat)
                 }
                 .addOnFailureListener {
                     Log.e(TAG, "Failed to update new chat $newChatId: ${it.message}")
@@ -99,14 +132,14 @@ class PrivateChatSettingsFragment : Fragment() {
         database.child("chats").addListenerForSingleValueEvent(object: ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
-                    val selectedUserIds = setOf(auth.currentUser!!.uid, user!!.id)
+                    val selectedUserIds = setOf(auth.currentUser!!.uid, targetUser!!.id)
 
                     for (chatSnapshot in snapshot.children) {
                         val chat = chatSnapshot.getValue(Chat::class.java)
 
                         if (chat != null && chat.members.keys == selectedUserIds) {
                             Log.i(TAG, "Found chat ${chat.id}")
-                            activateChat(chat.id)
+                            activateChat(chat)
                             return
                         }
                     }
@@ -120,12 +153,6 @@ class PrivateChatSettingsFragment : Fragment() {
                 Log.e(TAG, "Failed to retrieve chats: ${e.message}")
             }
         })
-    }
-
-    fun onButtonPressed(uri: Uri) {
-        if (fragmentInteractionListener != null) {
-            fragmentInteractionListener!!.onFragmentInteraction(uri)
-        }
     }
 
     override fun onAttach(context: Context?) {
@@ -148,14 +175,80 @@ class PrivateChatSettingsFragment : Fragment() {
 
     companion object {
         private val ARG_SHOULD_LAUNCH_CHAT = "shouldLaunchChat"
+        private val ARG_CHAT_ID = "chatID"
+        private val ARG_SOURCE_USER_ID = "sourceUserId"
 
-        // shouldLaunchChat: true when added from GroupChatSettingsFragment, SearchFragment, CreatePrivateChatFragment; false when added from ChatFragment
-        fun newInstance(shouldLaunchChat: Boolean): PrivateChatSettingsFragment {
+        fun newInstance(shouldLaunchChat: Boolean, chatID: String?, sourceUserId: String?): PrivateChatSettingsFragment {
             val fragment = PrivateChatSettingsFragment()
             val args = Bundle()
             args.putBoolean(ARG_SHOULD_LAUNCH_CHAT, shouldLaunchChat)
+            args.putString(ARG_CHAT_ID, chatID)
+            args.putString(ARG_SOURCE_USER_ID, sourceUserId)
             fragment.arguments = args
             return fragment
+        }
+    }
+
+    private fun getTargetUserAndPopulate() {
+        var targetUserOneTimeListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.value == null) {
+                    Log.i(TAG, "User not found.")
+                    //logOut(logOutTextView)
+                    return
+                }
+
+                // Get User object and use the values to update the UI
+                val currentUser = dataSnapshot.getValue(User::class.java)!!
+
+                setUsernameLabel(currentUser.username)
+                populateProfilePhotoFromDB(currentUser.profilePicUrl)
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Log.i(TAG, databaseError.message)
+            }
+        }
+
+        var chatOneTimeListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.value == null) {
+                    Log.i(TAG, "Chat not found")
+                    return
+                }
+
+                val chat = dataSnapshot.getValue(Chat::class.java)!!
+                var targetUserId : String? = null
+
+                // this is a private chat, so there are exactly 2 members
+                chat.members.forEach{
+                    if (it.key != sourceUserId) {
+                        targetUserId = it.key
+                    }
+                }
+
+                database.child("users").child(targetUserId!!)
+                        .addListenerForSingleValueEvent(targetUserOneTimeListener)
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Log.i(TAG, databaseError.message)
+            }
+        }
+
+        database.child("chats").child(chatId!!)
+                .addListenerForSingleValueEvent(chatOneTimeListener)
+
+    }
+
+    fun setUsernameLabel(username: String) {
+        privateChatUsernameTextView.setText(username)
+    }
+
+    private fun populateProfilePhotoFromDB(url: String) {
+        if (url.isNotEmpty()) {
+            val ref = FirebaseStorage.getInstance().reference.child(url)
+            Glide.with(context!!).load(ref).into(privateChatPictureImageView)
         }
     }
 }

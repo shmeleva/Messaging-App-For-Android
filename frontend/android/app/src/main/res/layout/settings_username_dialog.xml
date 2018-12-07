@@ -10,6 +10,9 @@
         android:id="@+id/dialogUsername"
         android:inputType="textPersonName"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_normal"
+        android:layout_marginStart="@dimen/spacing_normal"
+        android:layout_marginEnd="@dimen/spacing_normal"/>
 
 </LinearLayout>

@@ -5,19 +5,21 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.view.View
-import com.squareup.picasso.Picasso
+import com.bumptech.glide.Glide
 import xyz.shmeleva.eight.R
 import kotlinx.android.synthetic.main.activity_fullscreen_image.*
+import xyz.shmeleva.eight.utilities.DoubleClickBlocker
 
 class FullscreenImageActivity : AppCompatActivity() {
-    private val mHideHandler = Handler()
-    private val mShowPart2Runnable = Runnable {
+    private val doubleClickBlocker: DoubleClickBlocker = DoubleClickBlocker()
+    private val hideHandler = Handler()
+    private val showRunnable = Runnable {
         fullscreenImageControls.visibility = View.VISIBLE
     }
-    private var mVisible: Boolean = false
-    private val mHideRunnable = Runnable { hide() }
+    private var areControlsVisible: Boolean = false
+    private val hideRunnable = Runnable { hide() }
 
-    private val mDelayHideTouchListener = View.OnTouchListener { _, _ ->
+    private val delayHideTouchListener = View.OnTouchListener { _, _ ->
         if (AUTO_HIDE) {
             delayedHide(AUTO_HIDE_DELAY_MILLIS)
         }
@@ -28,20 +30,17 @@ class FullscreenImageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_fullscreen_image)
 
-        mVisible = true
+        areControlsVisible = true
 
-        val builder = Picasso.Builder(this)
-        builder.listener(object : Picasso.Listener {
-            override fun onImageLoadFailed(picasso: Picasso, uri: Uri, exception: Exception) {
-                exception.printStackTrace()
-            }
-        })
         val imageUrl = intent.getStringExtra("imageUrl")
-        builder.build().load(imageUrl).into(fullscreenImageView)
+        Glide.with(this)
+                .load(imageUrl)
+                .into(fullscreenImageView)
+
 
         fullscreenImageView.setOnClickListener { toggle() }
-        fullscreenImageBackButton.setOnTouchListener(mDelayHideTouchListener)
-        fullscreenImageDownloadButton.setOnTouchListener(mDelayHideTouchListener)
+        fullscreenImageBackButton.setOnTouchListener(delayHideTouchListener)
+        fullscreenImageDownloadButton.setOnTouchListener(delayHideTouchListener)
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
@@ -50,7 +49,7 @@ class FullscreenImageActivity : AppCompatActivity() {
     }
 
     private fun toggle() {
-        if (mVisible) {
+        if (areControlsVisible) {
             hide()
         } else {
             show()
@@ -59,18 +58,30 @@ class FullscreenImageActivity : AppCompatActivity() {
 
     private fun hide() {
         fullscreenImageControls.visibility = View.GONE
-        mVisible = false
-        mHideHandler.removeCallbacks(mShowPart2Runnable)
+        areControlsVisible = false
+        hideHandler.removeCallbacks(showRunnable)
     }
 
     private fun show() {
-        mVisible = true
-        mHideHandler.postDelayed(mShowPart2Runnable, UI_ANIMATION_DELAY.toLong())
+        areControlsVisible = true
+        hideHandler.postDelayed(showRunnable, UI_ANIMATION_DELAY.toLong())
     }
 
     private fun delayedHide(delayMillis: Int) {
-        mHideHandler.removeCallbacks(mHideRunnable)
-        mHideHandler.postDelayed(mHideRunnable, delayMillis.toLong())
+        hideHandler.removeCallbacks(hideRunnable)
+        hideHandler.postDelayed(hideRunnable, delayMillis.toLong())
+    }
+
+    fun onBack(@Suppress("UNUSED_PARAMETER")view: View) {
+        if (doubleClickBlocker.isSingleClick()) {
+            onBackPressed()
+        }
+    }
+
+    fun onDownload(@Suppress("UNUSED_PARAMETER")view: View) {
+        if (doubleClickBlocker.isSingleClick()) {
+
+        }
     }
 
     companion object {
