@@ -26,8 +26,12 @@ import java.util.*
 import android.R.attr.thumb
 import android.app.Activity
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.util.Log
+import com.amulyakhare.textdrawable.TextDrawable
+import com.amulyakhare.textdrawable.util.ColorGenerator
 import com.bumptech.glide.load.MultiTransformation
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.bumptech.glide.request.RequestOptions.bitmapTransform
@@ -92,19 +96,34 @@ class MessageListAdapter(
     }
 
     open class IncomingMessageViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
-        val senderImageView = itemView.findViewById<MultiImageView>(R.id.incomingMessageSenderImageView)
+        val senderImageView = itemView.findViewById<ImageView>(R.id.incomingMessageSenderImageView)
         val senderTextView = itemView.findViewById<TextView>(R.id.incomingMessageSenderTextView)
         val timeTextView = itemView.findViewById<TextView>(R.id.incomingMessageTimeTextView)
-
-        init {
-            senderImageView.shape = MultiImageView.Shape.CIRCLE
-        }
+        val requestOptions = RequestOptions()
+                .diskCacheStrategy(DiskCacheStrategy.NONE) // because file name is always same
 
         open fun bind(message: Message, isGroupChat: Boolean) {
             if (isGroupChat) {
                 senderTextView.text = message.sender?.username ?: ""
-                // TODO: Show the sender's profile image
-                senderImageView.loadImages(arrayListOf("https://pixel.nymag.com/imgs/daily/vulture/2016/11/23/23-san-junipero.w330.h330.jpg"), 24, 0)
+
+                val profilePictureUrl = message.sender?.profilePicUrl ?: ""
+                if (profilePictureUrl.isNotEmpty()) {
+                    val ref = FirebaseStorage.getInstance().reference.child(profilePictureUrl)
+                    Glide.with(senderImageView.context)
+                            .load(ref)
+                            .apply(bitmapTransform(MultiTransformation<Bitmap>(CenterCrop(),
+                                    MaskTransformation(R.drawable.shape_circle_small))))
+                            .apply(requestOptions)
+                            .into(senderImageView)
+                }
+                else {
+                    val generator = ColorGenerator.MATERIAL
+                    val username = message.sender?.username ?: "?"
+                    val colour = generator.getColor(username)
+
+                    val drawable = TextDrawable.builder().buildRoundRect(username.substring(0, 1).toUpperCase(), colour, 48)
+                    senderImageView.setImageDrawable(drawable)
+                }
             }
             else {
                 senderTextView.visibility = View.GONE
@@ -134,7 +153,7 @@ class MessageListAdapter(
             Glide.with(contentImageView.context)
                     .load(ref)
                     .apply(bitmapTransform(MultiTransformation<Bitmap>(CenterCrop(),
-                            MaskTransformation(R.drawable.bg_outgoing_message))))
+                            MaskTransformation(R.drawable.bg_incoming_message))))
                     .into(contentImageView)
         }
     }

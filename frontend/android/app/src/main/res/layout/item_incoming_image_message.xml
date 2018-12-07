@@ -5,10 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <com.stfalcon.multiimageview.MultiImageView
+    <xyz.shmeleva.eight.views.AspectRatioImageView
         android:id="@+id/incomingMessageSenderImageView"
         android:layout_width="@dimen/profile_picture_size_small"
         android:layout_height="@dimen/profile_picture_size_small"
+        android:layout_marginStart="@dimen/spacing_normal"
         android:layout_marginEnd="@dimen/spacing_normal" />
 
     <com.google.android.flexbox.FlexboxLayout
@@ -29,6 +30,7 @@
             android:id="@+id/incomingMessageSenderTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/spacing_normal"
             android:singleLine="true"
             android:ellipsize="end"
             app:layout_alignSelf="flex_start"
