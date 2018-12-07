@@ -25,6 +25,9 @@ import android.os.AsyncTask
 import android.util.Log
 import android.widget.Toast
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.signature.ObjectKey
 import com.google.android.gms.tasks.Task
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
@@ -260,7 +263,13 @@ class SettingsActivity : BaseFragmentActivity() {
     private fun populateProfilePhotoFromDB(url: String) {
         if (url.isNotEmpty()) {
             val ref = FirebaseStorage.getInstance().reference.child(url)
-            Glide.with(this).load(ref).into(profilePictureImageView)
+            val requestOptions = RequestOptions()
+                    .diskCacheStrategy(DiskCacheStrategy.NONE) // because file name is always same
+                    .skipMemoryCache(true);
+            Glide.with(this)
+                    .load(ref)
+                    .apply(requestOptions)
+                    .into(profilePictureImageView)
         }
     }
 
@@ -291,6 +300,7 @@ class SettingsActivity : BaseFragmentActivity() {
         Log.i("imageUpload", "Image compressed! Sending image...")
 
         if (currentUser.profilePicUrl != "") {
+            Log.i("imageUpload", "Updating ${currentUser.profilePicUrl}")
             storageRef.child(currentUser.profilePicUrl).putBytes(data)
                     .addOnSuccessListener {
                         Log.i("imageUpload", "Uploaded successfully!")
@@ -303,6 +313,7 @@ class SettingsActivity : BaseFragmentActivity() {
                     }
         } else {
             val url = "images/" + UUID.randomUUID().toString()
+            Log.i("imageUpload", "Creating ${url}")
             storageRef.child(url).putBytes(data)
                     .addOnSuccessListener {
                         Log.i("imageUpload", "Uploaded successfully!")
