@@ -8,7 +8,7 @@
     android:clickable="true"
     android:focusable="true">
 
-    <com.stfalcon.multiimageview.MultiImageView
+    <xyz.shmeleva.eight.views.AspectRatioImageView
         android:id="@+id/chatPreviewPictureImageView"
         android:layout_width="@dimen/profile_picture_size_normal"
         android:layout_height="@dimen/profile_picture_size_normal"

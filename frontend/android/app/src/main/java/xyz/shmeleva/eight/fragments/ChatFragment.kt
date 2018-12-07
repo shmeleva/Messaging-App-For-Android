@@ -101,7 +101,7 @@ class ChatFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         chatImageView.shape = MultiImageView.Shape.CIRCLE
-        
+
         chatBackButton.setOnClickListener { _ ->
             if (doubleClickBlocker.isSingleClick()) {
                 activity?.onBackPressed()
