@@ -1,5 +1,6 @@
 package xyz.shmeleva.eight.activities
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
@@ -109,19 +110,23 @@ open class BaseFragmentActivity(private val containerViewId: Int =  0) : AppComp
             // Save a file: path for use with ACTION_VIEW intents
             currentPicturePath = absolutePath
         }
+        Log.i("imageUpload", "Image saved.")
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
-        if ((requestCode == REQUEST_PICTURE_CAPTURE || requestCode == REQUEST_PICTURE_SELECT) && resultCode == RESULT_OK) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if ((requestCode == REQUEST_PICTURE_CAPTURE || requestCode == REQUEST_PICTURE_SELECT) && resultCode == RESULT_OK && data != null) {
             try {
                 execute {
                     val bitmap = if (requestCode == REQUEST_PICTURE_CAPTURE)
-                        //data.extras.get("data") as Bitmap
                         Glide.with(this).asBitmap().load(currentPicturePath).submit().get()
                     else
                         Glide.with(this).asBitmap().load(data.data).submit().get()
 
-                    pictureCallback(bitmap)
+                    Log.i("imageUpload", "Bitmap created.")
+
+                    if (bitmap != null) {
+                        pictureCallback(scaleBitmap(bitmap))
+                    }
                 }
             }
             catch (ex: Exception) {
@@ -130,5 +135,39 @@ open class BaseFragmentActivity(private val containerViewId: Int =  0) : AppComp
                 Log.e("chat", ex.message)
             }
         }
+    }
+
+    private fun scaleBitmap(bitmap: Bitmap) : Bitmap {
+
+        val sharedPreferences = getSharedPreferences("userSettings", Context.MODE_PRIVATE)
+        val defaultResolution = resources.getString(R.string.settings_image_resolution_default)
+        val uploadImageResolution = sharedPreferences.getString("uploadResolution", defaultResolution)
+
+        if (uploadImageResolution == resources.getString(R.string.settings_image_resolution_full)) {
+            Log.i("imageUpload", "Scaling is not required.")
+            return bitmap
+        }
+
+        val smallerDimension = Math.min(bitmap.width, bitmap.height).toDouble()
+        val largerDimension = Math.max(bitmap.width, bitmap.height).toDouble()
+
+        Log.i("imageUpload", "Scaling from ${smallerDimension}, ${largerDimension}.")
+
+        val isLow = uploadImageResolution == resources.getString(R.string.settings_image_resolution_low)
+        val targetSmallerDimension = if (isLow) 480.0 else 960.0
+        val targetLargerDimension = if (isLow) 640.0 else 1280.0
+
+        val smallerRatio = smallerDimension / targetSmallerDimension
+        val largerRatio = largerDimension / targetLargerDimension
+
+        val ratio = Math.max(Math.max(smallerRatio, largerRatio), 1.0)
+        if (ratio == 1.0) {
+            Log.i("imageUpload", "Scaling is not required.")
+            return  bitmap
+        }
+
+        var scaledBitmap = Bitmap.createScaledBitmap(bitmap, (bitmap.width / ratio).toInt(), (bitmap.height / ratio).toInt(),true)
+        Log.i("imageUpload", "Bitmap scaled to ${scaledBitmap.width}, ${scaledBitmap.height}.")
+        return scaledBitmap
     }
 }

@@ -24,8 +24,16 @@
     "tokens": {
       "$user_id": {
         ".write": "$user_id === auth.uid",
-        ".read": "true"
+        ".read": "auth != null"
       }
-    }
+    },
+    "chats": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "chatMessages": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+		}
   }
 }
