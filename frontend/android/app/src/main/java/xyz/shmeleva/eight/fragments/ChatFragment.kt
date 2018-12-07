@@ -26,6 +26,7 @@ import com.google.firebase.storage.StorageReference
 import kotlinx.android.synthetic.main.fragment_chat.*
 
 import com.stfalcon.multiimageview.MultiImageView
+import kotlinx.android.synthetic.main.item_incoming_text_message.*
 
 import xyz.shmeleva.eight.R
 import xyz.shmeleva.eight.activities.BaseFragmentActivity
@@ -61,6 +62,8 @@ class ChatFragment : Fragment() {
     private lateinit var layoutManager: LinearLayoutManager
     private lateinit var adapter: FirebaseRecyclerAdapter<Message, RecyclerView.ViewHolder>
 
+    private lateinit var chatSettingsFragment: android.support.v4.app.Fragment
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -73,6 +76,12 @@ class ChatFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().reference
         storage = FirebaseStorage.getInstance().reference
+
+        if (isGroupChat) {
+            chatSettingsFragment = GroupChatSettingsFragment.newInstance(chatId!!, auth.currentUser!!.uid)
+        } else {
+            chatSettingsFragment = PrivateChatSettingsFragment.newInstance(false, chatId, auth.currentUser!!.uid)
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -270,8 +279,10 @@ class ChatFragment : Fragment() {
 
     private fun openChatSettings() {
         activity?.hideKeyboard()
-        val chatSettingsFragment = PrivateChatSettingsFragment.newInstance(false)
-        (activity as BaseFragmentActivity?)?.addFragment(chatSettingsFragment as android.support.v4.app.Fragment)
+
+
+
+        (activity as BaseFragmentActivity?)?.addFragment(chatSettingsFragment)
     }
 
     private fun scrollToBottom() {
