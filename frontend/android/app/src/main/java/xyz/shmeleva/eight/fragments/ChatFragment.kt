@@ -41,6 +41,7 @@ class ChatFragment : Fragment() {
 
     private var chatId: String? = null
     private var isGroupChat: Boolean = false
+    private var joinedAt: Long = 0
 
     private var shouldScrollToBottom = true
 
@@ -60,7 +61,7 @@ class ChatFragment : Fragment() {
         if (arguments != null) {
             chatId = arguments!!.getString(ARG_CHAT_ID)
             isGroupChat = arguments!!.getBoolean(ARG_IS_GROUP_CHAT)
-            Log.i(TAG, "chatId: ${chatId}, isGroupChat: $isGroupChat")
+            joinedAt = arguments!!.getLong(ARG_JOINED_AT)
         }
 
         auth = FirebaseAuth.getInstance()
@@ -119,7 +120,7 @@ class ChatFragment : Fragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }))
 
-        val query = database.child("chatMessages").child(chatId!!)
+        val query = database.child("chatMessages").child(chatId!!).orderByChild("timestamp").startAt(joinedAt.toDouble())
         val options = FirebaseRecyclerOptions.Builder<Message>()
                 .setQuery(query, Message::class.java)
                 .build()
@@ -261,12 +262,14 @@ class ChatFragment : Fragment() {
     companion object {
         private val ARG_CHAT_ID = "chatId"
         private val ARG_IS_GROUP_CHAT = "isGroupChat"
+        private val ARG_JOINED_AT = "joinedAt"
 
-        fun newInstance(chatId: String, isGroupChat: Boolean): ChatFragment {
+        fun newInstance(chatId: String, isGroupChat: Boolean, joinedAt: Long): ChatFragment {
             val fragment = ChatFragment()
             val args = Bundle()
             args.putString(ARG_CHAT_ID, chatId)
             args.putBoolean(ARG_IS_GROUP_CHAT, isGroupChat)
+            args.putLong(ARG_JOINED_AT, joinedAt)
             fragment.arguments = args
             return fragment
         }
