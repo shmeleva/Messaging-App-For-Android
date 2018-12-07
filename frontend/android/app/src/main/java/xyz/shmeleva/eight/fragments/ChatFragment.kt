@@ -336,7 +336,8 @@ class ChatFragment : Fragment() {
                         val message = Message(
                                 id = messageId,
                                 imageUrl = imageUrl,
-                                senderId = auth.currentUser!!.uid
+                                senderId = auth.currentUser!!.uid,
+                                receivers = chat!!.getMemberIds(auth.currentUser!!.uid)
                         )
                         message.imageTimestamp = message.timestamp
 
@@ -368,7 +369,8 @@ class ChatFragment : Fragment() {
         val message = Message(
                 id = messageId,
                 text = text,
-                senderId = auth.currentUser!!.uid
+                senderId = auth.currentUser!!.uid,
+                receivers = chat!!.getMemberIds(auth.currentUser!!.uid)
         )
 
         val childUpdates = HashMap<String, Any>()

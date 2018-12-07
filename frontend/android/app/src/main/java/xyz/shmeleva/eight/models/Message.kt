@@ -15,7 +15,8 @@ class Message(
         var timestamp: Long = Date().time,
         var imageUrl: String = "",
         var imageFeature: String = "",
-        var imageTimestamp: Long = 0
+        var imageTimestamp: Long = 0,
+        var receivers: ArrayList<String> = ArrayList()
 ) {
     var sender: User? = null
 
@@ -28,7 +29,8 @@ class Message(
                 "senderId" to senderId,
                 "timestamp" to timestamp,
                 "imageFeature" to text,
-                "imageTimestamp" to timestamp
+                "imageTimestamp" to timestamp,
+                "receivers" to receivers
         )
     }
 }

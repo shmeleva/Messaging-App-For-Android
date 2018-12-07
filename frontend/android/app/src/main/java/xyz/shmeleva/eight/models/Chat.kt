@@ -68,4 +68,14 @@ class Chat(
         }
         return memberNames
     }
+
+    fun getMemberIds(currentUserId: String?) : ArrayList<String> {
+        val memberIds: ArrayList<String> = ArrayList()
+        for (user in users) {
+            if (currentUserId == null || user.id != currentUserId) {
+                memberIds.add(user.id)
+            }
+        }
+        return memberIds
+    }
 }
