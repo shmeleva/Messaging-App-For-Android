@@ -17,5 +17,11 @@ class TimestampFormatter {
             }
             return "$dateString $timeString"
         }
+
+        fun formatDate(milliseconds: Long): String {
+            val timestamp = Date(milliseconds)
+            val dateString = SimpleDateFormat("yyyy MMMM d", Locale.getDefault()).format(timestamp)
+            return dateString
+        }
     }
 }

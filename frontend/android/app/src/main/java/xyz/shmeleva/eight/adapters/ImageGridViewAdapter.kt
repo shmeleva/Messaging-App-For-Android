@@ -8,7 +8,7 @@ import android.widget.BaseAdapter
 import android.widget.ImageView
 import xyz.shmeleva.eight.R
 import com.bumptech.glide.Glide
-
+import com.google.firebase.storage.FirebaseStorage
 
 
 /**
@@ -30,8 +30,9 @@ class ImageGridViewAdapter(private val context: Context, private val images: Arr
             imageView = convertView as ImageView
         }
 
+        val ref = FirebaseStorage.getInstance().reference.child(images[position])
         Glide.with(imageView.context)
-                .load(images[position])
+                .load(ref)
                 .into(imageView)
 
         imageView.setOnClickListener { _ -> clickListener(images[position]) }

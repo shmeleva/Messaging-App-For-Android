@@ -19,6 +19,7 @@ class Message(
         var receivers: ArrayList<String> = ArrayList()
 ) {
     var sender: User? = null
+    var date: String = ""
 
     @Exclude
     fun toMap(): Map<String, Any?> {
@@ -28,8 +29,8 @@ class Message(
                 "imageUrl" to imageUrl,
                 "senderId" to senderId,
                 "timestamp" to timestamp,
-                "imageFeature" to text,
-                "imageTimestamp" to timestamp,
+                "imageFeature" to imageFeature,
+                "imageTimestamp" to imageTimestamp,
                 "receivers" to receivers
         )
     }
