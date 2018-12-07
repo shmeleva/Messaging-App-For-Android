@@ -27,7 +27,7 @@ fun MultiImageView.loadImages(urls: ArrayList<String>, width: Int, height: Int) 
     imageView.shape = MultiImageView.Shape.CIRCLE
     imageView.clear()
 
-    urls.forEach {url ->
+    urls.forEach { url ->
         Picasso
                 .get()
                 .load(url)
