@@ -36,7 +36,9 @@ class PrivateChatSettingsFragment : Fragment() {
     private val TAG = "PrivChatSettingsFrgmnt"
 
     private var shouldLaunchChat: Boolean? = null
-    private var user: User? = null
+    private var targetUser: User? = null
+    private var chatId: String? = null
+    private var sourceUserId: String? = null
 
     private var fragmentInteractionListener: OnFragmentInteractionListener? = null
     private val doubleClickBlocker: DoubleClickBlocker = DoubleClickBlocker()
@@ -49,6 +51,8 @@ class PrivateChatSettingsFragment : Fragment() {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
             shouldLaunchChat = arguments!!.getBoolean(ARG_SHOULD_LAUNCH_CHAT)
+            chatId = arguments!!.getString(ARG_CHAT_ID)
+            sourceUserId = arguments!!.getString(ARG_SOURCE_USER_ID)
         }
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().reference
@@ -78,11 +82,17 @@ class PrivateChatSettingsFragment : Fragment() {
         }
 
         // populate user info
-        getUserFromDBAndPopulate(user!!.id)
+        if (targetUser == null) {
+            getTargetUserAndPopulate()
+        } else {
+            setUsernameLabel(targetUser!!.username)
+            populateProfilePhotoFromDB(targetUser!!.profilePicUrl)
+        }
+
     }
 
     fun setUser(targetUser: User) {
-        user = targetUser
+        this.targetUser = targetUser
     }
 
     private fun activateChat(chat: Chat) {
@@ -122,7 +132,7 @@ class PrivateChatSettingsFragment : Fragment() {
         database.child("chats").addListenerForSingleValueEvent(object: ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
-                    val selectedUserIds = setOf(auth.currentUser!!.uid, user!!.id)
+                    val selectedUserIds = setOf(auth.currentUser!!.uid, targetUser!!.id)
 
                     for (chatSnapshot in snapshot.children) {
                         val chat = chatSnapshot.getValue(Chat::class.java)
@@ -165,18 +175,22 @@ class PrivateChatSettingsFragment : Fragment() {
 
     companion object {
         private val ARG_SHOULD_LAUNCH_CHAT = "shouldLaunchChat"
+        private val ARG_CHAT_ID = "chatID"
+        private val ARG_SOURCE_USER_ID = "sourceUserId"
 
-        fun newInstance(shouldLaunchChat: Boolean): PrivateChatSettingsFragment {
+        fun newInstance(shouldLaunchChat: Boolean, chatID: String?, sourceUserId: String?): PrivateChatSettingsFragment {
             val fragment = PrivateChatSettingsFragment()
             val args = Bundle()
             args.putBoolean(ARG_SHOULD_LAUNCH_CHAT, shouldLaunchChat)
+            args.putString(ARG_CHAT_ID, chatID)
+            args.putString(ARG_SOURCE_USER_ID, sourceUserId)
             fragment.arguments = args
             return fragment
         }
     }
 
-    private fun getUserFromDBAndPopulate(uid: String) {
-        var userOneTimeListener = object : ValueEventListener {
+    private fun getTargetUserAndPopulate() {
+        var targetUserOneTimeListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if (dataSnapshot.value == null) {
                     Log.i(TAG, "User not found.")
@@ -192,13 +206,39 @@ class PrivateChatSettingsFragment : Fragment() {
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                // Getting User failed, log a message
                 Log.i(TAG, databaseError.message)
             }
         }
 
-        database.child("users").child(uid)
-                .addListenerForSingleValueEvent(userOneTimeListener)
+        var chatOneTimeListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.value == null) {
+                    Log.i(TAG, "Chat not found")
+                    return
+                }
+
+                val chat = dataSnapshot.getValue(Chat::class.java)!!
+                var targetUserId : String? = null
+
+                // this is a private chat, so there are exactly 2 members
+                chat.members.forEach{
+                    if (it.key != sourceUserId) {
+                        targetUserId = it.key
+                    }
+                }
+
+                database.child("users").child(targetUserId!!)
+                        .addListenerForSingleValueEvent(targetUserOneTimeListener)
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Log.i(TAG, databaseError.message)
+            }
+        }
+
+        database.child("chats").child(chatId!!)
+                .addListenerForSingleValueEvent(chatOneTimeListener)
+
     }
 
     fun setUsernameLabel(username: String) {
