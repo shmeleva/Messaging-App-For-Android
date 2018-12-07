@@ -220,8 +220,10 @@ class SettingsActivity : BaseFragmentActivity() {
         }
 
         dispatchTakeOrPickPictureIntent { bitmap ->
+            Log.i("cancel", "Callback received the bitmap.")
             profilePhoto = bitmap
             runOnUiThread {
+                Log.i("cancel", "Setting image on UI thread...")
                 profilePictureImageView.setImageBitmap(profilePhoto)
             }
             uploadProfilePhotoToDB(profilePhoto)

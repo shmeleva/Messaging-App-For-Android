@@ -111,17 +111,19 @@ open class BaseFragmentActivity(private val containerViewId: Int =  0) : AppComp
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
-        if ((requestCode == REQUEST_PICTURE_CAPTURE || requestCode == REQUEST_PICTURE_SELECT) && resultCode == RESULT_OK) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if ((requestCode == REQUEST_PICTURE_CAPTURE || requestCode == REQUEST_PICTURE_SELECT) && resultCode == RESULT_OK && data != null) {
             try {
                 execute {
                     val bitmap = if (requestCode == REQUEST_PICTURE_CAPTURE)
-                        //data.extras.get("data") as Bitmap
                         Glide.with(this).asBitmap().load(currentPicturePath).submit().get()
                     else
                         Glide.with(this).asBitmap().load(data.data).submit().get()
 
-                    pictureCallback(bitmap)
+                    if (bitmap != null) {
+                        Log.i("cancel", "Bitmap is not null.")
+                        pictureCallback(bitmap)
+                    }
                 }
             }
             catch (ex: Exception) {
