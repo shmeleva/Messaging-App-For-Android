@@ -1,11 +1,13 @@
 const admin = require('firebase-admin');
 const functions = require('firebase-functions');
 
-admin.initializeApp({
-  databaseURL: 'https://mcc-fall-2018-g08.firebaseio.com/',
-  projectId: 'mcc-fall-2018-g08',
-});
+admin.initializeApp();
 
 const newChatNotification = require('./newChatNotification');
+const imageResizing = require('./image_resizing')
+const imageLabeling = require('./imageLabeling')
 
+
+exports.imageLabeling = imageLabeling.imageLabeling;
+exports.imageResizing = imageResizing.changeImageSize;
 exports.newChatNotification = newChatNotification.handler;
