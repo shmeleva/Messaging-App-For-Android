@@ -2,15 +2,9 @@
 
 # Android
 cd frontend/android
+chmod 744 gradlew
 
 echo "Building an APK..."
-gradle assembleDebug
-
-cd app/build/outputs/apk/debug
-
-echo "Installing the APK on the device..."
-adb install app-debug.apk
-
-echo "App installation done!"
+./gradlew assembleDebug
 
 cd ../../../../../../../backend
