@@ -79,6 +79,9 @@ class ChatListFragment : Fragment() {
         rotateForwardAnimation = AnimationUtils.loadAnimation(activity,R.anim.rotate_forward)
         rotateBackwardAnimation = AnimationUtils.loadAnimation(activity,R.anim.rotate_backward)
 
+        val usersToExcludeFromSearch : ArrayList<String> = ArrayList()
+        usersToExcludeFromSearch.add(auth.currentUser!!.uid)
+
         chatListStartChatFab.setOnClickListener { _ ->
             if (doubleClickBlocker.isSingleClick()) {
                 if (isFabOpen) closeFab() else openFab()
@@ -90,6 +93,7 @@ class ChatListFragment : Fragment() {
                 closeFab()
                 val intent = Intent(activity, SearchActivity::class.java)
                 intent.putExtra(SearchFragment.ARG_SOURCE, SearchFragment.SOURCE_NEW_GROUP_CHAT)
+                intent.putStringArrayListExtra(SearchFragment.ARG_USERS_TO_EXCLUDE, usersToExcludeFromSearch)
                 startActivity(intent)
             }
         }
@@ -99,6 +103,7 @@ class ChatListFragment : Fragment() {
                 closeFab()
                 val intent = Intent(activity, SearchActivity::class.java)
                 intent.putExtra(SearchFragment.ARG_SOURCE, SearchFragment.SOURCE_NEW_PRIVATE_CHAT)
+                intent.putStringArrayListExtra(SearchFragment.ARG_USERS_TO_EXCLUDE, usersToExcludeFromSearch)
                 startActivity(intent)
             }
         }
@@ -114,6 +119,7 @@ class ChatListFragment : Fragment() {
             if (doubleClickBlocker.isSingleClick()) {
                 val intent = Intent(activity, SearchActivity::class.java)
                 intent.putExtra(SearchFragment.ARG_SOURCE, SearchFragment.SOURCE_SEARCH)
+                intent.putStringArrayListExtra(SearchFragment.ARG_USERS_TO_EXCLUDE, usersToExcludeFromSearch)
                 startActivity(intent)
             }
         }

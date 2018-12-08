@@ -1,5 +1,6 @@
 package xyz.shmeleva.eight.fragments
 
+import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -41,6 +42,7 @@ class SearchFragment : Fragment() {
     private val MINIMUM_SEARCH_LENGTH = 5
 
     private var source: Int? = null
+    private var userIdsToExclude: ArrayList<String>? = null
 
     private var mListener: OnFragmentInteractionListener? = null
     private val doubleClickBlocker: DoubleClickBlocker = DoubleClickBlocker()
@@ -58,6 +60,7 @@ class SearchFragment : Fragment() {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
             source = arguments!!.getInt(ARG_SOURCE)
+            userIdsToExclude = arguments!!.getStringArrayList(ARG_USERS_TO_EXCLUDE)
         }
 
         auth = FirebaseAuth.getInstance()
@@ -82,10 +85,17 @@ class SearchFragment : Fragment() {
         usersAdapter = UserListAdapter(users,
                 { user : User -> onUserClicked(user) },
                 { user : User, isSelected: Boolean -> onUserSelected(user, isSelected) },
-                source == SOURCE_NEW_GROUP_CHAT)
+                (source == SOURCE_NEW_GROUP_CHAT || source == SOURCE_GROUP_ADD_MEMBERS))
         searchRecyclerView.adapter = usersAdapter
 
         if (source == SOURCE_NEW_GROUP_CHAT) {
+            searchAddedUsersRecyclerView.visibility = View.VISIBLE
+            searchStartGroupChatFab.visibility = View.VISIBLE
+            searchAddedUsersRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.HORIZONTAL, false)
+            addedUsersAdapter = AddedUsersAdapter(addedUsers)
+            searchAddedUsersRecyclerView.adapter = addedUsersAdapter
+        }
+        else if (source == SOURCE_GROUP_ADD_MEMBERS) {
             searchAddedUsersRecyclerView.visibility = View.VISIBLE
             searchStartGroupChatFab.visibility = View.VISIBLE
             searchAddedUsersRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.HORIZONTAL, false)
@@ -97,19 +107,37 @@ class SearchFragment : Fragment() {
             searchStartGroupChatFab.visibility = View.GONE
         }
 
-        searchStartGroupChatFab.setOnClickListener { _ ->
-            if (doubleClickBlocker.isSingleClick()) {
-                if (addedUsers.size == 0) {
-                    Toast.makeText(activity, "Please select members", Toast.LENGTH_LONG).show()
-                } else if (addedUsers.size == 1) {
-                    getOrCreatePrivateChat(addedUsers[0])
-                } else {
-                    val selectedUserIds = addedUsers.map { it -> it.id }.toMutableSet()
-                    selectedUserIds.add(auth.currentUser!!.uid)
-                    createChat(selectedUserIds)
+        if (source != SOURCE_GROUP_ADD_MEMBERS) {
+            searchStartGroupChatFab.setOnClickListener { _ ->
+                if (doubleClickBlocker.isSingleClick()) {
+                    if (addedUsers.size == 0) {
+                        Toast.makeText(activity, "Please select members", Toast.LENGTH_LONG).show()
+                    } else if (addedUsers.size == 1) {
+                        getOrCreatePrivateChat(addedUsers[0])
+                    } else {
+                        val selectedUserIds = addedUsers.map { it -> it.id }.toMutableSet()
+                        selectedUserIds.add(auth.currentUser!!.uid)
+                        createChat(selectedUserIds)
+                    }
                 }
             }
         }
+        else {
+            searchStartGroupChatFab.setOnClickListener { _ ->
+                if (doubleClickBlocker.isSingleClick()) {
+                    if (addedUsers.size == 0) {
+                        Toast.makeText(activity, "Please select members", Toast.LENGTH_LONG).show()
+                    } else {
+                        val selectedUserIds = ArrayList<String>(addedUsers.map { it -> it.id })
+                        val intent = Intent()
+                        intent.putStringArrayListExtra("output", selectedUserIds)
+                        activity!!.setResult(RESULT_OK, intent)
+                        activity!!.finish()
+                    }
+                }
+            }
+        }
+
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
@@ -219,7 +247,7 @@ class SearchFragment : Fragment() {
         users.clear()
         for (userSnapshot in snapshot.children) {
             val user = userSnapshot.getValue(User::class.java)
-            if (user != null && user.id != auth.currentUser!!.uid) {
+            if (user != null && !userIdsToExclude!!.contains(user.id)) {
                 users.add(user)
             }
         }
@@ -289,10 +317,12 @@ class SearchFragment : Fragment() {
         // TODO: Rename parameter arguments, choose names that match
         // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
         val ARG_SOURCE = "param1"
+        val ARG_USERS_TO_EXCLUDE = "param2"
 
         val SOURCE_SEARCH = 0
         val SOURCE_NEW_PRIVATE_CHAT = 1
         val SOURCE_NEW_GROUP_CHAT = 2
+        val SOURCE_GROUP_ADD_MEMBERS = 3
 
         /**
          * Use this factory method to create a new instance of
@@ -302,10 +332,11 @@ class SearchFragment : Fragment() {
          * @return A new instance of fragment SearchFragment.
          */
         // TODO: Rename and change types and number of parameters
-        fun newInstance(source: Int): SearchFragment {
+        fun newInstance(source: Int, userIdsToExclude: ArrayList<String>): SearchFragment {
             val fragment = SearchFragment()
             val args = Bundle()
             args.putInt(ARG_SOURCE, source)
+            args.putStringArrayList(ARG_USERS_TO_EXCLUDE, userIdsToExclude)
             fragment.arguments = args
             return fragment
         }
