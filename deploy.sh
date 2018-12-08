@@ -3,8 +3,6 @@
 # Android
 cd frontend/android
 
-# TODO: Set SDK location
-
 echo "Building an APK..."
 gradle assembleDebug
 
