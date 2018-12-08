@@ -35,7 +35,19 @@
             />
 
         <ImageView
-            android:id="@+id/fullscreenImageDownloadButton"
+            android:id="@+id/fullscreenImageShareButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@+id/fullscreenImageDownloadButton"
+            android:layout_margin="@dimen/spacing_normal"
+            android:src="@drawable/ic_baseline_share_24px"
+            android:tint="#FFFFFF"
+            android:hapticFeedbackEnabled="true"
+            android:onClick="onShare"
+            />
+
+        <ImageView
+            android:id="@id/fullscreenImageDownloadButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"

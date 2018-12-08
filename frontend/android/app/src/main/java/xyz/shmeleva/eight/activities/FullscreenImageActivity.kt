@@ -14,12 +14,16 @@ import xyz.shmeleva.eight.utilities.DoubleClickBlocker
 import android.graphics.Bitmap
 import java.io.FileOutputStream
 import android.content.Intent
+import android.os.Environment
 import android.support.design.widget.Snackbar
+import android.support.v4.content.FileProvider
 import android.support.v4.provider.DocumentFile
 import android.util.Log
 import java.util.*
 import xyz.shmeleva.eight.utilities.getResizedPictureUrl
 import xyz.shmeleva.eight.utilities.loadFromFirebase
+import java.io.File
+import java.text.SimpleDateFormat
 
 
 class FullscreenImageActivity : AppCompatActivity() {
@@ -99,7 +103,37 @@ class FullscreenImageActivity : AppCompatActivity() {
 
     fun onShare(@Suppress("UNUSED_PARAMETER")view: View) {
         if (doubleClickBlocker.isSingleClick()) {
-
+            execute {
+                try {
+                    val ref = FirebaseStorage.getInstance().reference.child(intent.getStringExtra("imageUrl"))
+                    val bitmap = Glide.with(this).asBitmap().load(ref).submit().get()
+                    val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+                    val storageDir: File = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+                    val file = File.createTempFile(
+                            "PNG_${timeStamp}_", /* prefix */
+                            ".png", /* suffix */
+                            storageDir /* directory */
+                    )
+                    val uri = FileProvider.getUriForFile(
+                            this,
+                            "com.example.android.fileprovider",
+                            file
+                    )
+                    val out = contentResolver.openOutputStream(uri)
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                    val shareIntent: Intent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        putExtra(Intent.EXTRA_STREAM, uri)
+                        type = "image/png"
+                    }
+                    runOnUiThread {
+                        startActivity(Intent.createChooser(shareIntent, "Share"))
+                    }
+                }
+                catch (ex: Exception) {
+                    Log.e("shareImage", ex.message)
+                }
+            }
         }
     }
 
@@ -111,6 +145,7 @@ class FullscreenImageActivity : AppCompatActivity() {
                     val bitmap = Glide.with(this).asBitmap().load(ref).submit().get()
                     val dir = DocumentFile.fromTreeUri(this, data.data)
                     val file = dir.createFile("image/png", UUID.randomUUID().toString() + ".png")
+                    Log.i("imageSave", file.uri.toString())
                     val out = contentResolver.openOutputStream(file.uri)
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
                 }
