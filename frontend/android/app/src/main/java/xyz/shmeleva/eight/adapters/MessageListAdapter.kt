@@ -20,8 +20,6 @@ import kotlinx.android.synthetic.main.fragment_private_chat_settings.*
 
 import  xyz.shmeleva.eight.R
 import  xyz.shmeleva.eight.models.*
-import xyz.shmeleva.eight.utilities.TimestampFormatter
-import xyz.shmeleva.eight.utilities.loadImages
 import java.util.*
 import android.R.attr.thumb
 import android.app.Activity
@@ -37,7 +35,7 @@ import com.google.firebase.storage.StorageReference
 import com.bumptech.glide.request.RequestOptions.bitmapTransform
 import com.google.android.flexbox.FlexboxLayout
 import jp.wasabeef.glide.transformations.MaskTransformation
-import xyz.shmeleva.eight.utilities.getResizedPictureUrl
+import xyz.shmeleva.eight.utilities.*
 
 
 class MessageListAdapter(
@@ -105,24 +103,7 @@ class MessageListAdapter(
         open fun bind(message: Message, isGroupChat: Boolean, clickListener: (Message) -> Unit) {
             if (isGroupChat) {
                 senderTextView.text = message.sender?.username ?: ""
-
-                val profilePictureUrl = message.sender?.profilePicUrl ?: ""
-                if (profilePictureUrl.isNotEmpty()) {
-                    val ref = FirebaseStorage.getInstance().reference.child(profilePictureUrl)
-                    Glide.with(senderImageView.context)
-                            .load(ref)
-                            .apply(bitmapTransform(MultiTransformation<Bitmap>(CenterCrop(),
-                                    MaskTransformation(R.drawable.shape_circle_small))))
-                            .apply(requestOptions)
-                            .into(senderImageView)
-                }
-                else {
-                    val generator = ColorGenerator.MATERIAL
-                    val username = message.sender?.username ?: "?"
-                    val colour = generator.getColor(username)
-                    val drawable = TextDrawable.builder().buildRound(username.substring(0, 1).toUpperCase(), colour)
-                    senderImageView.setImageDrawable(drawable)
-                }
+                senderImageView.loadProfilePictureFromFirebase(message.sender)
             }
             else {
                 senderTextView.visibility = View.GONE
@@ -149,27 +130,12 @@ class MessageListAdapter(
     class IncomingImageMessageViewHolder(itemView: View): IncomingMessageViewHolder(itemView) {
 
         val contentImageView = itemView.findViewById<ImageView>(R.id.incomingMessageContentImageView)
-        val storageRef = FirebaseStorage.getInstance().reference
+        //val storageRef = FirebaseStorage.getInstance().reference
 
         override fun bind(message: Message, isGroupChat: Boolean, clickListener: (Message) -> Unit) {
             super.bind(message, isGroupChat, clickListener)
-
             contentImageView.setOnClickListener { _ -> clickListener(message) }
-
-            val resizedImageUrl = contentImageView.context.getResizedPictureUrl(message.imageUrl)
-            val ref = storageRef.child(resizedImageUrl)
-            val fallbackRef = storageRef.child(message.imageUrl)
-            Glide
-                    .with(contentImageView.context)
-                    .load(ref)
-                    .error(Glide
-                            .with(contentImageView.context)
-                            .load(fallbackRef)
-                            .apply(bitmapTransform(MultiTransformation<Bitmap>(CenterCrop(),
-                                    MaskTransformation(R.drawable.bg_incoming_message)))))
-                    .apply(bitmapTransform(MultiTransformation<Bitmap>(CenterCrop(),
-                            MaskTransformation(R.drawable.bg_incoming_message))))
-                    .into(contentImageView)
+            contentImageView.loadAndReshapeFromFirebase(message.imageUrl, R.drawable.bg_incoming_message)
         }
     }
 
@@ -199,27 +165,11 @@ class MessageListAdapter(
     class OutgoingImageMessageViewHolder(itemView: View): OutgoingMessageViewHolder(itemView) {
 
         val contentImageView = itemView.findViewById<ImageView>(R.id.outgoingMessageContentImageView)
-        val storageRef = FirebaseStorage.getInstance().reference
 
         override fun bind(message: Message, clickListener: (Message) -> Unit) {
             super.bind(message, clickListener)
-
             contentImageView.setOnClickListener { _ -> clickListener(message) }
-
-            val resizedImageUrl = contentImageView.context.getResizedPictureUrl(message.imageUrl)
-            val ref = storageRef.child(resizedImageUrl)
-            val fallbackRef = storageRef.child(message.imageUrl)
-            Glide
-                    .with(contentImageView.context)
-                    .load(ref)
-                    .error(Glide
-                            .with(contentImageView.context)
-                            .load(fallbackRef)
-                            .apply(bitmapTransform(MultiTransformation<Bitmap>(CenterCrop(),
-                                    MaskTransformation(R.drawable.bg_outgoing_message)))))
-                    .apply(bitmapTransform(MultiTransformation<Bitmap>(CenterCrop(),
-                            MaskTransformation(R.drawable.bg_outgoing_message))))
-                    .into(contentImageView)
+            contentImageView.loadAndReshapeFromFirebase(message.imageUrl, R.drawable.bg_outgoing_message)
         }
     }
 }

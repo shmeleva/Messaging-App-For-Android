@@ -1,5 +1,6 @@
 package xyz.shmeleva.eight.activities
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 
@@ -22,5 +23,13 @@ class ChatActivity : BaseFragmentActivity(R.id.chatFragmentContainer),
 
     override fun onFragmentInteraction(uri: Uri) {
 
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        //super.onActivityResult(requestCode, resultCode, data)
+        supportFragmentManager.fragments.forEach {
+            if (it is GroupChatSettingsFragment)
+                it.onActivityResult(requestCode, resultCode, data)
+        }
     }
 }

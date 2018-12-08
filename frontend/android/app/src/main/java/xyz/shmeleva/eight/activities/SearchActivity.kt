@@ -13,7 +13,8 @@ class SearchActivity : BaseFragmentActivity(R.id.searchFragmentContainer),
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
         val source = intent?.extras?.getInt(SearchFragment.ARG_SOURCE) ?: 0
-        replaceFragment(SearchFragment.newInstance(source) as android.support.v4.app.Fragment)
+        val usersToExclude = intent?.extras?.getStringArrayList(SearchFragment.ARG_USERS_TO_EXCLUDE) ?: ArrayList<String>()
+        replaceFragment(SearchFragment.newInstance(source, usersToExclude) as android.support.v4.app.Fragment)
     }
 
     override fun onFragmentInteraction(uri: Uri) {
