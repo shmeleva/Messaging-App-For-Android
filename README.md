@@ -94,8 +94,9 @@ This class contains some methods that are used across multiple activities (e.g. 
 
 There are also other utilities used for getting and displaying pictures, preventing double-click events, formatting time, hiding a keyboard, etc.
 
-###
+### Models
 
+There are three models: `User`, `Chat`, and `Message`. To some extent, they correspond to Firebase Database nodes.
 
 ## Resource Files
 
