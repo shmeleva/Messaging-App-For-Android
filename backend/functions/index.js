@@ -3,11 +3,11 @@ const functions = require('firebase-functions');
 
 admin.initializeApp();
 
-const imageResizing = require('./image_resizing')
-const imageLabeling = require('./imageLabeling')
-const newChatNotification = require('./newChatNotification');
-const newMessageNotification = require('./newMessageNotification');
-const addedToChatNotification = require('./addedToChatNotification');
+const imageResizing = require('./resizeImage')
+const imageLabeling = require('./labelImage')
+const newChatNotification = require('./notifyNewChat');
+const newMessageNotification = require('./notifyNewMessage');
+const addedToChatNotification = require('./notifyAddedToChat');
 
 exports.imageLabelingMessage = imageLabeling.imageLabelingMessage;
 exports.imageResizing = imageResizing.changeImageSize;
