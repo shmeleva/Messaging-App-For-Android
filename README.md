@@ -100,7 +100,21 @@ There are three models: `User`, `Chat`, and `Message`. To some extent, they corr
 
 ## Resource Files
 
+### Animations
 
+`anim` contains animations for expanding and collapsing a FAB.
+
+### Drawables
+
+`drawable` contains backgrounds for some UI elements (e.g. chat messages, buttons) named as `bg_*` and vector icons named as `ic_*`. Icons are taken from https://material.io.
+
+### Layouts
+
+`layout` contains layouts for activities (`activity_*`), fragments (`fragment_*`), recycler view items (`item_*`), and dialogs.
+
+### XML
+
+`xml` contains a path configuration file for `FileProvider`.
 
 # Backend
 
