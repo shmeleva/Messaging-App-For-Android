@@ -84,6 +84,7 @@ class SearchFragment : Fragment() {
         usersAdapter = UserListAdapter(users,
                 { user : User -> onUserClicked(user) },
                 { user : User, isSelected: Boolean -> onUserSelected(user, isSelected) },
+                addedUsers,
                 (source == SOURCE_NEW_GROUP_CHAT || source == SOURCE_GROUP_ADD_MEMBERS))
         searchRecyclerView.adapter = usersAdapter
 
@@ -270,7 +271,7 @@ class SearchFragment : Fragment() {
     }
 
     private fun onUserSelected(user: User, isSelected: Boolean) {
-        if (user.isSelected) {
+        if (isSelected) {
             addedUsers.add(user)
             searchAddedUsersRecyclerView.adapter.notifyItemInserted(addedUsers.size - 1)
             searchAddedUsersRecyclerView.scrollToPosition(addedUsers.size - 1);
