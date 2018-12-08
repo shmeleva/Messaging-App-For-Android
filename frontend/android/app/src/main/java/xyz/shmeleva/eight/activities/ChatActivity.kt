@@ -26,7 +26,7 @@ class ChatActivity : BaseFragmentActivity(R.id.chatFragmentContainer),
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        //super.onActivityResult(requestCode, resultCode, data)
+        super.onActivityResult(requestCode, resultCode, data)
         supportFragmentManager.fragments.forEach {
             if (it is GroupChatSettingsFragment)
                 it.onActivityResult(requestCode, resultCode, data)
