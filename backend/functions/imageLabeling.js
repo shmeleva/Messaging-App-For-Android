@@ -8,30 +8,48 @@ const spawn = require('child-process-promise').spawn;
 const client = new vision.ImageAnnotatorClient();
 
 
-exports.imageLabeling = functions.runWith({memory: '2GB'}).storage.object().onFinalize( async (event) => {
-    const bucket = admin.storage().bucket();
-    const metadata = { contentType: event.contentType }
-    const dirPath = path.dirname(event.name)
-    const bucketName = event.bucket;
-    const fileName = event.name;
+exports.imageLabelingMessage = functions.database
+    .ref('/chatMessages/{chat_id}/{message_id}')
+    .onCreate((snapshot, context) => {
+        const bucket = admin.storage().bucket()
+        const createdData = snapshot.val()
+        const bucketName = 'mcc-fall-2018-g08.appspot.com'
+        const fileName = createdData.imageUrl
 
-    if (path.basename(event.name).startsWith('resized-async-')) {
-        return false;
-    }
-    console.log('On finalize called!!!!');
-    console.log(event.name)
-    console.log(bucketName)
+        if ( fileName ) {
+            client
+                .labelDetection(`gs://${bucketName}/${fileName}`)
+                .then(results => {
+                    const labels = results[0].labelAnnotations;
+                    console.log('Labels:');
+                    const label = labels[0].description
+                    const chatId = context.params.chat_id
+                    const messageId = context.params.message_id
 
-    client
-        .labelDetection(`gs://${bucketName}/${fileName}`)
-        .then(results => {
-            const labels = results[0].labelAnnotations;
-            console.log('Labels:');
-            labels.forEach(label => console.log(label.description));
-        })
-        .catch(err => {
-            console.error('ERROR:', err);
-        });
+                    console.log(results)
+                    labels.forEach(label => console.log(label.description));
+                    console.log(label)
+                    console.log(chatId)
+                    console.log(messageId)
+                    console.log('!!!Update')
 
-    return true;
+                    admin
+                        .database()
+                        .ref(`/chatMessages/${chatId}/${messageId}`)
+                        .update({imageFeature: label}).then(result => {
+                            console.log('Result')
+                            console.log(result)
+                        })
+                        .catch(err =>{
+                            console.log('Error')
+                            console.log(err)
+                        });
+                    return true
+                })
+                .catch(err => {
+                    console.error('ERROR:', err);
+                    return false;
+                });
+        }
+        return true;
 })
