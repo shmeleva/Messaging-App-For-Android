@@ -8,6 +8,6 @@ const imageResizing = require('./image_resizing')
 const imageLabeling = require('./imageLabeling')
 
 
-exports.imageLabeling = imageLabeling.imageLabeling;
+exports.imageLabelingMessage = imageLabeling.imageLabelingMessage;
 exports.imageResizing = imageResizing.changeImageSize;
 exports.newChatNotification = newChatNotification.handler;

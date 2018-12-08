@@ -21,7 +21,7 @@ exports.changeImageSize = functions.runWith({memory: '2GB'}).storage.object().on
         return false;
     }
 
-    const sizes = ['100x100', '400x400', '1500x1024']
+    const sizes = ['480x640', '960x1280']
     const resizePromisizes = sizes.map(async size => {
         const tmpFilePath = path.join(os.tmpdir(), path.basename(event.name));
         await bucket.file(event.name).download({destination: tmpFilePath})
@@ -32,9 +32,7 @@ exports.changeImageSize = functions.runWith({memory: '2GB'}).storage.object().on
             destination: savePath,
             metadata: metadata
         })
-
     })
 
-    await Promise.all(resizePromisizes)
-    return fs.unlinkSync(tmpFilePath)
+    return await Promise.all(resizePromisizes)
 })
