@@ -9,12 +9,15 @@ import android.widget.ImageView
 import xyz.shmeleva.eight.R
 import com.bumptech.glide.Glide
 import com.google.firebase.storage.FirebaseStorage
+import xyz.shmeleva.eight.utilities.getResizedPictureUrl
 
 
 /**
  * Created by shagg on 26.11.2018.
  */
 class ImageGridViewAdapter(private val context: Context, private val images: ArrayList<String>, val clickListener: (String) -> Unit) : BaseAdapter() {
+
+    val storageRef = FirebaseStorage.getInstance().reference
 
     override fun getCount(): Int = images.size
 
@@ -30,9 +33,15 @@ class ImageGridViewAdapter(private val context: Context, private val images: Arr
             imageView = convertView as ImageView
         }
 
-        val ref = FirebaseStorage.getInstance().reference.child(images[position])
-        Glide.with(imageView.context)
+        val resizedImageUrl = imageView.context.getResizedPictureUrl(images[position])
+        val ref = storageRef.child(resizedImageUrl)
+        val fallbackRef = storageRef.child(images[position])
+        Glide
+                .with(imageView.context)
                 .load(ref)
+                .error(Glide
+                        .with(imageView.context)
+                        .load(fallbackRef))
                 .into(imageView)
 
         imageView.setOnClickListener { _ -> clickListener(images[position]) }
