@@ -4,28 +4,25 @@
       "$id": {
         ".write": "auth != null",
         "username": {
-          ".validate":
-          	//allow the username if it does not exist in 'usernames' or if it belongs to the current user
-          	"!root.child('usernames').child(newData.val()).exists() ||
-            	root.child('usernames').child(newData.val()).val() === auth.uid"
-          }
+          //allow the username if it does not exist in 'usernames' or if it belongs to the current user
+          ".validate": "!root.child('usernames').child(newData.val()).exists() ||
+          root.child('usernames').child(newData.val()).val() === auth.uid "
+        }
       },
       ".indexOn": ["username"],
       ".read": "auth != null"
     },
     "usernames": {
+      //only the owner can change his username
       ".read": "auth != null",
       "$username": {
-        ".write":
-        	//only the owner can change his username
-        	"root.child('usernames').child($username).val() === auth.uid
-        		|| newData.val() === auth.uid"
+        ".write": "root.child('usernames').child($username).val() === auth.uid ||
+          newData.val() === auth.uid "
       }
     },
     "tokens": {
       "$user_id": {
-        ".write": "$user_id === auth.uid",
-        ".read": "auth != null"
+        ".write": "$user_id === auth.uid"
       }
     },
     "chats": {
@@ -35,23 +32,26 @@
         // to check this and create it; if it already exists, then authenticated
         // user (specified by auth.id) must be in $key/members to write
         ".read": "auth != null",
-        ".write": "auth != null
-        	&& (!data.exists() || data.child('members').child(auth.uid).exists())"
-       },
-       "users": {
-         // if the list doesn't exist, anybody can create it
-         // if it already exists, only users already in the list may modify it
-         ".write": "!data.exists() || data.hasChild(auth.id)",
-       }
+        ".write": "auth != null &&
+          (!data.exists() || data.child('members').child(auth.uid).exists())
+        ",
+        "members": {
+          // if the list doesn't exist, anybody can create it
+          // if it already exists, only users already in the list may modify it
+          ".write": "!data.exists() || data.child(auth.uid).exists()",
+        }
+      }
     },
     "chatMessages": {
       "$key": {
         //chatMessage can be read/written only by users who are in members list of the chat
-        ".read": "auth != null
-        	&& (root.child('chats').child($key).child('members').child(auth.uid).exists())",
-        ".write": "auth != null
-        	&& (root.child('chats').child($key).child('members').child(auth.uid).exists())",
-       },
-		}
+        ".read": "auth != null &&
+          (root.child('chats').child($key).child('members').child(auth.uid).exists())
+        ",
+        ".write": "auth != null &&
+          (root.child('chats').child($key).child('members').child(auth.uid).exists())
+        ",
+      },
+    }
   }
 }

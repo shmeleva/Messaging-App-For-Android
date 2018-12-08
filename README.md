@@ -44,7 +44,7 @@ Chats are synchronized with Firebase Database with `ValueEventListener`s.
 
 #### SettingsActivity
 
-`SettingsActivity` allows the user to change their profile picture that can be either selected from the Gallery or taken with the Camera, update their username, change their image resolution preferences (these are device-specific and stored in shared preferences and log out from the app.
+`SettingsActivity` allows the user to change their profile picture that can be either selected from the Gallery or taken with the Camera, update their username, change their image resolution preferences (these are device-specific and stored in shared preferences and log out from the app. Pictures are resized locally before upload (if either `low` or `high` resolution is selected) with Glide and then with Firebase Cloud Functions after upload so that other users can fetch pictures with a desired resolution.
 
 #### FullscreenImageActivity
 
@@ -53,6 +53,50 @@ Chats are synchronized with Firebase Database with `ValueEventListener`s.
 #### BaseFragmentActivity
 
 This class contains some methods that are used across multiple activities (e.g. adding a fragment or selecting/taking a picture).
+
+### Fragments
+
+#### ChatListFragment
+
+`ChatListFragment` is used inside `ChatListActivity` (see _ChatListActivity_ section).
+
+#### ChatFragment
+
+`ChatListFragment` is used inside `ChatActivity`. It contains chat messages and allows to send messages and images. When a text message clicked, its content can be shared via third-party apps. When an image message clicked, the image is opened in `FullscreenImageActivity` (see _FullscreenImageActivity_ section). By clicking on the Toolbar, the user can open either private chat details or group chat details depending on the chat type.
+
+#### PrivateChatSettingsFragment
+
+`PrivateChatSettingsFragment` is used inside `ChatActivity`. It contains basic user information about the user such as their profile picture (or a placeholder if it is missing) and username. From this screen, the user can open the Gallery (only if the fragment was opened from the Chat screen), and either start a new chat or return to an existing chat depending.
+
+#### GroupChatSettingsFragment
+
+`GroupChatSettingsFragment` is used inside `ChatActivity`. It contains a list of chat members and allows to add new members to the chat (see `SearchActivity`), leave the chat, and open the Gallery.
+
+#### GalleryFragment
+
+`GalleryFragment` is used to display the Gallery. Pictures can be grouped by date, sender, and feature.
+
+#### SearchFragment
+
+`SearchFragment` is used inside `SearchActivity` (see SearchActivity section).
+
+### Views
+
+#### AspectRatioImageView
+
+`AspectRatioImageView` extends `ImageView` and displays pictures with a specified aspect ratio. It is used for displaying profile pictures on the Setting screen for adjusting a picture to always be square regardless of the screen width.
+
+`WrapContentGridView` extends regular `GridView` and adjusts `GridView` height depending on the height of its content. It is used for displaying images in the Gallery.
+
+### Utilities
+
+`FirebaseAppGlideModule` is used to configure Glide to fetch images from Firebase Storage.
+
+There are also other utilities used for getting and displaying pictures, preventing double-click events, formatting time, hiding a keyboard, etc.
+
+### Models
+
+There are three models: `User`, `Chat`, and `Message`. To some extent, they correspond to Firebase Database nodes.
 
 ## Resource Files
 
@@ -85,4 +129,3 @@ This class contains some methods that are used across multiple activities (e.g. 
 - chats - if the chat hasn't been created yet, we allow read so there is a way to check this and create it; if it already exists, then authenticated user (specified by auth.id) must be in $key/members to write
 
 - chatMessages - chatMessage can be read/written only by users who are in members list of the chat
-
