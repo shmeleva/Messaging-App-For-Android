@@ -75,12 +75,7 @@
     <string name="settings_prompt_save_btn">Save</string>
     <string name="settings_prompt_cancel_btn">Cancel</string>
 
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-
-    <string name="title_activity_fullscreen_image">FullscreenImageActivity</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="image_resolution_firebase_prefix_low">resized-async-100x100</string>
+    <string name="image_resolution_firebase_prefix_high">resized-async-1500x1024</string>
 
 </resources>

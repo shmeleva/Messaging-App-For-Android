@@ -13,8 +13,17 @@ import com.amulyakhare.textdrawable.util.ColorGenerator
 import xyz.shmeleva.eight.R
 import com.bumptech.glide.request.target.SimpleTarget
 import android.R.attr.path
+import android.media.Image
 import android.transition.Transition
+import android.widget.ImageView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.MultiTransformation
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.request.RequestOptions
+import com.google.firebase.storage.FirebaseStorage
+import jp.wasabeef.glide.transformations.MaskTransformation
+import xyz.shmeleva.eight.models.User
 
 
 /**
@@ -68,4 +77,84 @@ fun MultiImageView.loadUsername(username: String) {
     drawable.draw(canvas)
 
     imageView.addImage(bitmap)
+}
+
+fun ImageView.loadProfilePictureFromFirebase(user: User?) {
+    if (user?.profilePicUrl != null && user.profilePicUrl.isNotEmpty()) {
+        val ref = FirebaseStorage.getInstance().reference.child(user.profilePicUrl)
+        val requestOptions = RequestOptions()
+                .diskCacheStrategy(DiskCacheStrategy.NONE) // because file name is always same
+        Glide.with(context)
+                .load(ref)
+                .apply(RequestOptions.bitmapTransform(MultiTransformation<Bitmap>(CenterCrop(),
+                        MaskTransformation(R.drawable.shape_circle_small))))
+                .apply(requestOptions)
+                .into(this)
+    }
+    else {
+        val generator = ColorGenerator.MATERIAL
+        val username = if (user?.username != null && user.username.isNotEmpty()) user.username else "?"
+        val colour = generator.getColor(username)
+        val drawable = TextDrawable.builder().buildRound(username.substring(0, 1).toUpperCase(), colour)
+        setImageDrawable(drawable)
+    }
+}
+
+fun ImageView.loadFromFirebase(url: String) {
+    val storageRef = FirebaseStorage.getInstance().reference
+    val resizedImageUrl = context.getResizedPictureUrl(url)
+    val ref = storageRef.child(resizedImageUrl)
+    val fallbackRef = storageRef.child(url)
+    Glide
+            .with(context)
+            .load(ref)
+            .error(Glide
+                    .with(context)
+                    .load(fallbackRef))
+            .into(this)
+}
+
+fun ImageView.loadFullProfilePictureFromFirebase(user: User?) {
+    if (user?.profilePicUrl != null && user.profilePicUrl.isNotEmpty()) {
+        val storageRef = FirebaseStorage.getInstance().reference
+        val resizedImageUrl = context.getResizedPictureUrl(user.profilePicUrl)
+        val ref = storageRef.child(resizedImageUrl)
+        val fallbackRef = storageRef.child(user.profilePicUrl)
+        val requestOptions = RequestOptions()
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .skipMemoryCache(true)// because file name is always same
+        Glide.with(context)
+                .load(ref)
+                .error(Glide
+                        .with(context)
+                        .load(fallbackRef)
+                        .apply(requestOptions))
+                .apply(requestOptions)
+                .into(this)
+    }
+    else {
+        val generator = ColorGenerator.MATERIAL
+        val username = if (user?.username != null && user.username.isNotEmpty()) user.username else "?"
+        val colour = generator.getColor(username)
+        val drawable = TextDrawable.builder().buildRect(username.substring(0, 1).toUpperCase(), colour)
+        setImageDrawable(drawable)
+    }
+}
+
+fun ImageView.loadAndReshapeFromFirebase(url: String, shapeResId: Int) {
+    val storageRef = FirebaseStorage.getInstance().reference
+    val resizedImageUrl = context.getResizedPictureUrl(url)
+    val ref = storageRef.child(resizedImageUrl)
+    val fallbackRef = storageRef.child(url)
+    Glide
+            .with(context)
+            .load(ref)
+            .error(Glide
+                    .with(context)
+                    .load(fallbackRef)
+                    .apply(RequestOptions.bitmapTransform(MultiTransformation<Bitmap>(CenterCrop(),
+                            MaskTransformation(shapeResId)))))
+            .apply(RequestOptions.bitmapTransform(MultiTransformation<Bitmap>(CenterCrop(),
+                    MaskTransformation(shapeResId))))
+            .into(this)
 }

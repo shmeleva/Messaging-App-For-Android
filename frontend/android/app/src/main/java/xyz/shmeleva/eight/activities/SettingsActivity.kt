@@ -35,6 +35,7 @@ import com.google.firebase.storage.StorageReference
 import kotlinx.android.synthetic.main.fragment_private_chat_settings.*
 import xyz.shmeleva.eight.models.User
 import xyz.shmeleva.eight.utilities.DoubleClickBlocker
+import xyz.shmeleva.eight.utilities.loadFullProfilePictureFromFirebase
 import java.io.ByteArrayOutputStream
 import java.util.*
 
@@ -247,7 +248,7 @@ class SettingsActivity : BaseFragmentActivity() {
                 currentUser = dataSnapshot.getValue(User::class.java)!!
 
                 setUsernameLabel(currentUser.username)
-                populateProfilePhotoFromDB(currentUser.profilePicUrl)
+                populateProfilePhotoFromDB(currentUser)
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -260,17 +261,8 @@ class SettingsActivity : BaseFragmentActivity() {
                 .addListenerForSingleValueEvent(userOneTimeListener)
     }
 
-    private fun populateProfilePhotoFromDB(url: String) {
-        if (url.isNotEmpty()) {
-            val ref = FirebaseStorage.getInstance().reference.child(url)
-            val requestOptions = RequestOptions()
-                    .diskCacheStrategy(DiskCacheStrategy.NONE) // because file name is always same
-                    .skipMemoryCache(true);
-            Glide.with(this)
-                    .load(ref)
-                    .apply(requestOptions)
-                    .into(profilePictureImageView)
-        }
+    private fun populateProfilePhotoFromDB(user: User) {
+        profilePictureImageView.loadFullProfilePictureFromFirebase(user)
     }
 
     private fun uploadUsernameToDB(newUsername: String) : Task<Void> {
