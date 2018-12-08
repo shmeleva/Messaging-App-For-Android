@@ -3,7 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/outgoingMessageRelativeLayout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/spacing_small"
+    android:layout_marginStart="@dimen/spacing_normal"
+    android:layout_marginEnd="@dimen/spacing_normal"
+    android:layout_marginTop="@dimen/spacing_small">
 
     <com.google.android.flexbox.FlexboxLayout
         android:id="@+id/outgoingMessageBubbleFlexboxLayout"
@@ -15,14 +19,12 @@
         app:alignContent="stretch"
         app:alignItems="stretch"
         app:flexWrap="wrap"
-        app:justifyContent="flex_end"
-        style="@style/AppTheme.ChatMessage">
+        app:justifyContent="flex_end">
 
         <xyz.shmeleva.eight.views.AspectRatioImageView
             android:id="@+id/outgoingMessageContentImageView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:elevation="2dp"
             android:clickable="true"
             android:focusable="true"
             app:aspectRatio="1"
@@ -35,6 +37,12 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/outgoingMessageContentImageView"
             android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_incoming_message_sender"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:paddingStart="@dimen/spacing_normal"
+            android:paddingEnd="@dimen/spacing_normal"
             app:layout_alignSelf="center"
             style="@style/AppTheme.TextAppearance.Overline"/>
 

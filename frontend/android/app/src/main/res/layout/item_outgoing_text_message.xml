@@ -4,10 +4,10 @@
     android:id="@+id/outgoingMessageRelativeLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="4dp"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
-    android:layout_marginTop="4dp">
+    android:layout_marginBottom="@dimen/spacing_small"
+    android:layout_marginStart="@dimen/spacing_normal"
+    android:layout_marginEnd="@dimen/spacing_normal"
+    android:layout_marginTop="@dimen/spacing_small">
 
     <com.google.android.flexbox.FlexboxLayout
         android:id="@+id/outgoingMessageBubbleFlexboxLayout"
@@ -16,7 +16,6 @@
         android:layout_marginStart="@dimen/message_outgoing_bubble_margin_left"
         android:layout_alignParentEnd="true"
         android:orientation="vertical"
-        android:elevation="2dp"
         android:clickable="true"
         android:focusable="true"
         app:alignContent="stretch"

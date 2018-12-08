@@ -4,10 +4,10 @@
     android:id="@+id/incomingMessageRelativeLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="4dp"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
-    android:layout_marginTop="4dp">
+    android:layout_marginBottom="@dimen/spacing_small"
+    android:layout_marginStart="@dimen/spacing_normal"
+    android:layout_marginEnd="@dimen/spacing_normal"
+    android:layout_marginTop="@dimen/spacing_small">
 
     <xyz.shmeleva.eight.views.AspectRatioImageView
         android:id="@+id/incomingMessageSenderImageView"
@@ -22,7 +22,6 @@
         android:layout_marginEnd="@dimen/message_incoming_bubble_margin_right"
         android:layout_toEndOf="@id/incomingMessageSenderImageView"
         android:orientation="vertical"
-        android:elevation="2dp"
         android:clickable="true"
         android:focusable="true"
         app:alignContent="stretch"
