@@ -80,10 +80,41 @@ This class contains some methods that are used across multiple activities (e.g. 
 
 `SearchFragment` is used inside `SearchActivity` (see SearchActivity section).
 
+### Views
+
+#### AspectRatioImageView
+
+`AspectRatioImageView` extends `ImageView` and displays pictures with a specified aspect ratio. It is used for displaying profile pictures on the Setting screen for adjusting a picture to always be square regardless of the screen width.
+
+`WrapContentGridView` extends regular `GridView` and adjusts `GridView` height depending on the height of its content. It is used for displaying images in the Gallery.
+
+### Utilities
+
+`FirebaseAppGlideModule` is used to configure Glide to fetch images from Firebase Storage.
+
+There are also other utilities used for getting and displaying pictures, preventing double-click events, formatting time, hiding a keyboard, etc.
+
+### Models
+
+There are three models: `User`, `Chat`, and `Message`. To some extent, they correspond to Firebase Database nodes.
 
 ## Resource Files
 
+### Animations
 
+`anim` contains animations for expanding and collapsing a FAB.
+
+### Drawables
+
+`drawable` contains backgrounds for some UI elements (e.g. chat messages, buttons) named as `bg_*` and vector icons named as `ic_*`. Icons are taken from https://material.io.
+
+### Layouts
+
+`layout` contains layouts for activities (`activity_*`), fragments (`fragment_*`), recycler view items (`item_*`), and dialogs.
+
+### XML
+
+`xml` contains a path configuration file for `FileProvider`.
 
 # Backend
 
