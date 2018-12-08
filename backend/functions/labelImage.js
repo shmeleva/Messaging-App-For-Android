@@ -27,7 +27,7 @@ exports.imageLabelingMessage = functions.database
                     const messageId = context.params.message_id
 
                     console.log(results)
-                    labels.forEach(label => console.log(label.description));
+                    labels.forEach(label => console.log(label));
                     console.log(label)
                     console.log(chatId)
                     console.log(messageId)
