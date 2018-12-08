@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "853438348476",
+    "firebase_url": "https://mcc-fall-2018-g08.firebaseio.com",
+    "project_id": "mcc-fall-2018-g08",
+    "storage_bucket": "mcc-fall-2018-g08.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:853438348476:android:27b6d7d3f88bb1a4",
+        "android_client_info": {
+          "package_name": "xyz.shmeleva.eight"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "853438348476-7dai8phacbrlgs0i3msg2segq9jb7lb9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAzgFZFgu-HkrcYvl6w5wqH9wY4_qy80d4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
