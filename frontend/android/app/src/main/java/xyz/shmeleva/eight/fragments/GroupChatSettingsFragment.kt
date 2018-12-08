@@ -86,6 +86,7 @@ class GroupChatSettingsFragment : Fragment() {
         groupChatInviteRelativeLayout.isEnabled = false
 
         // populate chat info
+        memberNames.clear()
         getChatAndPopulate()
     }
 
