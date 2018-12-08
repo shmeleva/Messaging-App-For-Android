@@ -24,7 +24,7 @@ exports.handler = functions.database.ref('/chatMessages/{chat_id}/{message_id}')
         var message = {
           notification: {
             title: "New message",
-            body: senderName + ": " + snapshot.val().text
+            body: senderName + ": " + (snapshot.val().text === "" ? picture : snapshot.val().text)
           },
           token: token.val()
         };
