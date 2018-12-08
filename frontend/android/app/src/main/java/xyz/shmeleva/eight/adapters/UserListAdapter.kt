@@ -19,6 +19,7 @@ import  xyz.shmeleva.eight.models.*
 class UserListAdapter(val userList: ArrayList<User>,
                       val clickListener: (User) -> Unit,
                       val selectListener: (User, Boolean) -> Unit,
+                      val addedUserList: ArrayList<User>,
                       val selectionEnabled: Boolean) : RecyclerView.Adapter<UserListAdapter.ViewHolder>() {
     override fun getItemCount(): Int {
         return  userList.size
@@ -38,9 +39,10 @@ class UserListAdapter(val userList: ArrayList<User>,
             holder.checkBox.visibility = View.VISIBLE
 
             holder.checkBox.setOnCheckedChangeListener(null)
-            holder.checkBox.isChecked = user.isSelected
+            //holder.checkBox.isChecked = user.isSelected
+            holder.checkBox.isChecked = addedUserList.firstOrNull { it.id == user.id } != null
             holder.checkBox.setOnCheckedChangeListener { _, isChecked ->
-                user.isSelected = isChecked;
+                //user.isSelected = isChecked;
                 selectListener(user, isChecked)
             }
 
