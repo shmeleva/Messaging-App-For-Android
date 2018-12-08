@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "PROJECT ID"
+    "default": "PROJECT ID",
+    "mcc_project": "mcc-fall-2018-g08"
   }
 }
