@@ -3,6 +3,7 @@ package xyz.shmeleva.eight.activities
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 
 import  xyz.shmeleva.eight.R
 import xyz.shmeleva.eight.fragments.*
@@ -26,6 +27,7 @@ class ChatActivity : BaseFragmentActivity(R.id.chatFragmentContainer),
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        Log.i("imageUpload", "ChatActivity.onActivityResult")
         super.onActivityResult(requestCode, resultCode, data)
         supportFragmentManager.fragments.forEach {
             if (it is GroupChatSettingsFragment)
