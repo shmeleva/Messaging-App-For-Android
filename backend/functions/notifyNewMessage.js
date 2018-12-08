@@ -19,7 +19,7 @@ exports.handler = functions.database.ref('/chatMessages/{chat_id}/{message_id}')
       var senderName = tokens[0].val().username;
 
       tokens.forEach(function(token, index) {
-        if (index < 1) return;
+        if (index < 1 || !token.val()) return;
 
         var message = {
           notification: {
