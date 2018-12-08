@@ -15,7 +15,7 @@ exports.handler = functions.database.ref('/chats/{chat_id}/members/{user_id}').o
     .all(promises)
     .then(res => {
       var isGroupChat = res[0].val().isGroupChat;
-      if (!isGroupChat)
+      if (!isGroupChat || !res[1].val())
         return;
 
       var message = {

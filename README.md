@@ -128,6 +128,8 @@ There are three models: `User`, `Chat`, and `Message`. To some extent, they corr
 
 * **notifyNewMessage** - a cloud function that notifies users by push notification that he or she has a new message.
 
+\*  **Note**: Push notifications are received only when the app is running in background.
+
 ## Backend databases security rules
 
 ### The security rules are set accordingly
@@ -141,3 +143,8 @@ There are three models: `User`, `Chat`, and `Message`. To some extent, they corr
 - chats - if the chat hasn't been created yet, we allow read so there is a way to check this and create it; if it already exists, then authenticated user (specified by auth.id) must be in $key/members to write
 
 - chatMessages - chatMessage can be read/written only by users who are in members list of the chat
+
+
+## Cloud Storage
+
+Images are uploaded to */images* folder in cloud storage and only authorized users can access them.
