@@ -10,7 +10,7 @@ firebase login
 npm run deploy
 ```
 
-# Backend functions
+# Backend functions documentation
 
 * **image_resizing** - a cloud function that is triggered every time when a new picture is uploaded to storage. It resizes the uploaded image into appropriate resolutions
 
