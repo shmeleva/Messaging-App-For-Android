@@ -90,6 +90,9 @@ This class contains some methods that are used across multiple activities (e.g. 
 
 ### Utilities
 
+`FirebaseAppGlideModule` is used to configure Glide to fetch images from Firebase Storage.
+
+There are also other utilities used for getting and displaying pictures, preventing double-click events, formatting time, hiding a keyboard, etc.
 
 ###
 
