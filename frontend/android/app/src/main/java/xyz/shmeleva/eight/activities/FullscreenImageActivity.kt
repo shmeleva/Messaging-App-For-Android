@@ -92,6 +92,7 @@ class FullscreenImageActivity : AppCompatActivity() {
     fun onDownload(@Suppress("UNUSED_PARAMETER")view: View) {
         if (doubleClickBlocker.isSingleClick()) {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+            intent.putExtra("android.content.extra.SHOW_ADVANCED",true);
             startActivityForResult(intent, REQUEST_CODE_OPEN_DIRECTORY)
         }
     }
