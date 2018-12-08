@@ -163,10 +163,10 @@
                     android:background="?selectableItemBackground"
                     android:clickable="true"
                     android:focusable="true"
+                    android:paddingBottom="@dimen/spacing_normal"
+                    android:paddingEnd="@dimen/spacing_normal"
                     android:paddingStart="@dimen/spacing_normal"
                     android:paddingTop="@dimen/spacing_normal"
-                    android:paddingEnd="@dimen/spacing_normal"
-                    android:paddingBottom="@dimen/spacing_normal"
                     android:text="@string/chat_settings_leave_group_chat" />
 
             </android.support.v7.widget.CardView>

@@ -1,6 +1,7 @@
 package xyz.shmeleva.eight.fragments
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -18,6 +19,7 @@ import kotlinx.android.synthetic.main.fragment_group_chat_settings.*
 
 import xyz.shmeleva.eight.R
 import xyz.shmeleva.eight.activities.BaseFragmentActivity
+import xyz.shmeleva.eight.activities.LoginActivity
 import xyz.shmeleva.eight.adapters.MemberListAdapter
 import xyz.shmeleva.eight.adapters.UserListAdapter
 import xyz.shmeleva.eight.models.Chat
@@ -69,6 +71,8 @@ class GroupChatSettingsFragment : Fragment() {
             }
         }
 
+        groupChatLeaveTextView.setOnClickListener { _ -> leaveGroup() }
+
         // populate chat info
         getChatAndPopulate()
     }
@@ -105,6 +109,21 @@ class GroupChatSettingsFragment : Fragment() {
             fragment.arguments = args
             return fragment
         }
+    }
+
+    private fun leaveGroup() {
+        if (doubleClickBlocker.isDoubleClick()) {
+            return
+        }
+
+        // delete current user from the chat's members
+        // TODO: what if they're the last user left?
+        database.child("chats").child(chatId!!).child("members").child(sourceUserId!!).removeValue()
+
+        // delete the chat from current user's list of chats
+        database.child("users").child(sourceUserId!!).child("chats").child(chatId!!).removeValue()
+
+        activity?.onBackPressed()
     }
 
     private fun getChatAndPopulate() {
