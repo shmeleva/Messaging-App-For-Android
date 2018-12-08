@@ -46,11 +46,7 @@
     <string name="gallery_group_by_date">Date</string>
     <string name="gallery_group_by_features">Features</string>
     <string name="gallery_group_by_sender">Sender</string>
-    <string-array name="gallery_group_by_options_private">
-        <item>@string/gallery_group_by_date</item>
-        <item>@string/gallery_group_by_features</item>
-    </string-array>
-    <string-array name="gallery_group_by_options_group">
+    <string-array name="gallery_group_by_options">
         <item>@string/gallery_group_by_date</item>
         <item>@string/gallery_group_by_features</item>
         <item>@string/gallery_group_by_sender</item>
