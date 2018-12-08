@@ -40,7 +40,8 @@ class GroupChatSettingsFragment : Fragment() {
     private var joinedAt: Long = 0
 
     private var chat: Chat? = null
-    private var memberNames: ArrayList<String> = ArrayList()
+    //private var memberNames: ArrayList<String> = ArrayList()
+    private var memberUsers: ArrayList<User> = ArrayList()
 
     private var mListener: OnFragmentInteractionListener? = null
     private val doubleClickBlocker: DoubleClickBlocker = DoubleClickBlocker()
@@ -86,7 +87,8 @@ class GroupChatSettingsFragment : Fragment() {
         groupChatInviteRelativeLayout.isEnabled = false
 
         // populate chat info
-        memberNames.clear()
+        //memberNames.clear()
+        memberUsers.clear()
         getChatAndPopulate()
     }
 
@@ -156,12 +158,12 @@ class GroupChatSettingsFragment : Fragment() {
                             return
                         }
 
-                        //val membersNames : ArrayList<String> = ArrayList()
                         val membersIds : ArrayList<String> = ArrayList(chat!!.members.keys)
 
                         chat!!.members.forEach {
                             val member = dataSnapshot.child(it.key).getValue(User::class.java)!!
-                            memberNames.add(member.username)
+                            //memberNames.add(member.username)
+                            memberUsers.add(member)
                         }
 
                         populateMemberList()
@@ -197,7 +199,7 @@ class GroupChatSettingsFragment : Fragment() {
     }
 
     private fun populateMemberList() {
-        val viewAdapter = MemberListAdapter(memberNames)
+        val viewAdapter = MemberListAdapter(memberUsers)
 
         groupChatMemberListRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
         groupChatMemberListRecyclerView.adapter = viewAdapter
@@ -234,7 +236,8 @@ class GroupChatSettingsFragment : Fragment() {
 
                         childUpdates["/users/$it/chats"] = newChats
 
-                        memberNames.add(user.username)
+                        //memberNames.add(user.username)
+                        memberUsers.add(user)
                     }
 
                     // update everything at once!

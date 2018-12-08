@@ -17,7 +17,7 @@ import xyz.shmeleva.eight.utilities.loadProfilePictureFromFirebase
  * Created by shagg on 19.11.2018.
  */
 //
-class MemberListAdapter(val userList: ArrayList<String>) : RecyclerView.Adapter<MemberListAdapter.ViewHolder>() {
+class MemberListAdapter(val userList: ArrayList<User>) : RecyclerView.Adapter<MemberListAdapter.ViewHolder>() {
     override fun getItemCount(): Int {
         return  userList.size
     }
@@ -28,10 +28,10 @@ class MemberListAdapter(val userList: ArrayList<String>) : RecyclerView.Adapter<
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val username = userList[position];
-        holder.textView.text = username;
-        val usernameOnly = User(username = username)
-        holder.imageView.loadProfilePictureFromFirebase(usernameOnly)
+        val user = userList[position];
+        holder.textView.text = user.username;
+        //val usernameOnly = User(username = username)
+        holder.imageView.loadProfilePictureFromFirebase(user)
         holder.checkBox.visibility = View.GONE
     }
 
