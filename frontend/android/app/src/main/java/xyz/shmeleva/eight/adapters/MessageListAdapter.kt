@@ -37,6 +37,7 @@ import com.google.firebase.storage.StorageReference
 import com.bumptech.glide.request.RequestOptions.bitmapTransform
 import com.google.android.flexbox.FlexboxLayout
 import jp.wasabeef.glide.transformations.MaskTransformation
+import xyz.shmeleva.eight.utilities.getResizedPictureUrl
 
 
 class MessageListAdapter(
@@ -148,15 +149,24 @@ class MessageListAdapter(
     class IncomingImageMessageViewHolder(itemView: View): IncomingMessageViewHolder(itemView) {
 
         val contentImageView = itemView.findViewById<ImageView>(R.id.incomingMessageContentImageView)
+        val storageRef = FirebaseStorage.getInstance().reference
 
         override fun bind(message: Message, isGroupChat: Boolean, clickListener: (Message) -> Unit) {
             super.bind(message, isGroupChat, clickListener)
 
             contentImageView.setOnClickListener { _ -> clickListener(message) }
 
-            val ref = FirebaseStorage.getInstance().reference.child(message.imageUrl)
-            Glide.with(contentImageView.context)
+            val resizedImageUrl = contentImageView.context.getResizedPictureUrl(message.imageUrl)
+            val ref = storageRef.child(resizedImageUrl)
+            val fallbackRef = storageRef.child(message.imageUrl)
+            Glide
+                    .with(contentImageView.context)
                     .load(ref)
+                    .error(Glide
+                            .with(contentImageView.context)
+                            .load(fallbackRef)
+                            .apply(bitmapTransform(MultiTransformation<Bitmap>(CenterCrop(),
+                                    MaskTransformation(R.drawable.bg_incoming_message)))))
                     .apply(bitmapTransform(MultiTransformation<Bitmap>(CenterCrop(),
                             MaskTransformation(R.drawable.bg_incoming_message))))
                     .into(contentImageView)
@@ -189,15 +199,24 @@ class MessageListAdapter(
     class OutgoingImageMessageViewHolder(itemView: View): OutgoingMessageViewHolder(itemView) {
 
         val contentImageView = itemView.findViewById<ImageView>(R.id.outgoingMessageContentImageView)
+        val storageRef = FirebaseStorage.getInstance().reference
 
         override fun bind(message: Message, clickListener: (Message) -> Unit) {
             super.bind(message, clickListener)
 
             contentImageView.setOnClickListener { _ -> clickListener(message) }
 
-            val ref = FirebaseStorage.getInstance().reference.child(message.imageUrl)
-            Glide.with(contentImageView.context)
+            val resizedImageUrl = contentImageView.context.getResizedPictureUrl(message.imageUrl)
+            val ref = storageRef.child(resizedImageUrl)
+            val fallbackRef = storageRef.child(message.imageUrl)
+            Glide
+                    .with(contentImageView.context)
                     .load(ref)
+                    .error(Glide
+                            .with(contentImageView.context)
+                            .load(fallbackRef)
+                            .apply(bitmapTransform(MultiTransformation<Bitmap>(CenterCrop(),
+                                    MaskTransformation(R.drawable.bg_outgoing_message)))))
                     .apply(bitmapTransform(MultiTransformation<Bitmap>(CenterCrop(),
                             MaskTransformation(R.drawable.bg_outgoing_message))))
                     .into(contentImageView)

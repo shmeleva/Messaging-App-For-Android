@@ -48,8 +48,7 @@ class SearchFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
 
-    val users = ArrayList<User>(arrayListOf(
-            User(id="1", username = "1")))
+    val users = ArrayList<User>()
     val addedUsers = arrayListOf<User>()
     lateinit var usersAdapter: UserListAdapter
     lateinit var addedUsersAdapter: AddedUsersAdapter

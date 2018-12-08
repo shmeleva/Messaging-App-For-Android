@@ -18,6 +18,7 @@ import android.support.design.widget.Snackbar
 import android.support.v4.provider.DocumentFile
 import android.util.Log
 import java.util.*
+import xyz.shmeleva.eight.utilities.getResizedPictureUrl
 
 
 class FullscreenImageActivity : AppCompatActivity() {
@@ -45,11 +46,15 @@ class FullscreenImageActivity : AppCompatActivity() {
 
         areControlsVisible = true
 
-        val ref = FirebaseStorage.getInstance().reference.child(intent.getStringExtra("imageUrl"))
+        val imageUrl = intent.getStringExtra("imageUrl")
+        val storageRef = FirebaseStorage.getInstance().reference
+        val resizedImageUrl = this.getResizedPictureUrl(imageUrl)
+        val ref = storageRef.child(resizedImageUrl)
+        val fallbackRef = storageRef.child(imageUrl)
         Glide.with(this)
                 .load(ref)
+                .error(Glide.with(this).load(fallbackRef))
                 .into(fullscreenImageView)
-
 
         fullscreenImageView.setOnClickListener { toggle() }
         fullscreenImageBackButton.setOnTouchListener(delayHideTouchListener)
@@ -95,6 +100,12 @@ class FullscreenImageActivity : AppCompatActivity() {
         if (doubleClickBlocker.isSingleClick()) {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
             startActivityForResult(intent, REQUEST_CODE_OPEN_DIRECTORY)
+        }
+    }
+
+    fun onShare(@Suppress("UNUSED_PARAMETER")view: View) {
+        if (doubleClickBlocker.isSingleClick()) {
+
         }
     }
 
