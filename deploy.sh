@@ -2,8 +2,9 @@
 
 # Android
 cd frontend/android
+chmod 744 gradlew
 
 echo "Building an APK..."
-gradle assembleDebug
+./gradlew assembleDebug
 
 cd ../../../../../../../backend
