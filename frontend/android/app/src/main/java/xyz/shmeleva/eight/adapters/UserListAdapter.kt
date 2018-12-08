@@ -11,6 +11,8 @@ import com.stfalcon.multiimageview.MultiImageView
 
 import  xyz.shmeleva.eight.R
 import  xyz.shmeleva.eight.models.*
+import xyz.shmeleva.eight.utilities.loadAndReshapeFromFirebase
+import xyz.shmeleva.eight.utilities.loadProfilePictureFromFirebase
 
 /**
  * Created by shagg on 19.11.2018.
@@ -32,7 +34,7 @@ class UserListAdapter(val userList: ArrayList<User>,
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val user = userList[position];
-        holder.imageView.shape = MultiImageView.Shape.CIRCLE
+        holder.imageView.loadProfilePictureFromFirebase(user)
         holder.textView.text = user.username;
 
         if (selectionEnabled) {
@@ -55,7 +57,7 @@ class UserListAdapter(val userList: ArrayList<User>,
     }
 
     class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
-        val imageView = itemView.findViewById<MultiImageView>(R.id.userImageView)
+        val imageView = itemView.findViewById<ImageView>(R.id.userImageView)
         val textView = itemView.findViewById<TextView>(R.id.userTextView)
         val checkBox = itemView.findViewById<CheckBox>(R.id.userCheckBox)
     }
