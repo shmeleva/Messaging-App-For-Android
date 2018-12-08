@@ -8,7 +8,9 @@ import android.widget.BaseAdapter
 import android.widget.ImageView
 import xyz.shmeleva.eight.R
 import com.bumptech.glide.Glide
-
+import com.google.firebase.storage.FirebaseStorage
+import xyz.shmeleva.eight.utilities.getResizedPictureUrl
+import xyz.shmeleva.eight.utilities.loadFromFirebase
 
 
 /**
@@ -30,10 +32,7 @@ class ImageGridViewAdapter(private val context: Context, private val images: Arr
             imageView = convertView as ImageView
         }
 
-        Glide.with(imageView.context)
-                .load(images[position])
-                .into(imageView)
-
+        imageView.loadFromFirebase(images[position])
         imageView.setOnClickListener { _ -> clickListener(images[position]) }
 
         return imageView

@@ -9,7 +9,7 @@
     android:layout_marginRight="16dp"
     android:layout_marginTop="4dp">
 
-    <com.stfalcon.multiimageview.MultiImageView
+    <xyz.shmeleva.eight.views.AspectRatioImageView
         android:id="@+id/incomingMessageSenderImageView"
         android:layout_width="@dimen/profile_picture_size_small"
         android:layout_height="@dimen/profile_picture_size_small"
@@ -23,6 +23,8 @@
         android:layout_toEndOf="@id/incomingMessageSenderImageView"
         android:orientation="vertical"
         android:elevation="2dp"
+        android:clickable="true"
+        android:focusable="true"
         app:alignContent="stretch"
         app:alignItems="stretch"
         app:flexWrap="wrap"

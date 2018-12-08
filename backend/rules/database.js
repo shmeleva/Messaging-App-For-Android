@@ -2,8 +2,7 @@
   "rules": {
     "users": {
       "$id": {
-        ".write": "$id === auth.uid",
-        ".read": "auth != null",
+        ".write": "auth != null",
         "username": {
           ".validate":
           	"!root.child('usernames').child(newData.val()).exists() ||
@@ -11,14 +10,14 @@
           }
       },
       ".indexOn": ["username"],
-
+      ".read": "auth != null"
     },
     "usernames": {
+      ".read": "auth != null",
       "$username": {
         ".write":
         	"root.child('usernames').child($username).val() === auth.uid
-        		|| newData.val() === auth.uid",
-        ".read": "auth != null"
+        		|| newData.val() === auth.uid"
       }
     },
     "tokens": {

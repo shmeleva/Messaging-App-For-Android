@@ -20,6 +20,7 @@
     <string name="error_registration_failed">Registration failed</string>
     <string name="error_login_failed">Login failed</string>
     <string name="error_picture_upload_failed">Ooops! There was a problem uploading your image.</string>
+    <string name="error_picture_download_failed">Ooops! There was a problem downloading your image.</string>
     <string name="dialog_button_positive">OK</string>
     <string name="dialog_button_negative">Cancel</string>
 
@@ -46,11 +47,7 @@
     <string name="gallery_group_by_date">Date</string>
     <string name="gallery_group_by_features">Features</string>
     <string name="gallery_group_by_sender">Sender</string>
-    <string-array name="gallery_group_by_options_private">
-        <item>@string/gallery_group_by_date</item>
-        <item>@string/gallery_group_by_features</item>
-    </string-array>
-    <string-array name="gallery_group_by_options_group">
+    <string-array name="gallery_group_by_options">
         <item>@string/gallery_group_by_date</item>
         <item>@string/gallery_group_by_features</item>
         <item>@string/gallery_group_by_sender</item>
@@ -78,12 +75,7 @@
     <string name="settings_prompt_save_btn">Save</string>
     <string name="settings_prompt_cancel_btn">Cancel</string>
 
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-
-    <string name="title_activity_fullscreen_image">FullscreenImageActivity</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="image_resolution_firebase_prefix_low">resized-async-100x100</string>
+    <string name="image_resolution_firebase_prefix_high">resized-async-1500x1024</string>
 
 </resources>

@@ -1,6 +1,7 @@
 package xyz.shmeleva.eight.fragments
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
@@ -16,6 +17,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
+import com.amulyakhare.textdrawable.TextDrawable
+import com.amulyakhare.textdrawable.util.ColorGenerator
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.MultiTransformation
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.RequestOptions.bitmapTransform
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
@@ -26,10 +35,12 @@ import com.google.firebase.storage.StorageReference
 import kotlinx.android.synthetic.main.fragment_chat.*
 
 import com.stfalcon.multiimageview.MultiImageView
+import jp.wasabeef.glide.transformations.MaskTransformation
 import kotlinx.android.synthetic.main.item_incoming_text_message.*
 
 import xyz.shmeleva.eight.R
 import xyz.shmeleva.eight.activities.BaseFragmentActivity
+import xyz.shmeleva.eight.activities.FullscreenImageActivity
 import xyz.shmeleva.eight.adapters.MessageListAdapter
 import xyz.shmeleva.eight.models.Chat
 import xyz.shmeleva.eight.models.Message
@@ -92,9 +103,6 @@ class ChatFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         chatImageView.shape = MultiImageView.Shape.CIRCLE
-
-        // Example of loading a picture:
-        chatImageView.loadImages(arrayListOf("https://pixel.nymag.com/imgs/daily/vulture/2016/11/23/23-san-junipero.w330.h330.jpg"), 40 ,0)
 
         chatBackButton.setOnClickListener { _ ->
             if (doubleClickBlocker.isSingleClick()) {
@@ -197,6 +205,7 @@ class ChatFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
+        Log.i(TAG, "onStart")
         adapter.startListening()
         attachChatListener()
     }
@@ -258,7 +267,35 @@ class ChatFragment : Fragment() {
                         adapter.notifyDataSetChanged()
 
                         chatTitleTextView.text = chat!!.getMemberNames(auth.currentUser!!.uid)
-                        // TODO: Set chat image
+                        if (isGroupChat) {
+                            val numberOfMembers = chat!!.members.size.toString()
+                            val generator = ColorGenerator.MATERIAL
+                            val colour = generator.getColor(numberOfMembers)
+                            val drawable = TextDrawable.builder().buildRound(numberOfMembers, colour)
+                            chatImageView.setImageDrawable(drawable)
+                        }
+                        else {
+                            val secondUser = chat!!.users.firstOrNull{ it.id != auth.currentUser!!.uid }
+                            val profilePictureUrl = secondUser?.profilePicUrl
+                            if (profilePictureUrl != null && profilePictureUrl.isNotEmpty()) {
+                                val ref = FirebaseStorage.getInstance().reference.child(profilePictureUrl)
+                                val requestOptions = RequestOptions()
+                                        .diskCacheStrategy(DiskCacheStrategy.NONE) // because file name is always same
+                                Glide.with(chatImageView.context)
+                                        .load(ref)
+                                        .apply(bitmapTransform(MultiTransformation<Bitmap>(CenterCrop(),
+                                                MaskTransformation(R.drawable.shape_circle_small))))
+                                        .apply(requestOptions)
+                                        .into(chatImageView)
+                            }
+                            else {
+                                val generator = ColorGenerator.MATERIAL
+                                val username = secondUser?.username ?: "?"
+                                val colour = generator.getColor(username)
+                                val drawable = TextDrawable.builder().buildRound(username.substring(0, 1).toUpperCase(), colour)
+                                chatImageView.setImageDrawable(drawable)
+                            }
+                        }
                     }
                 }
 
@@ -336,7 +373,8 @@ class ChatFragment : Fragment() {
                         val message = Message(
                                 id = messageId,
                                 imageUrl = imageUrl,
-                                senderId = auth.currentUser!!.uid
+                                senderId = auth.currentUser!!.uid,
+                                receivers = chat!!.getMemberIds(auth.currentUser!!.uid)
                         )
                         message.imageTimestamp = message.timestamp
 
@@ -368,7 +406,8 @@ class ChatFragment : Fragment() {
         val message = Message(
                 id = messageId,
                 text = text,
-                senderId = auth.currentUser!!.uid
+                senderId = auth.currentUser!!.uid,
+                receivers = chat!!.getMemberIds(auth.currentUser!!.uid)
         )
 
         val childUpdates = HashMap<String, Any>()
@@ -385,7 +424,23 @@ class ChatFragment : Fragment() {
     }
 
     private fun onMessageClicked(message: Message) {
-        //TODO
+        Log.i(TAG, "Message clicked!")
+
+        if (doubleClickBlocker.isDoubleClick()) {
+            return
+        }
+
+        if (message.text.isNotEmpty()) {
+            val shareIntent = Intent(Intent.ACTION_SEND);
+            shareIntent.type = "text/plain"
+            shareIntent.putExtra(Intent.EXTRA_TEXT, message.text)
+            startActivity(Intent.createChooser(shareIntent, "Share"));
+        }
+        else {
+            val intent = Intent(activity, FullscreenImageActivity::class.java)
+            intent.putExtra("imageUrl", message.imageUrl)
+            startActivity(intent)
+        }
     }
 
     interface OnFragmentInteractionListener {

@@ -59,6 +59,16 @@ class Chat(
         return memberNames.joinToString(", ")
     }
 
+    fun getMemberPictures(currentUserId: String?): MutableList<String> {
+        val memberNames: MutableList<String> = mutableListOf()
+        for (user in users) {
+            if ((currentUserId == null || user.id != currentUserId) && user.profilePicUrl.isNotEmpty()) {
+                memberNames.add(user.profilePicUrl)
+            }
+        }
+        return memberNames
+    }
+
     fun getMemberNamesList(currentUserId: String?) : ArrayList<String> {
         val memberNames: ArrayList<String> = ArrayList()
         for (user in users) {
@@ -67,5 +77,15 @@ class Chat(
             }
         }
         return memberNames
+    }
+
+    fun getMemberIds(currentUserId: String?) : ArrayList<String> {
+        val memberIds: ArrayList<String> = ArrayList()
+        for (user in users) {
+            if (currentUserId == null || user.id != currentUserId) {
+                memberIds.add(user.id)
+            }
+        }
+        return memberIds
     }
 }

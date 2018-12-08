@@ -54,7 +54,6 @@
         <activity
             android:name=".activities.FullscreenImageActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_fullscreen_image"
             android:theme="@style/FullscreenTheme" />
 
         <provider
@@ -66,6 +65,10 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/bg_added_user" />
 
     </application>
 

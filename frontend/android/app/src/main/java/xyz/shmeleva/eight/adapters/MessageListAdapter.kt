@@ -20,24 +20,27 @@ import kotlinx.android.synthetic.main.fragment_private_chat_settings.*
 
 import  xyz.shmeleva.eight.R
 import  xyz.shmeleva.eight.models.*
-import xyz.shmeleva.eight.utilities.TimestampFormatter
-import xyz.shmeleva.eight.utilities.loadImages
 import java.util.*
 import android.R.attr.thumb
 import android.app.Activity
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.util.Log
+import com.amulyakhare.textdrawable.TextDrawable
+import com.amulyakhare.textdrawable.util.ColorGenerator
 import com.bumptech.glide.load.MultiTransformation
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.bumptech.glide.request.RequestOptions.bitmapTransform
+import com.google.android.flexbox.FlexboxLayout
 import jp.wasabeef.glide.transformations.MaskTransformation
+import xyz.shmeleva.eight.utilities.*
 
 
 class MessageListAdapter(
         val userId: String,
         val isGroupChat: Boolean,
-        val messageList: ArrayList<Message> = arrayListOf(),
         val options: FirebaseRecyclerOptions<Message>,
         val clickListener: (Message) -> Unit
 ) : FirebaseRecyclerAdapter<Message, RecyclerView.ViewHolder>(options) {
@@ -75,12 +78,11 @@ class MessageListAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, message: Message) {
         when (holder.itemViewType) {
-            INCOMING_TEXT_MESSAGE -> (holder as IncomingTextMessageViewHolder).bind(message, isGroupChat)
-            INCOMING_IMAGE_MESSAGE -> (holder as IncomingImageMessageViewHolder).bind(message, isGroupChat)
-            OUTGOING_TEXT_MESSAGE -> (holder as OutgoingTextMessageViewHolder).bind(message)
-            OUTGOING_IMAGE_MESSAGE -> (holder as OutgoingImageMessageViewHolder).bind(message)
+            INCOMING_TEXT_MESSAGE -> (holder as IncomingTextMessageViewHolder).bind(message, isGroupChat, clickListener)
+            INCOMING_IMAGE_MESSAGE -> (holder as IncomingImageMessageViewHolder).bind(message, isGroupChat, clickListener)
+            OUTGOING_TEXT_MESSAGE -> (holder as OutgoingTextMessageViewHolder).bind(message, clickListener)
+            OUTGOING_IMAGE_MESSAGE -> (holder as OutgoingImageMessageViewHolder).bind(message, clickListener)
         }
-        holder.itemView.setOnClickListener { clickListener(message)}
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -92,19 +94,16 @@ class MessageListAdapter(
     }
 
     open class IncomingMessageViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
-        val senderImageView = itemView.findViewById<MultiImageView>(R.id.incomingMessageSenderImageView)
+        val senderImageView = itemView.findViewById<ImageView>(R.id.incomingMessageSenderImageView)
         val senderTextView = itemView.findViewById<TextView>(R.id.incomingMessageSenderTextView)
         val timeTextView = itemView.findViewById<TextView>(R.id.incomingMessageTimeTextView)
+        val requestOptions = RequestOptions()
+                .diskCacheStrategy(DiskCacheStrategy.NONE) // because file name is always same
 
-        init {
-            senderImageView.shape = MultiImageView.Shape.CIRCLE
-        }
-
-        open fun bind(message: Message, isGroupChat: Boolean) {
+        open fun bind(message: Message, isGroupChat: Boolean, clickListener: (Message) -> Unit) {
             if (isGroupChat) {
                 senderTextView.text = message.sender?.username ?: ""
-                // TODO: Show the sender's profile image
-                senderImageView.loadImages(arrayListOf("https://pixel.nymag.com/imgs/daily/vulture/2016/11/23/23-san-junipero.w330.h330.jpg"), 24, 0)
+                senderImageView.loadProfilePictureFromFirebase(message.sender)
             }
             else {
                 senderTextView.visibility = View.GONE
@@ -117,9 +116,13 @@ class MessageListAdapter(
     class IncomingTextMessageViewHolder(itemView: View): IncomingMessageViewHolder(itemView) {
 
         val contentTextView = itemView.findViewById<TextView>(R.id.incomingMessageContentTextView)
+        val bubbleFlexboxLayout = itemView.findViewById<FlexboxLayout>(R.id.incomingMessageBubbleFlexboxLayout)
 
-        override fun bind(message: Message, isGroupChat: Boolean) {
-            super.bind(message, isGroupChat)
+        override fun bind(message: Message, isGroupChat: Boolean, clickListener: (Message) -> Unit) {
+            super.bind(message, isGroupChat, clickListener)
+
+            bubbleFlexboxLayout.setOnClickListener { clickListener(message) }
+
             contentTextView.text = message.text
         }
     }
@@ -127,15 +130,12 @@ class MessageListAdapter(
     class IncomingImageMessageViewHolder(itemView: View): IncomingMessageViewHolder(itemView) {
 
         val contentImageView = itemView.findViewById<ImageView>(R.id.incomingMessageContentImageView)
+        //val storageRef = FirebaseStorage.getInstance().reference
 
-        override fun bind(message: Message, isGroupChat: Boolean) {
-            super.bind(message, isGroupChat)
-            val ref = FirebaseStorage.getInstance().reference.child(message.imageUrl)
-            Glide.with(contentImageView.context)
-                    .load(ref)
-                    .apply(bitmapTransform(MultiTransformation<Bitmap>(CenterCrop(),
-                            MaskTransformation(R.drawable.bg_outgoing_message))))
-                    .into(contentImageView)
+        override fun bind(message: Message, isGroupChat: Boolean, clickListener: (Message) -> Unit) {
+            super.bind(message, isGroupChat, clickListener)
+            contentImageView.setOnClickListener { _ -> clickListener(message) }
+            contentImageView.loadAndReshapeFromFirebase(message.imageUrl, R.drawable.bg_incoming_message)
         }
     }
 
@@ -143,7 +143,7 @@ class MessageListAdapter(
 
         val timeTextView = itemView.findViewById<TextView>(R.id.outgoingMessageTimeTextView)
 
-        open fun bind(message: Message) {
+        open fun bind(message: Message, clickListener: (Message) -> Unit) {
             timeTextView.text = TimestampFormatter.format(message.timestamp)
         }
     }
@@ -151,9 +151,13 @@ class MessageListAdapter(
     class OutgoingTextMessageViewHolder(itemView: View): OutgoingMessageViewHolder(itemView) {
 
         val contentTextView = itemView.findViewById<TextView>(R.id.outgoingMessageContentTextView)
+        val bubbleFlexboxLayout = itemView.findViewById<FlexboxLayout>(R.id.outgoingMessageBubbleFlexboxLayout)
 
-        override fun bind(message: Message) {
-            super.bind(message)
+        override fun bind(message: Message, clickListener: (Message) -> Unit) {
+            super.bind(message, clickListener)
+
+            bubbleFlexboxLayout.setOnClickListener { clickListener(message) }
+
             contentTextView.text = message.text
         }
     }
@@ -162,15 +166,10 @@ class MessageListAdapter(
 
         val contentImageView = itemView.findViewById<ImageView>(R.id.outgoingMessageContentImageView)
 
-        override fun bind(message: Message) {
-            super.bind(message)
-
-            val ref = FirebaseStorage.getInstance().reference.child(message.imageUrl)
-            Glide.with(contentImageView.context)
-                    .load(ref)
-                    .apply(bitmapTransform(MultiTransformation<Bitmap>(CenterCrop(),
-                            MaskTransformation(R.drawable.bg_outgoing_message))))
-                    .into(contentImageView)
+        override fun bind(message: Message, clickListener: (Message) -> Unit) {
+            super.bind(message, clickListener)
+            contentImageView.setOnClickListener { _ -> clickListener(message) }
+            contentImageView.loadAndReshapeFromFirebase(message.imageUrl, R.drawable.bg_outgoing_message)
         }
     }
 }
