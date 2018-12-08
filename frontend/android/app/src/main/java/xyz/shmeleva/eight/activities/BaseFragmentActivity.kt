@@ -114,16 +114,14 @@ open class BaseFragmentActivity(private val containerViewId: Int =  0) : AppComp
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if ((requestCode == REQUEST_PICTURE_CAPTURE || requestCode == REQUEST_PICTURE_SELECT) && resultCode == RESULT_OK && data != null) {
+        if (resultCode != RESULT_OK) {
+            return
+        }
+
+        if (requestCode == REQUEST_PICTURE_CAPTURE) {
             try {
                 execute {
-                    val bitmap = if (requestCode == REQUEST_PICTURE_CAPTURE)
-                        Glide.with(this).asBitmap().load(currentPicturePath).submit().get()
-                    else
-                        Glide.with(this).asBitmap().load(data.data).submit().get()
-
-                    Log.i("imageUpload", "Bitmap created.")
-
+                    val bitmap = Glide.with(this).asBitmap().load(currentPicturePath).submit().get()
                     if (bitmap != null) {
                         pictureCallback(scaleBitmap(bitmap))
                     }
@@ -132,7 +130,22 @@ open class BaseFragmentActivity(private val containerViewId: Int =  0) : AppComp
             catch (ex: Exception) {
                 Snackbar.make(findViewById(containerViewId), R.string.error_picture_upload_failed, Snackbar.LENGTH_LONG)
                         .show()
-                Log.e("chat", ex.message)
+                Log.e("imageUpload", ex.message)
+            }
+        }
+        else if (requestCode == REQUEST_PICTURE_SELECT && data != null) {
+            try {
+                execute {
+                    val bitmap = Glide.with(this).asBitmap().load(data.data).submit().get()
+                    if (bitmap != null) {
+                        pictureCallback(scaleBitmap(bitmap))
+                    }
+                }
+            }
+            catch (ex: Exception) {
+                Snackbar.make(findViewById(containerViewId), R.string.error_picture_upload_failed, Snackbar.LENGTH_LONG)
+                        .show()
+                Log.e("imageUpload", ex.message)
             }
         }
     }
