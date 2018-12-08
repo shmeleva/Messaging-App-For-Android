@@ -23,6 +23,8 @@
         android:layout_toEndOf="@id/incomingMessageSenderImageView"
         android:orientation="vertical"
         android:elevation="2dp"
+        android:clickable="true"
+        android:focusable="true"
         app:alignContent="stretch"
         app:alignItems="stretch"
         app:flexWrap="wrap"

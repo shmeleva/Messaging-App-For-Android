@@ -12,8 +12,11 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.amulyakhare.textdrawable.TextDrawable
+import com.amulyakhare.textdrawable.util.ColorGenerator
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.MultiTransformation
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.auth.FirebaseAuth
@@ -88,7 +91,7 @@ class PrivateChatSettingsFragment : Fragment() {
             getTargetUserAndPopulate()
         } else {
             setUsernameLabel(targetUser!!.username)
-            populateProfilePhotoFromDB(targetUser!!.profilePicUrl)
+            populateProfilePhotoFromDB(targetUser!!.profilePicUrl, targetUser!!.username)
         }
 
     }
@@ -206,7 +209,7 @@ class PrivateChatSettingsFragment : Fragment() {
                 val currentUser = dataSnapshot.getValue(User::class.java)!!
 
                 setUsernameLabel(currentUser.username)
-                populateProfilePhotoFromDB(currentUser.profilePicUrl)
+                populateProfilePhotoFromDB(currentUser.profilePicUrl, currentUser.username)
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -214,7 +217,7 @@ class PrivateChatSettingsFragment : Fragment() {
             }
         }
 
-        var chatOneTimeListener = object : ValueEventListener {
+        val chatOneTimeListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if (dataSnapshot.value == null) {
                     Log.i(TAG, "Chat not found")
@@ -249,10 +252,19 @@ class PrivateChatSettingsFragment : Fragment() {
         privateChatUsernameTextView.setText(username)
     }
 
-    private fun populateProfilePhotoFromDB(url: String) {
+    private fun populateProfilePhotoFromDB(url: String, username: String) {
         if (url.isNotEmpty()) {
             val ref = FirebaseStorage.getInstance().reference.child(url)
-            Glide.with(context!!).load(ref).into(privateChatPictureImageView)
+            val requestOptions = RequestOptions()
+                    .diskCacheStrategy(DiskCacheStrategy.NONE) // because file name is always same
+            Glide.with(context!!).load(ref).apply(requestOptions).into(privateChatPictureImageView)
+        }
+        else {
+            val generator = ColorGenerator.MATERIAL
+            val validUsername = if (username.isNotEmpty()) username else "?"
+            val colour = generator.getColor(validUsername)
+            val drawable = TextDrawable.builder().buildRect(validUsername.substring(0, 1).toUpperCase(), colour)
+            privateChatPictureImageView.setImageDrawable(drawable)
         }
     }
 }

@@ -1,6 +1,7 @@
 package xyz.shmeleva.eight.fragments
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
@@ -39,6 +40,7 @@ import kotlinx.android.synthetic.main.item_incoming_text_message.*
 
 import xyz.shmeleva.eight.R
 import xyz.shmeleva.eight.activities.BaseFragmentActivity
+import xyz.shmeleva.eight.activities.FullscreenImageActivity
 import xyz.shmeleva.eight.adapters.MessageListAdapter
 import xyz.shmeleva.eight.models.Chat
 import xyz.shmeleva.eight.models.Message
@@ -268,7 +270,7 @@ class ChatFragment : Fragment() {
                             val numberOfMembers = chat!!.members.size.toString()
                             val generator = ColorGenerator.MATERIAL
                             val colour = generator.getColor(numberOfMembers)
-                            val drawable = TextDrawable.builder().buildRoundRect(numberOfMembers, colour, 48)
+                            val drawable = TextDrawable.builder().buildRound(numberOfMembers, colour)
                             chatImageView.setImageDrawable(drawable)
                         }
                         else {
@@ -289,8 +291,7 @@ class ChatFragment : Fragment() {
                                 val generator = ColorGenerator.MATERIAL
                                 val username = secondUser?.username ?: "?"
                                 val colour = generator.getColor(username)
-
-                                val drawable = TextDrawable.builder().buildRoundRect(username.substring(0, 1).toUpperCase(), colour, 48)
+                                val drawable = TextDrawable.builder().buildRound(username.substring(0, 1).toUpperCase(), colour)
                                 chatImageView.setImageDrawable(drawable)
                             }
                         }
@@ -422,7 +423,23 @@ class ChatFragment : Fragment() {
     }
 
     private fun onMessageClicked(message: Message) {
-        //TODO
+        Log.i(TAG, "Message clicked!")
+
+        if (doubleClickBlocker.isDoubleClick()) {
+            return
+        }
+
+        if (message.text.isNotEmpty()) {
+            val shareIntent = Intent(Intent.ACTION_SEND);
+            shareIntent.type = "text/plain"
+            shareIntent.putExtra(Intent.EXTRA_TEXT, message.text)
+            startActivity(Intent.createChooser(shareIntent, "Share"));
+        }
+        else {
+            val intent = Intent(activity, FullscreenImageActivity::class.java)
+            intent.putExtra("imageUrl", message.imageUrl)
+            startActivity(intent)
+        }
     }
 
     interface OnFragmentInteractionListener {

@@ -46,7 +46,7 @@ class ChatListAdapter(val chatList: ArrayList<Chat>, val clickListener: (Chat) -
             val numberOfMembers = chat.members.size.toString()
             val generator = ColorGenerator.MATERIAL
             val colour = generator.getColor(numberOfMembers)
-            val drawable = TextDrawable.builder().buildRoundRect(numberOfMembers, colour, 48)
+            val drawable = TextDrawable.builder().buildRound(numberOfMembers, colour)
             holder.imageView.setImageDrawable(drawable)
         }
         else {
@@ -67,8 +67,7 @@ class ChatListAdapter(val chatList: ArrayList<Chat>, val clickListener: (Chat) -
                 val generator = ColorGenerator.MATERIAL
                 val username = secondUser?.username ?: "?"
                 val colour = generator.getColor(username)
-
-                val drawable = TextDrawable.builder().buildRoundRect(username.substring(0, 1).toUpperCase(), colour, 48)
+                val drawable = TextDrawable.builder().buildRound(username.substring(0, 1).toUpperCase(), colour)
                 holder.imageView.setImageDrawable(drawable)
             }
         }
