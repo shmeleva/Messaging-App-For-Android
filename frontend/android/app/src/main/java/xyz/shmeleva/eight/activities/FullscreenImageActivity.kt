@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.View
 import com.bumptech.glide.Glide
+import com.google.firebase.storage.FirebaseStorage
 import xyz.shmeleva.eight.R
 import kotlinx.android.synthetic.main.activity_fullscreen_image.*
 import xyz.shmeleva.eight.utilities.DoubleClickBlocker
@@ -31,10 +32,10 @@ class FullscreenImageActivity : AppCompatActivity() {
         setContentView(R.layout.activity_fullscreen_image)
 
         areControlsVisible = true
-
-        val imageUrl = intent.getStringExtra("imageUrl")
+        
+        val ref = FirebaseStorage.getInstance().reference.child(intent.getStringExtra("imageUrl"))
         Glide.with(this)
-                .load(imageUrl)
+                .load(ref)
                 .into(fullscreenImageView)
 
 
