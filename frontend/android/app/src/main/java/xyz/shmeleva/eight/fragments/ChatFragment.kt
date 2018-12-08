@@ -205,9 +205,32 @@ class ChatFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        Log.i(TAG, "onStart")
-        adapter.startListening()
-        attachChatListener()
+
+        if (joinedAt == 0.toLong()) {
+            database.child("users").child(auth.currentUser!!.uid).addListenerForSingleValueEvent(object: ValueEventListener {
+                override fun onDataChange(userSnapshot: DataSnapshot) {
+                    if (userSnapshot.exists()) {
+                        val user = userSnapshot.getValue(User::class.java)
+
+                        if (user != null && user.chats.containsKey(chatId)) {
+                            joinedAt = user.chats[chatId]!!["joinedAt"]!!
+                        } else {
+                            joinedAt = Date().time
+                        }
+
+                        adapter.startListening()
+                        attachChatListener()
+                    }
+                }
+
+                override fun onCancelled(e: DatabaseError) {
+                    Log.e(TAG, "Failed to retrieve user ${auth.currentUser!!.uid}: ${e.message}")
+                }
+            })
+        } else {
+            adapter.startListening()
+            attachChatListener()
+        }
     }
 
     override fun onStop() {

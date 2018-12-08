@@ -11,12 +11,13 @@ import com.stfalcon.multiimageview.MultiImageView
 
 import  xyz.shmeleva.eight.R
 import  xyz.shmeleva.eight.models.*
+import xyz.shmeleva.eight.utilities.loadProfilePictureFromFirebase
 
 /**
  * Created by shagg on 19.11.2018.
  */
 //
-class MemberListAdapter(val userList: ArrayList<String>) : RecyclerView.Adapter<MemberListAdapter.ViewHolder>() {
+class MemberListAdapter(val userList: ArrayList<User>) : RecyclerView.Adapter<MemberListAdapter.ViewHolder>() {
     override fun getItemCount(): Int {
         return  userList.size
     }
@@ -27,15 +28,15 @@ class MemberListAdapter(val userList: ArrayList<String>) : RecyclerView.Adapter<
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val username = userList[position];
-        holder.imageView.shape = MultiImageView.Shape.CIRCLE
-        holder.textView.text = username;
-
+        val user = userList[position];
+        holder.textView.text = user.username;
+        //val usernameOnly = User(username = username)
+        holder.imageView.loadProfilePictureFromFirebase(user)
         holder.checkBox.visibility = View.GONE
     }
 
     class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
-        val imageView = itemView.findViewById<MultiImageView>(R.id.userImageView)
+        val imageView = itemView.findViewById<ImageView>(R.id.userImageView)
         val textView = itemView.findViewById<TextView>(R.id.userTextView)
         val checkBox = itemView.findViewById<CheckBox>(R.id.userCheckBox)
     }

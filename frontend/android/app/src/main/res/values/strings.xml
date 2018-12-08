@@ -75,7 +75,7 @@
     <string name="settings_prompt_save_btn">Save</string>
     <string name="settings_prompt_cancel_btn">Cancel</string>
 
-    <string name="image_resolution_firebase_prefix_low">resized-async-100x100</string>
-    <string name="image_resolution_firebase_prefix_high">resized-async-1500x1024</string>
+    <string name="image_resolution_firebase_prefix_low">resized-async-480x640</string>
+    <string name="image_resolution_firebase_prefix_high">resized-async-960x1280</string>
 
 </resources>
