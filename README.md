@@ -80,6 +80,19 @@ This class contains some methods that are used across multiple activities (e.g. 
 
 `SearchFragment` is used inside `SearchActivity` (see SearchActivity section).
 
+### Views
+
+#### AspectRatioImageView
+
+`AspectRatioImageView` extends `ImageView` and displays pictures with a specified aspect ratio. It is used for displaying profile pictures on the Setting screen for adjusting a picture to always be square regardless of the screen width.
+
+`WrapContentGridView` extends regular `GridView` and adjusts `GridView` height depending on the height of its content. It is used for displaying images in the Gallery.
+
+### Utilities
+
+
+###
+
 
 ## Resource Files
 
