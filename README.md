@@ -100,7 +100,21 @@ There are three models: `User`, `Chat`, and `Message`. To some extent, they corr
 
 ## Resource Files
 
+### Animations
 
+`anim` contains animations for expanding and collapsing a FAB.
+
+### Drawables
+
+`drawable` contains backgrounds for some UI elements (e.g. chat messages, buttons) named as `bg_*` and vector icons named as `ic_*`. Icons are taken from https://material.io.
+
+### Layouts
+
+`layout` contains layouts for activities (`activity_*`), fragments (`fragment_*`), recycler view items (`item_*`), and dialogs.
+
+### XML
+
+`xml` contains a path configuration file for `FileProvider`.
 
 # Backend
 
@@ -110,11 +124,9 @@ There are three models: `User`, `Chat`, and `Message`. To some extent, they corr
 
 * **labelImage** - a cloud function that is invoked when a new message added. It uses Google Cloud Vision API to label the image and then updates the field imageFeature with appropriate label
 
-* **notifyNewChat** - a cloud function which is triggered when a new chat is created. It uses Cloud messaging API to send push notification to users.
+* **notifyNewGroupChat** - a cloud function which is triggered when the user is added to a group chat. It uses Cloud Messaging API to send push notification to users.
 
 * **notifyNewMessage** - a cloud function that notifies users by push notification that he or she has a new message.
-
-* **notifyAddedToChat** - a cloud function that sends push notification when a new users is added to existing group chat
 
 ## Backend databases security rules
 
