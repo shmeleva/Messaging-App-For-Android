@@ -20,6 +20,7 @@
     <string name="error_registration_failed">Registration failed</string>
     <string name="error_login_failed">Login failed</string>
     <string name="error_picture_upload_failed">Ooops! There was a problem uploading your image.</string>
+    <string name="error_picture_download_failed">Ooops! There was a problem downloading your image.</string>
     <string name="dialog_button_positive">OK</string>
     <string name="dialog_button_negative">Cancel</string>
 
