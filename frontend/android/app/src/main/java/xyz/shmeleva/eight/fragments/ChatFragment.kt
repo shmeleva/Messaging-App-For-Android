@@ -205,6 +205,7 @@ class ChatFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
+        Log.i(TAG, "onStart")
         adapter.startListening()
         attachChatListener()
     }

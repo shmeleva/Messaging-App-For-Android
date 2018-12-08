@@ -71,6 +71,11 @@ class PrivateChatSettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if (shouldLaunchChat!!) {
+            privateChatGalleryCardView.visibility = View.GONE
+        }
+
         privateChatBackButton.setOnClickListener {_ ->
             if (doubleClickBlocker.isSingleClick()) {
                 activity?.onBackPressed()
