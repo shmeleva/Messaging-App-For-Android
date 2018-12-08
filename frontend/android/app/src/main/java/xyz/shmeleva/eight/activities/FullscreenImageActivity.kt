@@ -19,6 +19,7 @@ import android.support.v4.provider.DocumentFile
 import android.util.Log
 import java.util.*
 import xyz.shmeleva.eight.utilities.getResizedPictureUrl
+import xyz.shmeleva.eight.utilities.loadFromFirebase
 
 
 class FullscreenImageActivity : AppCompatActivity() {
@@ -46,15 +47,7 @@ class FullscreenImageActivity : AppCompatActivity() {
 
         areControlsVisible = true
 
-        val imageUrl = intent.getStringExtra("imageUrl")
-        val storageRef = FirebaseStorage.getInstance().reference
-        val resizedImageUrl = this.getResizedPictureUrl(imageUrl)
-        val ref = storageRef.child(resizedImageUrl)
-        val fallbackRef = storageRef.child(imageUrl)
-        Glide.with(this)
-                .load(ref)
-                .error(Glide.with(this).load(fallbackRef))
-                .into(fullscreenImageView)
+        fullscreenImageView.loadFromFirebase(intent.getStringExtra("imageUrl"))
 
         fullscreenImageView.setOnClickListener { toggle() }
         fullscreenImageBackButton.setOnTouchListener(delayHideTouchListener)

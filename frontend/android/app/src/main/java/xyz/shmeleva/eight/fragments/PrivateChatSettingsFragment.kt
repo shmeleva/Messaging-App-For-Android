@@ -33,6 +33,7 @@ import xyz.shmeleva.eight.activities.ChatActivity
 import xyz.shmeleva.eight.models.Chat
 import xyz.shmeleva.eight.models.User
 import xyz.shmeleva.eight.utilities.DoubleClickBlocker
+import xyz.shmeleva.eight.utilities.loadFullProfilePictureFromFirebase
 
 class PrivateChatSettingsFragment : Fragment() {
 
@@ -91,7 +92,7 @@ class PrivateChatSettingsFragment : Fragment() {
             getTargetUserAndPopulate()
         } else {
             setUsernameLabel(targetUser!!.username)
-            populateProfilePhotoFromDB(targetUser!!.profilePicUrl, targetUser!!.username)
+            populateProfilePhotoFromDB(targetUser!!)
         }
 
     }
@@ -209,7 +210,7 @@ class PrivateChatSettingsFragment : Fragment() {
                 val currentUser = dataSnapshot.getValue(User::class.java)!!
 
                 setUsernameLabel(currentUser.username)
-                populateProfilePhotoFromDB(currentUser.profilePicUrl, currentUser.username)
+                populateProfilePhotoFromDB(currentUser)
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -252,19 +253,7 @@ class PrivateChatSettingsFragment : Fragment() {
         privateChatUsernameTextView.setText(username)
     }
 
-    private fun populateProfilePhotoFromDB(url: String, username: String) {
-        if (url.isNotEmpty()) {
-            val ref = FirebaseStorage.getInstance().reference.child(url)
-            val requestOptions = RequestOptions()
-                    .diskCacheStrategy(DiskCacheStrategy.NONE) // because file name is always same
-            Glide.with(context!!).load(ref).apply(requestOptions).into(privateChatPictureImageView)
-        }
-        else {
-            val generator = ColorGenerator.MATERIAL
-            val validUsername = if (username.isNotEmpty()) username else "?"
-            val colour = generator.getColor(validUsername)
-            val drawable = TextDrawable.builder().buildRect(validUsername.substring(0, 1).toUpperCase(), colour)
-            privateChatPictureImageView.setImageDrawable(drawable)
-        }
+    private fun populateProfilePhotoFromDB(user: User) {
+        privateChatPictureImageView.loadFullProfilePictureFromFirebase(user)
     }
 }
