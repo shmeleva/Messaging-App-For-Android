@@ -1,8 +1,7 @@
-# Frontend
-
-## Building the Project
+# Building the Project
 
 Run `./deploy.sh` from the root directory.
+# Frontend
 
 ## Java & Kotlin Files
 
