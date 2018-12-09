@@ -204,6 +204,8 @@ class SettingsActivity : BaseFragmentActivity() {
             return
         }
 
+        database.child("tokens").child(auth.currentUser!!.uid).removeValue()
+
         auth.signOut()
 
         // delete the profile picture from internal storage

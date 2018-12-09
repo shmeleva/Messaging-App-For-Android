@@ -3,44 +3,46 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/incomingMessageRelativeLayout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/spacing_small"
+    android:layout_marginStart="@dimen/spacing_normal"
+    android:layout_marginEnd="@dimen/spacing_normal"
+    android:layout_marginTop="@dimen/spacing_small">
 
     <xyz.shmeleva.eight.views.AspectRatioImageView
         android:id="@+id/incomingMessageSenderImageView"
         android:layout_width="@dimen/profile_picture_size_small"
         android:layout_height="@dimen/profile_picture_size_small"
-        android:layout_marginStart="@dimen/spacing_normal"
         android:layout_marginEnd="@dimen/spacing_normal" />
 
-    <com.google.android.flexbox.FlexboxLayout
+    <RelativeLayout
         android:id="@+id/incomingMessageBubbleFlexboxLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/message_incoming_bubble_margin_right"
-        android:layout_toEndOf="@id/incomingMessageSenderImageView"
-        android:orientation="vertical"
-        android:elevation="2dp"
-        app:alignContent="stretch"
-        app:alignItems="stretch"
-        app:flexWrap="wrap"
-        app:justifyContent="flex_end"
-        style="@style/AppTheme.ChatMessage">
+        android:layout_toEndOf="@id/incomingMessageSenderImageView">
 
         <TextView
             android:id="@+id/incomingMessageSenderTextView"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/spacing_normal"
             android:singleLine="true"
             android:ellipsize="end"
-            app:layout_alignSelf="flex_start"
+            android:layout_marginBottom="4dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:background="@drawable/bg_incoming_message"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:paddingStart="@dimen/spacing_normal"
+            android:paddingEnd="@dimen/spacing_normal"
             style="@style/AppTheme.TextAppearance.Body2"/>
 
         <xyz.shmeleva.eight.views.AspectRatioImageView
             android:id="@+id/incomingMessageContentImageView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:elevation="2dp"
+            android:layout_below="@id/incomingMessageSenderTextView"
             android:clickable="true"
             android:focusable="true"
             app:aspectRatio="1"
@@ -52,10 +54,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/incomingMessageContentImageView"
+            android:layout_alignParentEnd="true"
             android:layout_marginStart="8dp"
-            app:layout_alignSelf="center"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_incoming_message_sender"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:paddingStart="@dimen/spacing_normal"
+            android:paddingEnd="@dimen/spacing_normal"
             style="@style/AppTheme.TextAppearance.Overline"/>
 
-    </com.google.android.flexbox.FlexboxLayout>
+    </RelativeLayout>
 
 </RelativeLayout>

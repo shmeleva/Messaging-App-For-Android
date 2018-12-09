@@ -1,5 +1,9 @@
 # Frontend
 
+## Building the Project
+
+Run `./deploy.sh` from the root directory.
+
 ## Java & Kotlin Files
 
 ### Activities
@@ -120,24 +124,79 @@ There are three models: `User`, `Chat`, and `Message`. To some extent, they corr
 
 ## Backend functions documentation
 
-* **resizeImage** - a cloud function that is triggered every time when a new picture is uploaded to storage. It resizes the uploaded image into appropriate resolutions
+* `resizeImage` - a cloud function that is triggered every time when a new picture is uploaded to storage. It resizes the uploaded image into appropriate resolutions
 
-* **labelImage** - a cloud function that is invoked when a new message added. It uses Google Cloud Vision API to label the image and then updates the field imageFeature with appropriate label
+* `labelImage` - a cloud function that is invoked when a new message added. It uses Google Cloud Vision API to label the image and then updates the field imageFeature with appropriate label
 
-* **notifyNewGroupChat** - a cloud function which is triggered when the user is added to a group chat. It uses Cloud Messaging API to send push notification to users.
+* `notifyNewGroupChat` - a cloud function which is triggered when the user is added to a group chat. It uses Cloud Messaging API to send push notification to users.
 
-* **notifyNewMessage** - a cloud function that notifies users by push notification that he or she has a new message.
+* `notifyNewMessage` - a cloud function that notifies users by push notification that he or she has a new message.
+
+\*  **Note**: Push notifications are received only when the app is running in background.
 
 ## Backend databases security rules
 
 ### The security rules are set accordingly
 
-- users - only authorized users can read, update users collection and there is a validation for username to be unique
+- `users` - only authorized users can read, update users collection and there is a validation for username to be unique
 
-- usernames - only the owner can change the username
+- `usernames` - only the owner can change the username
 
-- tokens - owner can write a token to the tokens collection
+- `tokens` - owner can write a token to the tokens collection
 
-- chats - if the chat hasn't been created yet, we allow read so there is a way to check this and create it; if it already exists, then authenticated user (specified by auth.id) must be in $key/members to write
+- `chats` - if the chat hasn't been created yet, we allow read so there is a way to check this and create it; if it already exists, then authenticated user (specified by auth.id) must be in $key/members to write
 
-- chatMessages - chatMessage can be read/written only by users who are in members list of the chat
+- `chatMessages` - chatMessage can be read/written only by users who are in members list of the chat
+
+## Cloud Storage
+
+Images are uploaded to */images* folder in cloud storage and only authorized users can access them.
+
+## Database JSON Tree
+
+```json
+{
+  "chatMessages" : {
+    "<chatId>" : {
+      "<messageId>" : {
+        "id" : "<messageId>",
+        "imageUrl" : "<string>",
+        "senderId" : "<string>",
+        "text" : "<string>",
+        "timestamp" : <timestamp>
+      }
+    }
+  },
+  "chats" : {
+    "<chatId>" : {
+      "id" : "<chatId>",
+      "isGroupChat" : <boolean>,
+      "lastMessage" : "<string>",
+      "members" : {
+        "<userId>" : true,
+        "<userId>" : true
+      },
+      "updatedAt" : <timestamp>
+    },
+  },
+  "tokens" : {
+    "<userId>" : "<token>",
+  },
+  "usernames" : {
+    "<username>" : "<userId>",
+  },
+  "users" : {
+    "<userId>" : {
+      "id" : "<userId>",
+      "lowercaseUsername" : "<string>",
+      "profilePicUrl" : "<string>",
+      "username" : "<string>",
+      "chats" : {
+        "<chatId>" : {
+          "joinedAt" : <timestamp>
+        }
+      }
+    }
+  }
+}
+```

@@ -27,6 +27,8 @@ import xyz.shmeleva.eight.activities.SettingsActivity
 import xyz.shmeleva.eight.models.User
 import xyz.shmeleva.eight.utilities.DoubleClickBlocker
 
+
+
 class ChatListFragment : Fragment() {
 
     private val TAG: String = "ChatListFragment"
