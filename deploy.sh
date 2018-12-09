@@ -9,7 +9,11 @@ echo "Building an APK..."
 
 cd ../../backend/functions
 
+echo "Running npm install"
 npm install
-firebase deploy
-gcloud services enable vision.googleapis.com
 
+echo "Deploying Firebase"
+firebase deploy
+
+echo "Enabling vision.googleapis.com"
+gcloud services enable vision.googleapis.com
