@@ -155,49 +155,48 @@ Images are uploaded to */images* folder in cloud storage and only authorized use
 ## Database JSON Tree
 
 ```json
-“users”: {
-	“<userId>”: {
-		“id”: “<userId>”,
-		“username”: “...”,
-		“lowercaseUsername”: “...”,
-		“profilePictureUrl”: “...”,
-“selected”: “...”,
-		“chats”: {
-			“<chatId>”: {
-				“joinedAt”: “...”
-			}
-		}
-	}
-},
-“chats”: {
-	“<chatId>”: {
-		“id”: “<chatId>”
-		“isGroupChat”: “...”,
-		“lastMessage”: “...”,
-		“updatedAt” “...”,
-		“members”: {
-			“<userId>”: true
-		}
-	}
-},
-“chatMessages”: {
-	“<chatId>”: {
-		“<messageId>”: {
-			“id”: “<messageId>”,
-			“text”: “...”,
-			“imageUrl”: “...”,
-			“senderId”: “<userId>”,
-			“receivers”: [“<userId1>”, “<userId2>”]
-			“timestamp”: “...”,
-			“imageTimestamp”: “...”,
-			“imageFeature”: “...”
-		}
-	}
-},
-“usernames”: {
-	“<username>”: “<userId>”
-},
-“tokens”: {
-	“<userId>”: “<token>”
+{
+  "chatMessages" : {
+    "<chatId>" : {
+      "<messageId>" : {
+        "id" : "<messageId>",
+        "imageUrl" : "<string>",
+        "senderId" : "<string>",
+        "text" : "<string>",
+        "timestamp" : <timestamp>
+      }
+    }
+  },
+  "chats" : {
+    "<chatId>" : {
+      "id" : "<chatId>",
+      "isGroupChat" : <boolean>,
+      "lastMessage" : "<string>",
+      "members" : {
+        "<userId>" : true,
+        "<userId>" : true
+      },
+      "updatedAt" : <timestamp>
+    },
+  },
+  "tokens" : {
+    "<userId>" : "<token>",
+  },
+  "usernames" : {
+    "<username>" : "<userId>",
+  },
+  "users" : {
+    "<userId>" : {
+      "id" : "<userId>",
+      "lowercaseUsername" : "<string>",
+      "profilePicUrl" : "<string>",
+      "username" : "<string>",
+      "chats" : {
+        "<chatId>" : {
+          "joinedAt" : <timestamp>
+        }
+      }
+    }
+  }
 }
 ```
