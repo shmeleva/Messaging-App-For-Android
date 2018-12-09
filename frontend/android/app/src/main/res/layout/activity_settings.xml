@@ -252,6 +252,7 @@
                         android:background="?selectableItemBackground"
                         android:clickable="true"
                         android:focusable="true"
+                        android:visibility="gone"
                         >
 
                         <ImageView
