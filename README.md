@@ -1,6 +1,7 @@
 # Building the Project
 
 Run `./deploy.sh` from the root directory.
+
 # Frontend
 
 ## Java & Kotlin Files
@@ -19,6 +20,8 @@ Run `./deploy.sh` from the root directory.
 
 `RegistrationActivity` is used for signing up with `username`, `email` and `password`. `username` is checked for uniqueness upon registration with Firebase Database rules. Additionally, users can optionally upload their profile picture that gets stored in Firebase Storage. After successful registration, users are redirected to `ChatListActivity`.
 
+![RegistrationActivity](https://lh3.googleusercontent.com/GcXhNskEyyF9jm1EaZzg58C3Pw9X-u_Z8ux40tKDVm-W26B3YMQg_Zc_dAwFY7U6e7REmEwAJeGJFhWFpg1B4H7oqIuqfO1xcicjgiQ2Cu7P4lZ1sYQH-_CWvvljvnwKYhCfkUwyf3FqHpqTzkfMi-a-w1SqsFRUKfWYYcSbEo92OtxO5lukSe1ULVGP8NaAogjyxfr2G57OyOtzGIocaCpZgM0EJmuWJu9pHmyY_MVp20yxx-46BB_Dm2AQGrKjNOvRmIC-ZCTZLf0Tqx75_QqKzzk57ktncAVUUH-iubTjNeHC64wenqykpQCGysgPZ-vWqwMBuFUfh_kp-vzlopFQFCiNTtLPf1CiQfZVNG4J1Ebn5OuttVljFDfBrY2dvUMW3Jo67B_5n3l34d2Gn7mp-fbfUWjBMtnn-daKLaYHQHHm5wEpTTYYT4_1OM9ZM8DxfAWdi55Sjx6NvbdMYZOesMMTw_wiLzZyYr9UURcv0XnjaBr2jykesyhhs9gB0b7H4BgoVS-aVNxqTZGo05lmzbDQjuE_Beqt9di-9yvW5e19Bd8svHAYwgF5K2uwpP-MGbXJKA8D3wqbtjwvJBqaWNY_Xz8giAjGmXMtRWBKGJSkh5Effm6GECbA9Y93nxuoXun2mlmOSEBRIS-JhwBQk9ODLnhp6-LL5Jwt8Hmra-NKS0C1jZtYBCJGm0Zc7nTt9ZKeMW1Flft2Dn3kcLzVMQ=w345-h689-no)
+
 #### ChatListActivity
 
 `ChatListActivity` is used for displaying user chats. It initially displays `ChatListFragment`.
@@ -27,6 +30,8 @@ In the Toolbar, there are Search and Settings action buttons that launch `Search
 In the bottom right corner there is an expanding floating action button that is used for creating new chats; it also launches `SearchActivity`.
 
 Chats are synchronized with Firebase Database with `ValueEventListener`s.
+
+![ChatListActivity](https://lh3.googleusercontent.com/mOgr6cjhQhAv9CRNTsV2Rl0HQZb-HCgdxhOhNpQrYDB1g_f9pjot9HHJeueRpt0L-9IbTAksLhNUXarURiy01Tb2lKDZZ7k-DlTc-gTPdpC3hLtvwET_UedJHLXE6jAYBEmBIzUmE894Cqd5AAifAiKPJGYiMH3eNhtCUZahWxbH07HNIf16Z96BP8wOwBSZzg2LpeekeYm2UqaN0zte6SjuQUfWgiOh1y0ych68t_pWzlqIF6yG9smzwth_hfDww_B8uES8BXEOeV6Ri7ESFgSOpLyg6DqHD1b_hRTVt1ikHDRG2LkeaoPRes1Sd-KqTrsYgrEXjDuggPhGZXPeI8buCbEOaN9lH9wHRCBwTA6JoOtekrpCzwu28Z1DBk2X8_jGIqDabfENFzgnX3ANfP8Fwkn0DzWCX0OZHV3hj9iAWH9l3F0MjObSy7V_Nn-N6GIJbOODYW1SOvqvb0NNDMJVVodN5NGRfUpJaXPaKJXYuM2r9JVvX4kpm7xOckJjBCzd9kXAKzuS9UJZMdjlgCvhIBuhw5eAxaU4hEPXs6-RhQRvBCYhcvpRWnz5YZudzZ_0izaSz4gkM0Fd_uzz_gawbQigIa1gWtegj_66QXUKxB30B-lq6IAceP2WxFIdnAjvIVVrPRjq3yEUbNaQB9O5-UUcqIUnqjN9ED6Z165pmgvxuWnsvj-zC14WXq2IUhlr4uwdZWsG-gJhAnMvCmrq5Q=w345-h689-no)
 
 #### ChatActivity
 
@@ -49,6 +54,8 @@ Chats are synchronized with Firebase Database with `ValueEventListener`s.
 
 `SettingsActivity` allows the user to change their profile picture that can be either selected from the Gallery or taken with the Camera, update their username, change their image resolution preferences (these are device-specific and stored in shared preferences and log out from the app. Pictures are resized locally before upload (if either `low` or `high` resolution is selected) with Glide and then with Firebase Cloud Functions after upload so that other users can fetch pictures with a desired resolution.
 
+![SettingsActivity](https://lh3.googleusercontent.com/u6JpyQzVR5ISXEay1lQhW6xtmUmbIbIbNKzKnWqPoRBznhR5yPxn_yA_x17Y9_ssYSY6x0w8RRFYjOxuloTGkRF-4Gv2h1qjgi_T4omAum9lFgxLNxSfg1NffRcSsfOP4ldWFP6UxUkC-PTabTygBrS09Ax-60mbTKJKK5rmSK8WrrJ2QnaKucoP6ocq0V2i5-Ap80drB5HGIToM_jXGUD3KcBBwte8H6A7H4_X1s2oSTbi81mnpW7mAk4bBw1ISW9YZMxvbtuQ1GZ2Zt3Km0BbF_3svUovq4mG9F7idWUHSrAJoNYSLEWh2k6KEpk1AaC42pxCgFoGuAR_jsTCzdAjD5gZBxgLz0rW7mQUD1KXYUFXiwI_rnaLYbemQsgcbCMRYxeysL3dotWN2FVg54VqZZo8eN6WDecRc8WiSjga3eee2W394ayBlxS3SV5g7ZlIbNW44IvpYqBYhKO17HSv9bVLBvjqsqS5Df6QcZwFuLmPdt-epX4QYZwcBg5N5_OEO80JiBeyU-Pj49wWTeuoEqLmCV2knPJdrygSDl_JgTNymB9ksgLZCF8AsWWghLXnIHBl5CYr5QU2Uu3UnLDTyMJgxYPEWmLyXLSarp8qWMKlXMXJ2fwoM9-47d4ZJ8p12fMp3EvsbHGdjaaf3f6G-FIJ2u-ml6-ux_NXNH-rLMzQwtSAMu1Cfhk0PtAZIOSFwFg59fy_NPng8yjmqHUGugw=w345-h689-no)
+
 #### FullscreenImageActivity
 
 `FullscreenImageActivity` is used for displaying a single picture that can be viewed in both portrait and landscape orientations, zoomed with a pinch-to-zoom gesture, downloaded in full resolution to the selected location, and shared through a third-party app.
@@ -67,6 +74,8 @@ This class contains some methods that are used across multiple activities (e.g. 
 
 `ChatListFragment` is used inside `ChatActivity`. It contains chat messages and allows to send messages and images. When a text message clicked, its content can be shared via third-party apps. When an image message clicked, the image is opened in `FullscreenImageActivity` (see _FullscreenImageActivity_ section). By clicking on the Toolbar, the user can open either private chat details or group chat details depending on the chat type.
 
+![ChatFragment](https://lh3.googleusercontent.com/mmnCVjWUX1LxRDxJVhCyxj9UfUWxMNfG_mwMdbNg__to9LbfcXAMV-Ns3ULwhJSRzTXjx8wWW0pbj6wTc6RQZj7NEic63cjqmuqsNW62EvPp5JvAzqqmKueAqkonmy3M_TxgY0gLtFnBTrLbZdomQIyUA1T_vDuoFam1MwnvYaPWhznofVd-G0rOqAbE-IAiMrbZxQ-ba69dHa3L5jtLSwABG_SvmTbPn_x3ppKnGvQcyb8hcZrhtJbiSDuTw5gjvA_pfzoB7ggEJBaM3D4NogxGLivwf8JQDS8jHFeWE1RWq40lqtcZ1Q2qfGonrW7nb1hd_tReoMA30RWUDoVRGeM6PQiyVc_xs1chFkBOHAR8F8CT0mjRx3t5lTJefSuvvxD2ZMyRQd05gazZ7sjVIAT9GQCHtdcRGPI0oBCLZqSahNICe9ezhRaHLrk14kQgMmoaHJgYg8UZ-cTcnoXLqIkaCWnPIEVIfS0YiCQbBEYHi_eQ62027khvqBVpc3DD96fRWEpG3HCICBTZLDWTPwjkBeyX72otau4ROADocL8hdxImmBe0BIR-wW-hW71LUM9dII2UkD2-euhQ-Am42HH_h8h8-x8dJHj8SS7PDpjB5Nk_Rs6Dw2veirywhPctyzcK3t_ex-9NH41OpY2qTsUfl-SPzFzC2Hy3VPnLWicBgndcyuovxcFjuewOnvMTA9EmEjgxXOCay7rTDXQsbo4TWg=w345-h689-no)
+
 #### PrivateChatSettingsFragment
 
 `PrivateChatSettingsFragment` is used inside `ChatActivity`. It contains basic user information about the user such as their profile picture (or a placeholder if it is missing) and username. From this screen, the user can open the Gallery (only if the fragment was opened from the Chat screen), and either start a new chat or return to an existing chat depending.
@@ -74,6 +83,8 @@ This class contains some methods that are used across multiple activities (e.g. 
 #### GroupChatSettingsFragment
 
 `GroupChatSettingsFragment` is used inside `ChatActivity`. It contains a list of chat members and allows to add new members to the chat (see `SearchActivity`), leave the chat, and open the Gallery.
+
+![GroupChatSettingsFragment](https://lh3.googleusercontent.com/IUNsfUpflKfAqu9NPLqLWZ3dAi4a9oauJwcJyDaURd9G7uh7Uv9BJo91jouc-Q2GdGM_-mQYCd4tvEiML5QYjsWCrBfo10u1CjwGoSJPNLjXtUxbD3ukK9NQbxm17igjSZraAZmFqZOqxjsA1UUIbmqjSBXRNnpII2H_starVoRv4VgJPDAil3fpSHEDwvWHM947IMp8Z7Kyg5iABBha8iDTP9CyPiuKfaR1lL_nSiJ-U5teP8e5KUpDZ5eq9M5CvO1AwOU0QK9WhusrRqYb2Rk4nSIfVcGyuio_pQLWR6LTK4H1eZD6e9J34FeKPsJzW_SP9h2hbjNPCbXJtaDuyKVlNhrKchqoAJOF_kLqkiz6djz6y_iC5CvGVDVrnmtNmCB3-p-ft5lNCzjJGbx9aHBUN8kS0yJiFk-33U4Jvo7YlfkbqBdBG9S6doflK53Pt2gnpHRTzk3Y0Ig0IBZshcU04ubQfweLZiqazG0jNAIvd8FuMk-vEcGOGAeiYGyTLzDlWcc7nupynk5Uvmw8xBa8njtppbADpDK-C_BidgHV1oOCXGRlQSoBdqan9hb5HLkCW5BqcN60SbitRIHURZK4b1C_1tN7ExXdidw0WhWI_W6eBbKQaItdLVOTTBekeCDtXGnYyuhilv8v5SGoJegie3XBhD82v3k6G8makOYzaLkZj-zYQCqGr5cZQQ9Z7Knkaw67cyeb6W5qA6XCEhpb5Q=w345-h689-no)
 
 #### GalleryFragment
 
